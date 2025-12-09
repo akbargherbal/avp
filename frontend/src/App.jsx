@@ -64,7 +64,7 @@ const TimelineView = ({ step }) => {
             className="absolute top-4 bottom-6 w-0.5 bg-cyan-400 z-10"
             style={{ left: `${4 + toPercent(maxEnd) * 0.92}%` }}
           >
-            <div className="absolute -top-3 -left-10 bg-cyan-400 text-black text-xs px-2 py-1 rounded font-bold whitespace-nowrap">
+            <div className="absolute -top-3 -left-10 bg-teal-400 text-black text-xs px-2 py-1 rounded font-bold whitespace-nowrap drop-shadow-sm">
               max_end: {maxEnd}
             </div>
           </div>
