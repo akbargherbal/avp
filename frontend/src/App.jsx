@@ -93,7 +93,7 @@ const TimelineView = ({ step }) => {
           let additionalClasses = "transition-all duration-300";
 
           if (isExamining) {
-            additionalClasses += " ring-4 ring-yellow-400 scale-105";
+            additionalClasses += " ring-4 ring-yellow-400 scale-105 shadow-2xl shadow-yellow-400/60";
           }
 
           if (isCovered) {
