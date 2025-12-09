@@ -64,7 +64,7 @@ const TimelineView = ({ step }) => {
             className="absolute top-4 bottom-6 w-0.5 bg-cyan-400 z-10"
             style={{ left: `${4 + toPercent(maxEnd) * 0.92}%` }}
           >
-            <div className="absolute -top-3 -left-10 bg-cyan-400 text-slate-900 text-xs px-2 py-1 rounded font-bold whitespace-nowrap">
+            <div className="absolute -top-3 -left-10 bg-cyan-400 text-black text-xs px-2 py-1 rounded font-bold whitespace-nowrap">
               max_end: {maxEnd}
             </div>
           </div>
@@ -93,7 +93,7 @@ const TimelineView = ({ step }) => {
           let additionalClasses = "transition-all duration-300";
 
           if (isExamining) {
-            additionalClasses += " ring-4 ring-yellow-400 scale-105 shadow-2xl shadow-yellow-400/60";
+            additionalClasses += " border-4 border-yellow-300 scale-105 shadow-[0_0_15px_5px_rgba(234,179,8,0.6)] z-20";
           }
 
           if (isCovered) {
@@ -127,7 +127,7 @@ const TimelineView = ({ step }) => {
           <span className="text-slate-400">max_end line</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-3 bg-yellow-400 rounded ring-2 ring-yellow-400"></div>
+          <div className="w-8 h-3 bg-yellow-400 rounded border-2 border-yellow-300"></div>
           <span className="text-slate-400">examining</span>
         </div>
         <div className="flex items-center gap-2">
