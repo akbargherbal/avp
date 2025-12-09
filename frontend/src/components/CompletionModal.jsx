@@ -1,6 +1,7 @@
 import React from "react";
 import { RotateCcw } from "lucide-react";
 import { getAccuracyFeedback } from "../utils/predictionUtils";
+import { getIntervalColor } from "../constants/intervalColors";
 
 const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
   if (step?.type !== "ALGORITHM_COMPLETE") {
@@ -13,7 +14,7 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
   const result = step?.data?.result || [];
 
   // Calculate accuracy
-  const accuracy = predictionStats?.total > 0 
+  const accuracy = predictionStats?.total > 0
     ? Math.round((predictionStats.correct / predictionStats.total) * 100)
     : null;
   const feedback = accuracy !== null ? getAccuracyFeedback(accuracy) : null;
@@ -86,7 +87,7 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
                 {predictionStats.correct} / {predictionStats.total} correct
               </div>
             </div>
-            
+
             {/* Feedback Message */}
             <div className={`rounded-lg p-3 ${
               feedback.color === 'emerald' ? 'bg-emerald-900/30 border border-emerald-500/50' :
@@ -104,10 +105,8 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
           </div>
         )}
 
-        {/* --- MODIFICATION START --- */}
-        {/* Removed 'flex-grow' and 'min-h-0' to allow natural height */}
-        <div className="mb-4">
-        {/* --- MODIFICATION END --- */}
+        {/* Final Result Section - REVISED LAYOUT */}
+        <div className="bg-slate-900/50 rounded-lg p-4 mb-4">
           <div className="text-slate-300 font-semibold mb-2 text-sm">
             Final Result:
           </div>
@@ -116,23 +115,18 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
               No intervals remaining
             </div>
           ) : (
-            <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-2 bg-slate-900/50 rounded-lg">
+            <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
               {result.map((interval, idx) => {
                 if (!interval || typeof interval.start !== 'number' || typeof interval.end !== 'number') {
                   return null;
                 }
-                const colorClass =
-                  interval.color === "amber"
-                    ? "bg-amber-500 text-black"
-                    : interval.color === "blue"
-                    ? "bg-blue-600 text-white"
-                    : interval.color === "green"
-                    ? "bg-green-600 text-white"
-                    : "bg-purple-600 text-white";
+                
+                const colors = getIntervalColor(interval.color);
+
                 return (
                   <div
                     key={interval.id || idx}
-                    className={`${colorClass} px-2 py-1 rounded-md text-xs font-bold`}
+                    className={`${colors.bg} ${colors.text} px-2 py-1 rounded-md text-xs font-bold`}
                   >
                     ({interval.start}, {interval.end})
                   </div>
