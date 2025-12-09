@@ -11,7 +11,7 @@ import PredictionModal from "./components/PredictionModal";
 // Import prediction utilities
 import { isPredictionPoint } from "./utils/predictionUtils";
 
-const TimelineView = ({ step }) => {
+const TimelineView = ({ step, highlightedIntervalId, onIntervalHover }) => {
   const allIntervals = step?.data?.all_intervals || [];
   const maxEnd = step?.data?.max_end;
 
@@ -25,6 +25,9 @@ const TimelineView = ({ step }) => {
     amber: { bg: "bg-amber-500", text: "text-black", border: "border-amber-400" },
     purple: { bg: "bg-purple-600", text: "text-white", border: "border-purple-500" },
   };
+
+  // Check if any interval is highlighted
+  const hasHighlight = highlightedIntervalId !== null;
 
   return (
     <div className="relative h-full flex flex-col">
@@ -65,17 +68,26 @@ const TimelineView = ({ step }) => {
           const isCovered = visualState.is_covered || false;
           const isKept = visualState.is_kept || false;
 
+          // Check if this interval is currently highlighted
+          const isHighlighted = interval.id === highlightedIntervalId;
+          const isDimmed = hasHighlight && !isHighlighted;
+
           let additionalClasses = "transition-all duration-300";
 
-          if (isExamining) {
+          // Highlighting takes precedence over examining state
+          if (isHighlighted) {
+            additionalClasses += " ring-4 ring-yellow-400 scale-110 z-30 shadow-[0_0_20px_8px_rgba(250,204,21,0.5)]";
+          } else if (isDimmed) {
+            additionalClasses += " opacity-40";
+          } else if (isExamining) {
             additionalClasses += " border-4 border-yellow-300 scale-105 shadow-[0_0_15px_5px_rgba(234,179,8,0.6)] z-20";
           }
 
           if (isCovered) {
-            additionalClasses += " opacity-30 line-through";
+            additionalClasses += " line-through";
           }
 
-          if (isKept) {
+          if (isKept && !isHighlighted) {
             additionalClasses += " shadow-lg shadow-emerald-500/50";
           }
 
@@ -88,6 +100,8 @@ const TimelineView = ({ step }) => {
                 width: `${width * 0.92}%`,
                 top: `${4 + idx * 48}px`,
               }}
+              onMouseEnter={() => onIntervalHover?.(interval.id)}
+              onMouseLeave={() => onIntervalHover?.(null)}
             >
               {interval.start}-{interval.end}
             </div>
@@ -99,6 +113,10 @@ const TimelineView = ({ step }) => {
         <div className="flex items-center gap-2">
           <div className="w-8 h-3 bg-cyan-400 rounded"></div>
           <span className="text-slate-400">max_end line</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-3 bg-yellow-400 rounded ring-2 ring-yellow-400"></div>
+          <span className="text-slate-400">highlighted</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-8 h-3 bg-yellow-400 rounded border-2 border-yellow-300"></div>
@@ -113,7 +131,7 @@ const TimelineView = ({ step }) => {
   );
 };
 
-const CallStackView = ({ step, activeCallRef }) => {
+const CallStackView = ({ step, activeCallRef, onIntervalHover }) => {
   const callStack = step?.data?.call_stack_state || [];
 
   if (callStack.length === 0) {
@@ -148,6 +166,8 @@ const CallStackView = ({ step, activeCallRef }) => {
                 : "border-slate-600 bg-slate-800/50"
             }`}
             style={{ marginLeft: `${(call.depth || 0) * 24}px` }}
+            onMouseEnter={() => onIntervalHover?.(currentInterval.id)}
+            onMouseLeave={() => onIntervalHover?.(null)}
           >
             <div className="flex items-center gap-2 mb-2">
               <div className="text-slate-400 text-xs font-mono">
@@ -256,6 +276,10 @@ const AlgorithmTracePlayer = () => {
     correct: 0,
   });
 
+  // Phase 2: Highlight state for visual bridge
+  const [highlightedIntervalId, setHighlightedIntervalId] = useState(null);
+  const [hoverIntervalId, setHoverIntervalId] = useState(null);
+
   const BACKEND_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
   useEffect(() => {
@@ -271,13 +295,30 @@ const AlgorithmTracePlayer = () => {
     }
   }, [currentStep]);
 
+  // Phase 2: Extract highlighted interval from active call stack entry
+  useEffect(() => {
+    if (!trace) return;
+
+    const step = trace?.trace?.steps?.[currentStep];
+    const callStack = step?.data?.call_stack_state || [];
+    
+    // Get the active call (last in stack)
+    const activeCall = callStack[callStack.length - 1];
+    
+    if (activeCall?.current_interval?.id !== undefined) {
+      setHighlightedIntervalId(activeCall.current_interval.id);
+    } else {
+      setHighlightedIntervalId(null);
+    }
+  }, [currentStep, trace]);
+
   // Detect prediction points
   useEffect(() => {
     if (!trace || !predictionMode) return;
-    
+
     const step = trace?.trace?.steps?.[currentStep];
     const nextStep = trace?.trace?.steps?.[currentStep + 1];
-    
+
     if (isPredictionPoint(step) && nextStep?.type === "DECISION_MADE") {
       setShowPrediction(true);
     } else {
@@ -296,7 +337,7 @@ const AlgorithmTracePlayer = () => {
       if (showPrediction) return;
 
       const isComplete = trace?.trace?.steps?.[currentStep]?.type === "ALGORITHM_COMPLETE";
-      
+
       switch (event.key) {
         case 'ArrowRight':
         case ' ':
@@ -305,34 +346,34 @@ const AlgorithmTracePlayer = () => {
             nextStep();
           }
           break;
-        
+
         case 'ArrowLeft':
           event.preventDefault();
           if (!isComplete) {
             prevStep();
           }
           break;
-        
+
         case 'r':
         case 'R':
         case 'Home':
           event.preventDefault();
           resetTrace();
           break;
-        
+
         case 'End':
           event.preventDefault();
           if (trace?.trace?.steps) {
             setCurrentStep(trace.trace.steps.length - 1);
           }
           break;
-        
+
         case 'Escape':
           if (isComplete && currentStep > 0) {
             prevStep();
           }
           break;
-        
+
         default:
           break;
       }
@@ -382,7 +423,7 @@ const AlgorithmTracePlayer = () => {
 
   const nextStep = () => {
     if (showPrediction) return; // Block during prediction
-    
+
     if (trace?.trace?.steps && currentStep < trace.trace.steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -404,7 +445,7 @@ const AlgorithmTracePlayer = () => {
       total: prev.total + 1,
       correct: prev.correct + (isCorrect ? 1 : 0),
     }));
-    
+
     setShowPrediction(false);
     nextStep();
   };
@@ -418,6 +459,14 @@ const AlgorithmTracePlayer = () => {
     setPredictionMode(!predictionMode);
     setShowPrediction(false);
   };
+
+  // Phase 2: Handle hover interactions
+  const handleIntervalHover = (intervalId) => {
+    setHoverIntervalId(intervalId);
+  };
+
+  // Phase 2: Use hover ID if available, otherwise use step-based highlight
+  const effectiveHighlight = hoverIntervalId !== null ? hoverIntervalId : highlightedIntervalId;
 
   if (loading) {
     return (
@@ -498,13 +547,13 @@ const AlgorithmTracePlayer = () => {
         />
       )}
 
-      <CompletionModal 
-        trace={trace} 
-        step={step} 
+      <CompletionModal
+        trace={trace}
+        step={step}
         onReset={resetTrace}
         predictionStats={predictionStats}
       />
-      
+
       <KeyboardHints />
 
       <div className="w-full h-full max-w-7xl flex flex-col">
@@ -547,7 +596,11 @@ const AlgorithmTracePlayer = () => {
             </h2>
             <div className="flex-1 overflow-hidden">
               <ErrorBoundary>
-                <TimelineView step={step} />
+                <TimelineView 
+                  step={step} 
+                  highlightedIntervalId={effectiveHighlight}
+                  onIntervalHover={handleIntervalHover}
+                />
               </ErrorBoundary>
             </div>
           </div>
@@ -558,7 +611,11 @@ const AlgorithmTracePlayer = () => {
             </div>
             <div className="flex-1 overflow-y-auto p-6">
               <ErrorBoundary>
-                <CallStackView step={step} activeCallRef={activeCallRef} />
+                <CallStackView 
+                  step={step} 
+                  activeCallRef={activeCallRef}
+                  onIntervalHover={handleIntervalHover}
+                />
               </ErrorBoundary>
             </div>
             <div className="border-t border-slate-700 p-4 bg-slate-800">
@@ -570,7 +627,6 @@ const AlgorithmTracePlayer = () => {
                   {step?.type ? step.type.replace(/_/g, " ") : "Unknown step type"}
                 </p>
               </div>
-              {/* --- DUPLICATE BUTTONS REMOVED FROM HERE --- */}
             </div>
           </div>
         </div>
