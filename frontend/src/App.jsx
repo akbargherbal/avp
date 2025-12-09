@@ -13,47 +13,72 @@ import { isPredictionPoint } from "./utils/predictionUtils";
 
 // Helper function to get badge styling based on step type
 const getStepTypeBadge = (stepType) => {
-  if (!stepType) return { color: 'bg-slate-600 text-slate-200', label: 'UNKNOWN' };
-  
+  if (!stepType)
+    return { color: "bg-slate-600 text-slate-200", label: "UNKNOWN" };
+
   const type = stepType.toUpperCase();
-  
+
   // Decision points (most important)
-  if (type.includes('DECISION')) {
-    return { color: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50', label: '⚖️ DECISION' };
+  if (type.includes("DECISION")) {
+    return {
+      color: "bg-emerald-500/20 text-emerald-300 border border-emerald-500/50",
+      label: "⚖️ DECISION",
+    };
   }
-  
+
   // Coverage tracking
-  if (type.includes('MAX_END')) {
-    return { color: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/50', label: '📏 COVERAGE' };
+  if (type.includes("MAX_END")) {
+    return {
+      color: "bg-cyan-500/20 text-cyan-300 border border-cyan-500/50",
+      label: "📏 COVERAGE",
+    };
   }
-  
+
   // Examining intervals
-  if (type.includes('EXAMINING')) {
-    return { color: 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/50', label: '🔍 EXAMINE' };
+  if (type.includes("EXAMINING")) {
+    return {
+      color: "bg-yellow-500/20 text-yellow-300 border border-yellow-500/50",
+      label: "🔍 EXAMINE",
+    };
   }
-  
+
   // Recursion (calls and returns)
-  if (type.includes('CALL_START') || type.includes('CALL_RETURN')) {
-    return { color: 'bg-blue-500/20 text-blue-300 border border-blue-500/50', label: '🔄 RECURSION' };
+  if (type.includes("CALL_START") || type.includes("CALL_RETURN")) {
+    return {
+      color: "bg-blue-500/20 text-blue-300 border border-blue-500/50",
+      label: "🔄 RECURSION",
+    };
   }
-  
+
   // Base case
-  if (type.includes('BASE_CASE')) {
-    return { color: 'bg-purple-500/20 text-purple-300 border border-purple-500/50', label: '🎯 BASE CASE' };
+  if (type.includes("BASE_CASE")) {
+    return {
+      color: "bg-purple-500/20 text-purple-300 border border-purple-500/50",
+      label: "🎯 BASE CASE",
+    };
   }
-  
+
   // Sorting
-  if (type.includes('SORT')) {
-    return { color: 'bg-orange-500/20 text-orange-300 border border-orange-500/50', label: '📊 SORT' };
+  if (type.includes("SORT")) {
+    return {
+      color: "bg-orange-500/20 text-orange-300 border border-orange-500/50",
+      label: "📊 SORT",
+    };
   }
-  
+
   // Algorithm states
-  if (type.includes('INITIAL') || type.includes('COMPLETE')) {
-    return { color: 'bg-pink-500/20 text-pink-300 border border-pink-500/50', label: '🎬 STATE' };
+  if (type.includes("INITIAL") || type.includes("COMPLETE")) {
+    return {
+      color: "bg-pink-500/20 text-pink-300 border border-pink-500/50",
+      label: "🎬 STATE",
+    };
   }
-  
+
   // Default
-  return { color: 'bg-slate-600/50 text-slate-300', label: type.replace(/_/g, ' ') };
+  return {
+    color: "bg-slate-600/50 text-slate-300",
+    label: type.replace(/_/g, " "),
+  };
 };
 
 const TimelineView = ({ step, highlightedIntervalId, onIntervalHover }) => {
@@ -66,9 +91,21 @@ const TimelineView = ({ step, highlightedIntervalId, onIntervalHover }) => {
 
   const colorMap = {
     blue: { bg: "bg-blue-800", text: "text-white", border: "border-blue-600" },
-    green: { bg: "bg-green-600", text: "text-white", border: "border-green-500" },
-    amber: { bg: "bg-amber-500", text: "text-black", border: "border-amber-400" },
-    purple: { bg: "bg-purple-600", text: "text-white", border: "border-purple-500" },
+    green: {
+      bg: "bg-green-600",
+      text: "text-white",
+      border: "border-green-500",
+    },
+    amber: {
+      bg: "bg-amber-500",
+      text: "text-black",
+      border: "border-amber-400",
+    },
+    purple: {
+      bg: "bg-purple-600",
+      text: "text-white",
+      border: "border-purple-500",
+    },
   };
 
   // Check if any interval is highlighted
@@ -79,10 +116,18 @@ const TimelineView = ({ step, highlightedIntervalId, onIntervalHover }) => {
       <div className="relative flex-1 bg-slate-900/50 rounded-lg p-4">
         <div className="absolute bottom-6 left-4 right-4 h-0.5 bg-slate-600"></div>
 
-        <div className="absolute bottom-1 left-4 text-slate-400 text-xs">{minVal}</div>
-        <div className="absolute bottom-1 left-1/3 text-slate-400 text-xs">700</div>
-        <div className="absolute bottom-1 left-2/3 text-slate-400 text-xs">850</div>
-        <div className="absolute bottom-1 right-4 text-slate-400 text-xs">{maxVal}</div>
+        <div className="absolute bottom-1 left-4 text-slate-400 text-xs">
+          {minVal}
+        </div>
+        <div className="absolute bottom-1 left-1/3 text-slate-400 text-xs">
+          700
+        </div>
+        <div className="absolute bottom-1 left-2/3 text-slate-400 text-xs">
+          850
+        </div>
+        <div className="absolute bottom-1 right-4 text-slate-400 text-xs">
+          {maxVal}
+        </div>
 
         {maxEnd !== undefined && maxEnd !== null && (
           <div
@@ -96,7 +141,11 @@ const TimelineView = ({ step, highlightedIntervalId, onIntervalHover }) => {
         )}
 
         {allIntervals.map((interval, idx) => {
-          if (!interval || typeof interval.start !== 'number' || typeof interval.end !== 'number') {
+          if (
+            !interval ||
+            typeof interval.start !== "number" ||
+            typeof interval.end !== "number"
+          ) {
             return null;
           }
 
@@ -121,11 +170,13 @@ const TimelineView = ({ step, highlightedIntervalId, onIntervalHover }) => {
 
           // Highlighting takes precedence over examining state
           if (isHighlighted) {
-            additionalClasses += " ring-4 ring-yellow-400 scale-110 z-30 shadow-[0_0_20px_8px_rgba(250,204,21,0.5)]";
+            additionalClasses +=
+              " ring-4 ring-yellow-400 scale-110 z-30 shadow-[0_0_20px_8px_rgba(250,204,21,0.5)]";
           } else if (isDimmed) {
             additionalClasses += " opacity-40";
           } else if (isExamining) {
-            additionalClasses += " border-4 border-yellow-300 scale-105 shadow-[0_0_15px_5px_rgba(234,179,8,0.6)] z-20";
+            additionalClasses +=
+              " border-4 border-yellow-300 scale-105 shadow-[0_0_15px_5px_rgba(234,179,8,0.6)] z-20";
           }
 
           if (isCovered) {
@@ -262,7 +313,8 @@ const CallStackView = ({ step, activeCallRef, onIntervalHover }) => {
                   {call.decision === "keep" ? "✅ KEEP" : "❌ COVERED"}
                 </div>
                 <div className="text-xs text-slate-300">
-                  {currentInterval.end || 0} {call.decision === "keep" ? ">" : "≤"}{" "}
+                  {currentInterval.end || 0}{" "}
+                  {call.decision === "keep" ? ">" : "≤"}{" "}
                   {call.max_end === null ? "-∞" : call.max_end}
                 </div>
               </div>
@@ -325,7 +377,8 @@ const AlgorithmTracePlayer = () => {
   const [highlightedIntervalId, setHighlightedIntervalId] = useState(null);
   const [hoverIntervalId, setHoverIntervalId] = useState(null);
 
-  const BACKEND_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+  const BACKEND_URL =
+    process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
   useEffect(() => {
     loadExampleTrace();
@@ -374,46 +427,50 @@ const AlgorithmTracePlayer = () => {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (event) => {
-      if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+      if (
+        event.target.tagName === "INPUT" ||
+        event.target.tagName === "TEXTAREA"
+      ) {
         return;
       }
 
       // Don't handle keys if prediction modal is open
       if (showPrediction) return;
 
-      const isComplete = trace?.trace?.steps?.[currentStep]?.type === "ALGORITHM_COMPLETE";
+      const isComplete =
+        trace?.trace?.steps?.[currentStep]?.type === "ALGORITHM_COMPLETE";
 
       switch (event.key) {
-        case 'ArrowRight':
-        case ' ':
+        case "ArrowRight":
+        case " ":
           event.preventDefault();
           if (!isComplete) {
             nextStep();
           }
           break;
 
-        case 'ArrowLeft':
+        case "ArrowLeft":
           event.preventDefault();
           if (!isComplete) {
             prevStep();
           }
           break;
 
-        case 'r':
-        case 'R':
-        case 'Home':
+        case "r":
+        case "R":
+        case "Home":
           event.preventDefault();
           resetTrace();
           break;
 
-        case 'End':
+        case "End":
           event.preventDefault();
           if (trace?.trace?.steps) {
             setCurrentStep(trace.trace.steps.length - 1);
           }
           break;
 
-        case 'Escape':
+        case "Escape":
           if (isComplete && currentStep > 0) {
             prevStep();
           }
@@ -424,8 +481,8 @@ const AlgorithmTracePlayer = () => {
       }
     };
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
   }, [currentStep, trace, showPrediction]);
 
   const loadExampleTrace = async () => {
@@ -450,8 +507,14 @@ const AlgorithmTracePlayer = () => {
       });
 
       if (!response.ok) {
-        const errData = await response.json().catch(() => ({ error: "Failed to parse error response" }));
-        throw new Error(`Backend returned ${response.status}: ${errData.error || "Unknown error"}`);
+        const errData = await response
+          .json()
+          .catch(() => ({ error: "Failed to parse error response" }));
+        throw new Error(
+          `Backend returned ${response.status}: ${
+            errData.error || "Unknown error"
+          }`
+        );
       }
 
       const data = await response.json();
@@ -511,7 +574,8 @@ const AlgorithmTracePlayer = () => {
   };
 
   // Phase 2: Use hover ID if available, otherwise use step-based highlight
-  const effectiveHighlight = hoverIntervalId !== null ? hoverIntervalId : highlightedIntervalId;
+  const effectiveHighlight =
+    hoverIntervalId !== null ? hoverIntervalId : highlightedIntervalId;
 
   if (loading) {
     return (
@@ -566,7 +630,8 @@ const AlgorithmTracePlayer = () => {
             Invalid Step Data
           </h2>
           <p className="text-gray-300 mb-6">
-            Step {currentStep + 1} could not be loaded. The trace data may be malformed.
+            Step {currentStep + 1} could not be loaded. The trace data may be
+            malformed.
           </p>
           <button
             onClick={resetTrace}
@@ -664,17 +729,19 @@ const AlgorithmTracePlayer = () => {
                 />
               </ErrorBoundary>
             </div>
-            
+
             {/* PHASE 3: Enhanced Description Section */}
             <div className="border-t border-slate-700 p-4 bg-slate-800">
               <div className="p-4 bg-gradient-to-br from-slate-700/60 to-slate-800/60 rounded-lg border border-slate-600/50 shadow-lg">
                 {/* Step type badge at the top */}
                 <div className="mb-3">
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold ${badge.color}`}>
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold ${badge.color}`}
+                  >
                     {badge.label}
                   </span>
                 </div>
-                
+
                 {/* Description text - larger and more prominent */}
                 <p className="text-white text-base font-medium leading-relaxed">
                   {step?.description || "No description available"}
