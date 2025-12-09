@@ -14,9 +14,10 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
   const result = step?.data?.result || [];
 
   // Calculate accuracy
-  const accuracy = predictionStats?.total > 0
-    ? Math.round((predictionStats.correct / predictionStats.total) * 100)
-    : null;
+  const accuracy =
+    predictionStats?.total > 0
+      ? Math.round((predictionStats.correct / predictionStats.total) * 100)
+      : null;
   const feedback = accuracy !== null ? getAccuracyFeedback(accuracy) : null;
 
   return (
@@ -75,11 +76,15 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
                 Prediction Accuracy
               </h3>
               <div className="text-4xl font-bold mb-2">
-                <span className={`${
-                  feedback.color === 'emerald' ? 'text-emerald-400' :
-                  feedback.color === 'amber' ? 'text-amber-400' :
-                  'text-red-400'
-                }`}>
+                <span
+                  className={`${
+                    feedback.color === "emerald"
+                      ? "text-emerald-400"
+                      : feedback.color === "amber"
+                      ? "text-amber-400"
+                      : "text-red-400"
+                  }`}
+                >
                   {accuracy}%
                 </span>
               </div>
@@ -89,23 +94,31 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
             </div>
 
             {/* Feedback Message */}
-            <div className={`rounded-lg p-3 ${
-              feedback.color === 'emerald' ? 'bg-emerald-900/30 border border-emerald-500/50' :
-              feedback.color === 'amber' ? 'bg-amber-900/30 border border-amber-500/50' :
-              'bg-red-900/30 border border-red-500/50'
-            }`}>
-              <p className={`text-sm text-center ${
-                feedback.color === 'emerald' ? 'text-emerald-300' :
-                feedback.color === 'amber' ? 'text-amber-300' :
-                'text-red-300'
-              }`}>
+            <div
+              className={`rounded-lg p-3 ${
+                feedback.color === "emerald"
+                  ? "bg-emerald-900/30 border border-emerald-500/50"
+                  : feedback.color === "amber"
+                  ? "bg-amber-900/30 border border-amber-500/50"
+                  : "bg-red-900/30 border border-red-500/50"
+              }`}
+            >
+              <p
+                className={`text-sm text-center ${
+                  feedback.color === "emerald"
+                    ? "text-emerald-300"
+                    : feedback.color === "amber"
+                    ? "text-amber-300"
+                    : "text-red-300"
+                }`}
+              >
                 {feedback.emoji} {feedback.message}
               </p>
             </div>
           </div>
         )}
 
-        {/* Final Result Section - REVISED LAYOUT */}
+        {/* Final Result Section */}
         <div className="bg-slate-900/50 rounded-lg p-4 mb-4">
           <div className="text-slate-300 font-semibold mb-2 text-sm">
             Final Result:
@@ -117,10 +130,14 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
           ) : (
             <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
               {result.map((interval, idx) => {
-                if (!interval || typeof interval.start !== 'number' || typeof interval.end !== 'number') {
+                if (
+                  !interval ||
+                  typeof interval.start !== "number" ||
+                  typeof interval.end !== "number"
+                ) {
                   return null;
                 }
-                
+
                 const colors = getIntervalColor(interval.color);
 
                 return (

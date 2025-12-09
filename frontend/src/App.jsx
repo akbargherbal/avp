@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Loader, AlertCircle } from "lucide-react";
 
 // Import the components
@@ -12,35 +12,67 @@ import PredictionModal from "./components/PredictionModal";
 import { TimelineView, CallStackView } from "./components/visualizations";
 
 // Import extracted utilities
-import { isPredictionPoint } from "./utils/predictionUtils";
 import { getStepTypeBadge } from "./utils/stepBadges";
 
+// Import new hooks
+import { useTraceLoader } from "./hooks/useTraceLoader";
+import { useTraceNavigation } from "./hooks/useTraceNavigation";
+import { usePredictionMode } from "./hooks/usePredictionMode";
+import { useVisualHighlight } from "./hooks/useVisualHighlight";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts"; // NEW
+
 const AlgorithmTracePlayer = () => {
-  const [trace, setTrace] = useState(null);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // 1. Data Loading Hook
+  const { trace, loading, error, loadExampleTrace } = useTraceLoader();
+
+  // 2. Navigation Hook (requires prediction reset function)
+  const resetPredictionStatsRef = useRef(() => {}); 
+  
+  const {
+    currentStep,
+    currentStepData,
+    totalSteps,
+    nextStep: navNextStep,
+    prevStep,
+    resetTrace,
+    jumpToEnd,
+    isComplete,
+  } = useTraceNavigation(trace, resetPredictionStatsRef.current);
+
   const activeCallRef = useRef(null);
 
-  // Prediction mode state
-  const [predictionMode, setPredictionMode] = useState(true);
-  const [showPrediction, setShowPrediction] = useState(false);
-  const [predictionStats, setPredictionStats] = useState({
-    total: 0,
-    correct: 0,
-  });
+  // 3. Prediction Hook
+  const prediction = usePredictionMode(trace, currentStep, navNextStep);
 
-  // Phase 2: Highlight state for visual bridge
-  const [highlightedIntervalId, setHighlightedIntervalId] = useState(null);
-  const [hoverIntervalId, setHoverIntervalId] = useState(null);
-
-  const BACKEND_URL =
-    process.env.REACT_APP_API_URL || "http://localhost:5000/api";
-
+  // Update the navigation hook's reset function reference
   useEffect(() => {
-    loadExampleTrace();
-  }, []);
+    resetPredictionStatsRef.current = prediction.resetPredictionStats;
+  }, [prediction.resetPredictionStats]);
 
+  // 4. Visual Highlight Hook
+  const highlight = useVisualHighlight(trace, currentStep);
+
+  // --- HANDLERS ---
+
+  // Handler: Next step wrapper (handles prediction blocking)
+  const nextStep = () => {
+    if (prediction.showPrediction) return; // Block during prediction
+    navNextStep();
+  };
+
+  // Handler: Prediction Answer
+  const handlePredictionAnswer = (isCorrect) => {
+    prediction.handlePredictionAnswer(isCorrect);
+  };
+
+  // Handler: Prediction Skip
+  const handlePredictionSkip = () => {
+    prediction.handlePredictionSkip();
+  };
+
+  // --- EFFECTS ---
+
+  // Effect 1: Scroll active call into view (kept here for now)
   useEffect(() => {
     if (activeCallRef.current) {
       activeCallRef.current.scrollIntoView({
@@ -50,189 +82,17 @@ const AlgorithmTracePlayer = () => {
     }
   }, [currentStep]);
 
-  // Phase 2: Extract highlighted interval from active call stack entry
-  useEffect(() => {
-    if (!trace) return;
+  // 5. Keyboard Shortcuts Hook (replaces final useEffect)
+  useKeyboardShortcuts({
+    onNext: nextStep,
+    onPrev: prevStep,
+    onReset: resetTrace,
+    onJumpToEnd: jumpToEnd,
+    isComplete,
+    modalOpen: prediction.showPrediction,
+  });
 
-    const step = trace?.trace?.steps?.[currentStep];
-    const callStack = step?.data?.call_stack_state || [];
-
-    // Get the active call (last in stack)
-    const activeCall = callStack[callStack.length - 1];
-
-    if (activeCall?.current_interval?.id !== undefined) {
-      setHighlightedIntervalId(activeCall.current_interval.id);
-    } else {
-      setHighlightedIntervalId(null);
-    }
-  }, [currentStep, trace]);
-
-  // Detect prediction points
-  useEffect(() => {
-    if (!trace || !predictionMode) return;
-
-    const step = trace?.trace?.steps?.[currentStep];
-    const nextStep = trace?.trace?.steps?.[currentStep + 1];
-
-    if (isPredictionPoint(step) && nextStep?.type === "DECISION_MADE") {
-      setShowPrediction(true);
-    } else {
-      setShowPrediction(false);
-    }
-  }, [currentStep, trace, predictionMode]);
-
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyPress = (event) => {
-      if (
-        event.target.tagName === "INPUT" ||
-        event.target.tagName === "TEXTAREA"
-      ) {
-        return;
-      }
-
-      // Don't handle keys if prediction modal is open
-      if (showPrediction) return;
-
-      const isComplete =
-        trace?.trace?.steps?.[currentStep]?.type === "ALGORITHM_COMPLETE";
-
-      switch (event.key) {
-        case "ArrowRight":
-        case " ":
-          event.preventDefault();
-          if (!isComplete) {
-            nextStep();
-          }
-          break;
-
-        case "ArrowLeft":
-          event.preventDefault();
-          if (!isComplete) {
-            prevStep();
-          }
-          break;
-
-        case "r":
-        case "R":
-        case "Home":
-          event.preventDefault();
-          resetTrace();
-          break;
-
-        case "End":
-          event.preventDefault();
-          if (trace?.trace?.steps) {
-            setCurrentStep(trace.trace.steps.length - 1);
-          }
-          break;
-
-        case "Escape":
-          if (isComplete && currentStep > 0) {
-            prevStep();
-          }
-          break;
-
-        default:
-          break;
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [currentStep, trace, showPrediction]);
-
-  const loadExampleTrace = async () => {
-    setLoading(true);
-    setError(null);
-    setTrace(null);
-    setCurrentStep(0);
-    setPredictionStats({ total: 0, correct: 0 });
-
-    try {
-      const response = await fetch(`${BACKEND_URL}/trace`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          intervals: [
-            { id: 1, start: 540, end: 660, color: "blue" },
-            { id: 2, start: 600, end: 720, color: "green" },
-            { id: 3, start: 540, end: 720, color: "amber" },
-            { id: 4, start: 900, end: 960, color: "purple" },
-          ],
-        }),
-      });
-
-      if (!response.ok) {
-        const errData = await response
-          .json()
-          .catch(() => ({ error: "Failed to parse error response" }));
-        throw new Error(
-          `Backend returned ${response.status}: ${
-            errData.error || "Unknown error"
-          }`
-        );
-      }
-
-      const data = await response.json();
-      setTrace(data);
-    } catch (err) {
-      setError(
-        `Backend error: ${err.message}. Please ensure the Flask backend is running on port 5000.`
-      );
-      console.error("Failed to load trace:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const nextStep = () => {
-    if (showPrediction) return; // Block during prediction
-
-    if (trace?.trace?.steps && currentStep < trace.trace.steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const prevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const resetTrace = () => {
-    setCurrentStep(0);
-    setPredictionStats({ total: 0, correct: 0 });
-  };
-
-  const handlePredictionAnswer = (isCorrect) => {
-    setPredictionStats((prev) => ({
-      total: prev.total + 1,
-      correct: prev.correct + (isCorrect ? 1 : 0),
-    }));
-
-    setShowPrediction(false);
-    nextStep();
-  };
-
-  const handlePredictionSkip = () => {
-    setShowPrediction(false);
-    nextStep();
-  };
-
-  const togglePredictionMode = () => {
-    setPredictionMode(!predictionMode);
-    setShowPrediction(false);
-  };
-
-  // Phase 2: Handle hover interactions
-  const handleIntervalHover = (intervalId) => {
-    setHoverIntervalId(intervalId);
-  };
-
-  // Phase 2: Use hover ID if available, otherwise use step-based highlight
-  const effectiveHighlight =
-    hoverIntervalId !== null ? hoverIntervalId : highlightedIntervalId;
+  // --- RENDER LOGIC ---
 
   if (loading) {
     return (
@@ -276,7 +136,7 @@ const AlgorithmTracePlayer = () => {
     );
   }
 
-  const step = trace?.trace?.steps?.[currentStep];
+  const step = currentStepData;
 
   if (!step) {
     return (
@@ -301,12 +161,11 @@ const AlgorithmTracePlayer = () => {
     );
   }
 
-  const isComplete = step.type === "ALGORITHM_COMPLETE";
   const badge = getStepTypeBadge(step?.type);
 
   return (
     <div className="w-full h-screen bg-slate-900 flex items-center justify-center p-4 overflow-hidden">
-      {showPrediction && (
+      {prediction.showPrediction && (
         <PredictionModal
           step={trace?.trace?.steps?.[currentStep]}
           nextStep={trace?.trace?.steps?.[currentStep + 1]}
@@ -319,7 +178,7 @@ const AlgorithmTracePlayer = () => {
         trace={trace}
         step={step}
         onReset={resetTrace}
-        predictionStats={predictionStats}
+        predictionStats={prediction.predictionStats}
       />
 
       <KeyboardHints />
@@ -331,25 +190,25 @@ const AlgorithmTracePlayer = () => {
               Remove Covered Intervals
             </h1>
             <p className="text-slate-400 text-sm">
-              Step {currentStep + 1} of {trace?.trace?.steps?.length || 0}
+              Step {currentStep + 1} of {totalSteps || 0}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <button
-              onClick={togglePredictionMode}
+              onClick={prediction.togglePredictionMode}
               className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-colors font-semibold ${
-                predictionMode
+                prediction.predictionMode
                   ? "bg-blue-600 hover:bg-blue-500 text-white"
                   : "bg-slate-700 hover:bg-slate-600 text-slate-300"
               }`}
             >
-              {predictionMode ? "⏳ Predict" : "⚡ Watch"}
+              {prediction.predictionMode ? "⏳ Predict" : "⚡ Watch"}
             </button>
 
             <ControlBar
               currentStep={currentStep}
-              totalSteps={trace?.trace?.steps?.length || 0}
+              totalSteps={totalSteps || 0}
               onPrev={prevStep}
               onNext={nextStep}
               onReset={resetTrace}
@@ -366,8 +225,8 @@ const AlgorithmTracePlayer = () => {
               <ErrorBoundary>
                 <TimelineView
                   step={step}
-                  highlightedIntervalId={effectiveHighlight}
-                  onIntervalHover={handleIntervalHover}
+                  highlightedIntervalId={highlight.effectiveHighlight}
+                  onIntervalHover={highlight.handleIntervalHover}
                 />
               </ErrorBoundary>
             </div>
@@ -382,7 +241,7 @@ const AlgorithmTracePlayer = () => {
                 <CallStackView
                   step={step}
                   activeCallRef={activeCallRef}
-                  onIntervalHover={handleIntervalHover}
+                  onIntervalHover={highlight.handleIntervalHover}
                 />
               </ErrorBoundary>
             </div>

@@ -8,6 +8,7 @@ import {
   getHintText,
   getExplanation,
 } from "../utils/predictionUtils";
+import { getIntervalColor } from "../constants/intervalColors"; // <-- NEW IMPORT
 
 const PredictionModal = ({ step, nextStep, onAnswer, onSkip }) => {
   const [selected, setSelected] = useState(null);
@@ -72,6 +73,9 @@ const PredictionModal = ({ step, nextStep, onAnswer, onSkip }) => {
   const { interval, comparison } = predictionData;
   const hintText = getHintText(predictionData);
   const explanation = getExplanation(correctAnswer, predictionData);
+  
+  // Use utility function for interval color
+  const intervalColors = getIntervalColor(interval.color);
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -93,15 +97,7 @@ const PredictionModal = ({ step, nextStep, onAnswer, onSkip }) => {
         <div className="bg-slate-900/50 rounded-lg p-4 mb-4">
           <div className="flex items-center justify-center gap-2 mb-2">
             <div
-              className={`px-3 py-2 rounded-md text-sm font-bold ${
-                interval.color === "amber"
-                  ? "bg-amber-500 text-black"
-                  : interval.color === "blue"
-                  ? "bg-blue-600 text-white"
-                  : interval.color === "green"
-                  ? "bg-green-600 text-white"
-                  : "bg-purple-600 text-white"
-              }`}
+              className={`px-3 py-2 rounded-md text-sm font-bold ${intervalColors.bg} ${intervalColors.text}`}
             >
               Interval: ({interval.start}, {interval.end})
             </div>
