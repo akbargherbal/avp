@@ -2,9 +2,15 @@ import React from "react";
 import { RotateCcw } from "lucide-react";
 
 const CompletionModal = ({ trace, step, onReset }) => {
-  if (step.type !== "ALGORITHM_COMPLETE") {
+  if (step?.type !== "ALGORITHM_COMPLETE") {
     return null;
   }
+
+  // Safe access with fallbacks
+  const inputSize = trace?.metadata?.input_size || 0;
+  const keptCount = step?.data?.kept_count || 0;
+  const removedCount = step?.data?.removed_count || 0;
+  const result = step?.data?.result || [];
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -40,7 +46,7 @@ const CompletionModal = ({ trace, step, onReset }) => {
                 Initial Intervals
               </div>
               <div className="text-3xl font-bold text-white">
-                {trace.metadata.input_size}
+                {inputSize}
               </div>
             </div>
             <div className="text-center">
@@ -48,7 +54,7 @@ const CompletionModal = ({ trace, step, onReset }) => {
                 Kept Intervals
               </div>
               <div className="text-3xl font-bold text-emerald-400">
-                {step.data.kept_count}
+                {keptCount}
               </div>
             </div>
           </div>
@@ -56,7 +62,7 @@ const CompletionModal = ({ trace, step, onReset }) => {
           <div className="text-center pt-4 border-t border-slate-700">
             <div className="text-slate-400 text-sm mb-1">Removed</div>
             <div className="text-2xl font-bold text-red-400">
-              {step.data.removed_count} interval(s)
+              {removedCount} interval(s)
             </div>
           </div>
         </div>
@@ -65,26 +71,38 @@ const CompletionModal = ({ trace, step, onReset }) => {
           <div className="text-slate-300 font-semibold mb-2">
             Final Result:
           </div>
-          <div className="flex flex-wrap gap-2">
-            {step.data.result.map((interval, idx) => {
-              const colorClass =
-                interval.color === "amber"
-                  ? "bg-amber-500 text-black"
-                  : interval.color === "blue"
-                  ? "bg-blue-600 text-white"
-                  : interval.color === "green"
-                  ? "bg-green-600 text-white"
-                  : "bg-purple-600 text-white";
-              return (
-                <div
-                  key={idx}
-                  className={`${colorClass} px-3 py-2 rounded-lg text-sm font-bold`}
-                >
-                  ({interval.start}, {interval.end})
-                </div>
-              );
-            })}
-          </div>
+          {result.length === 0 ? (
+            <div className="text-slate-500 text-sm italic">
+              No intervals remaining
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {result.map((interval, idx) => {
+                // Skip malformed intervals
+                if (!interval || typeof interval.start !== 'number' || typeof interval.end !== 'number') {
+                  return null;
+                }
+
+                const colorClass =
+                  interval.color === "amber"
+                    ? "bg-amber-500 text-black"
+                    : interval.color === "blue"
+                    ? "bg-blue-600 text-white"
+                    : interval.color === "green"
+                    ? "bg-green-600 text-white"
+                    : "bg-purple-600 text-white";
+                
+                return (
+                  <div
+                    key={interval.id || idx}
+                    className={`${colorClass} px-3 py-2 rounded-lg text-sm font-bold`}
+                  >
+                    ({interval.start}, {interval.end})
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <button

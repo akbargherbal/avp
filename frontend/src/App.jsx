@@ -10,9 +10,9 @@ import ErrorBoundary from "./components/ErrorBoundary";
 // but could be extracted into their own files in a future refactoring pass.
 
 const TimelineView = ({ step }) => {
-  // ... (The code for TimelineView is exactly the same as before)
-  const allIntervals = step.data.all_intervals || [];
-  const maxEnd = step.data.max_end;
+  // Safe access with fallbacks
+  const allIntervals = step?.data?.all_intervals || [];
+  const maxEnd = step?.data?.max_end;
 
   const minVal = 500;
   const maxVal = 1000;
@@ -71,6 +71,11 @@ const TimelineView = ({ step }) => {
 
         {/* Interval bars */}
         {allIntervals.map((interval, idx) => {
+          // Skip malformed intervals
+          if (!interval || typeof interval.start !== 'number' || typeof interval.end !== 'number') {
+            return null;
+          }
+
           const left = toPercent(interval.start);
           const width = toPercent(interval.end) - toPercent(interval.start);
           const colors = colorMap[interval.color] || {
@@ -80,9 +85,9 @@ const TimelineView = ({ step }) => {
           };
 
           const visualState = interval.visual_state || {};
-          const isExamining = visualState.is_examining;
-          const isCovered = visualState.is_covered;
-          const isKept = visualState.is_kept;
+          const isExamining = visualState.is_examining || false;
+          const isCovered = visualState.is_covered || false;
+          const isKept = visualState.is_kept || false;
 
           let additionalClasses = "transition-all duration-300";
 
@@ -100,7 +105,7 @@ const TimelineView = ({ step }) => {
 
           return (
             <div
-              key={interval.id}
+              key={interval.id || idx}
               className={`absolute h-10 ${colors.bg} rounded border-2 ${colors.border} flex items-center justify-center text-white text-sm font-bold ${additionalClasses}`}
               style={{
                 left: `${4 + left * 0.92}%`,
@@ -134,15 +139,15 @@ const TimelineView = ({ step }) => {
 };
 
 const CallStackView = ({ step, activeCallRef }) => {
-  // ... (The code for CallStackView is exactly the same as before)
-  const callStack = step.data.call_stack_state || [];
+  // Safe access with fallback
+  const callStack = step?.data?.call_stack_state || [];
 
   if (callStack.length === 0) {
     return (
       <div className="text-slate-500 text-sm italic">
-        {step.type === "INITIAL_STATE" && "Sort intervals first to begin"}
-        {step.type === "SORT_BEGIN" && "Sorting intervals..."}
-        {step.type === "SORT_COMPLETE" && "Ready to start recursion"}
+        {step?.type === "INITIAL_STATE" && "Sort intervals first to begin"}
+        {step?.type === "SORT_BEGIN" && "Sorting intervals..."}
+        {step?.type === "SORT_COMPLETE" && "Ready to start recursion"}
       </div>
     );
   }
@@ -150,6 +155,9 @@ const CallStackView = ({ step, activeCallRef }) => {
   return (
     <div className="space-y-2">
       {callStack.map((call, idx) => {
+        // Skip malformed call entries
+        if (!call) return null;
+
         const isActive = idx === callStack.length - 1;
         const currentInterval = call.current_interval;
 
@@ -157,7 +165,7 @@ const CallStackView = ({ step, activeCallRef }) => {
 
         return (
           <div
-            key={call.call_id}
+            key={call.call_id || idx}
             ref={isActive ? activeCallRef : null}
             className={`p-3 rounded-lg border-2 transition-all ${
               isActive
@@ -166,16 +174,16 @@ const CallStackView = ({ step, activeCallRef }) => {
                 ? "border-emerald-400 bg-emerald-900/20"
                 : "border-slate-600 bg-slate-800/50"
             }`}
-            style={{ marginLeft: `${call.depth * 24}px` }}
+            style={{ marginLeft: `${(call.depth || 0) * 24}px` }}
           >
             {/* Call header */}
             <div className="flex items-center gap-2 mb-2">
               <div className="text-slate-400 text-xs font-mono">
-                CALL #{call.call_id}
+                CALL #{call.call_id || idx}
               </div>
               <ChevronRight size={12} className="text-slate-500" />
               <div className="text-white text-xs font-mono">
-                depth={call.depth}, remaining={call.remaining_count}
+                depth={call.depth || 0}, remaining={call.remaining_count || 0}
               </div>
             </div>
 
@@ -193,7 +201,7 @@ const CallStackView = ({ step, activeCallRef }) => {
                     : "bg-purple-600 text-white"
                 }`}
               >
-                ({currentInterval.start}, {currentInterval.end})
+                ({currentInterval.start || 0}, {currentInterval.end || 0})
               </div>
             </div>
 
@@ -220,7 +228,7 @@ const CallStackView = ({ step, activeCallRef }) => {
                   {call.decision === "keep" ? "✅ KEEP" : "❌ COVERED"}
                 </div>
                 <div className="text-xs text-slate-300">
-                  {currentInterval.end} {call.decision === "keep" ? ">" : "≤"}{" "}
+                  {currentInterval.end || 0} {call.decision === "keep" ? ">" : "≤"}{" "}
                   {call.max_end === null ? "-∞" : call.max_end}
                 </div>
               </div>
@@ -235,6 +243,8 @@ const CallStackView = ({ step, activeCallRef }) => {
                     <div className="text-slate-500 text-xs italic">[]</div>
                   ) : (
                     call.return_value.map((interval, idx) => {
+                      if (!interval) return null;
+                      
                       const colorClass =
                         interval.color === "amber"
                           ? "bg-amber-500 text-black"
@@ -248,7 +258,7 @@ const CallStackView = ({ step, activeCallRef }) => {
                           key={idx}
                           className={`${colorClass} px-2 py-1 rounded text-xs`}
                         >
-                          ({interval.start},{interval.end})
+                          ({interval.start || 0},{interval.end || 0})
                         </div>
                       );
                     })
@@ -271,15 +281,12 @@ const AlgorithmTracePlayer = () => {
   const [error, setError] = useState(null);
   const activeCallRef = useRef(null);
 
-  // REMOVED: isPlaying state is gone!
-
-  const BACKEND_URL = "http://localhost:5000/api";
+  const BACKEND_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
   useEffect(() => {
     loadExampleTrace();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // REMOVED: Autoplay useEffect is gone!
 
   // Auto-scroll to active call
   useEffect(() => {
@@ -329,7 +336,7 @@ const AlgorithmTracePlayer = () => {
   };
 
   const nextStep = () => {
-    if (trace && currentStep < trace.trace.steps.length - 1) {
+    if (trace?.trace?.steps && currentStep < trace.trace.steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -343,8 +350,6 @@ const AlgorithmTracePlayer = () => {
   const resetTrace = () => {
     setCurrentStep(0);
   };
-
-  // REMOVED: togglePlay function is gone!
 
   if (loading) {
     return (
@@ -388,7 +393,32 @@ const AlgorithmTracePlayer = () => {
     );
   }
 
-  const step = trace.trace.steps[currentStep];
+  // PHASE 5: Safe array access with optional chaining
+  const step = trace?.trace?.steps?.[currentStep];
+
+  // Show error state if step data is invalid
+  if (!step) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-8">
+        <div className="max-w-md text-center">
+          <AlertCircle className="text-red-500 mx-auto mb-4" size={64} />
+          <h2 className="text-xl font-bold text-white mb-4">
+            Invalid Step Data
+          </h2>
+          <p className="text-gray-300 mb-6">
+            Step {currentStep + 1} could not be loaded. The trace data may be malformed.
+          </p>
+          <button
+            onClick={resetTrace}
+            className="bg-emerald-500 hover:bg-emerald-400 text-black font-semibold px-6 py-2 rounded-lg transition"
+          >
+            Reset to Start
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const isComplete = step.type === "ALGORITHM_COMPLETE";
 
   return (
@@ -398,7 +428,7 @@ const AlgorithmTracePlayer = () => {
       <div className="w-full h-full max-w-7xl flex flex-col">
         <ControlBar
           currentStep={currentStep}
-          totalSteps={trace.trace.steps.length}
+          totalSteps={trace?.trace?.steps?.length || 0}
           onPrev={prevStep}
           onNext={nextStep}
           onReset={resetTrace}
@@ -429,10 +459,10 @@ const AlgorithmTracePlayer = () => {
             <div className="border-t border-slate-700 p-4 bg-slate-800">
               <div className="mb-3 p-3 bg-slate-700/50 rounded-lg">
                 <p className="text-white text-sm font-medium mb-1">
-                  {step.description}
+                  {step?.description || "No description available"}
                 </p>
                 <p className="text-slate-400 text-xs">
-                  {step.type.replace(/_/g, " ")}
+                  {step?.type ? step.type.replace(/_/g, " ") : "Unknown step type"}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -446,7 +476,7 @@ const AlgorithmTracePlayer = () => {
                 </button>
                 <button
                   onClick={nextStep}
-                  disabled={currentStep === trace.trace.steps.length - 1}
+                  disabled={currentStep >= (trace?.trace?.steps?.length || 0) - 1}
                   className="flex-1 bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-700 disabled:cursor-not-allowed text-black px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors font-bold"
                 >
                   Next Step
