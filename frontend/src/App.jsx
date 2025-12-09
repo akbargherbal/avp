@@ -5,6 +5,7 @@ import { Loader, AlertCircle, SkipBack, ChevronRight } from "lucide-react";
 import ControlBar from "./components/ControlBar";
 import CompletionModal from "./components/CompletionModal";
 import ErrorBoundary from "./components/ErrorBoundary";
+import KeyboardHints from "./components/KeyboardHints";
 
 // NOTE: TimelineView and CallStackView are kept in this file for now,
 // but could be extracted into their own files in a future refactoring pass.
@@ -244,7 +245,7 @@ const CallStackView = ({ step, activeCallRef }) => {
                   ) : (
                     call.return_value.map((interval, idx) => {
                       if (!interval) return null;
-                      
+
                       const colorClass =
                         interval.color === "amber"
                           ? "bg-amber-500 text-black"
@@ -297,6 +298,68 @@ const AlgorithmTracePlayer = () => {
       });
     }
   }, [currentStep]);
+
+  // SESSION 3: Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      // Ignore if user is typing in an input field
+      if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      // Check if completion modal is open
+      const isComplete = trace?.trace?.steps?.[currentStep]?.type === "ALGORITHM_COMPLETE";
+      
+      switch (event.key) {
+        case 'ArrowRight':
+        case ' ': // Space bar
+          event.preventDefault(); // Prevent page scroll on Space
+          if (!isComplete) {
+            nextStep();
+          }
+          break;
+        
+        case 'ArrowLeft':
+          event.preventDefault();
+          if (!isComplete) {
+            prevStep();
+          }
+          break;
+        
+        case 'r':
+        case 'R':
+        case 'Home':
+          event.preventDefault();
+          resetTrace();
+          break;
+        
+        case 'End':
+          event.preventDefault();
+          if (trace?.trace?.steps) {
+            setCurrentStep(trace.trace.steps.length - 1);
+          }
+          break;
+        
+        case 'Escape':
+          // Close modal by going back one step if on completion
+          if (isComplete && currentStep > 0) {
+            prevStep();
+          }
+          break;
+        
+        default:
+          break;
+      }
+    };
+
+    // Add event listener
+    window.addEventListener('keydown', handleKeyPress);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [currentStep, trace]); // Note: nextStep, prevStep, resetTrace are stable references
 
   const loadExampleTrace = async () => {
     setLoading(true);
@@ -424,6 +487,9 @@ const AlgorithmTracePlayer = () => {
   return (
     <div className="w-full h-screen bg-slate-900 flex items-center justify-center p-4 overflow-hidden">
       <CompletionModal trace={trace} step={step} onReset={resetTrace} />
+      
+      {/* SESSION 3: Keyboard hints component */}
+      <KeyboardHints />
 
       <div className="w-full h-full max-w-7xl flex flex-col">
         <ControlBar
