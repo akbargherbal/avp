@@ -8,7 +8,7 @@ import {
   getHintText,
   getExplanation,
 } from "../utils/predictionUtils";
-import { getIntervalColor } from "../constants/intervalColors"; // <-- NEW IMPORT
+import { getIntervalColor } from "../constants/intervalColors";
 
 const PredictionModal = ({ step, nextStep, onAnswer, onSkip }) => {
   const [selected, setSelected] = useState(null);
@@ -26,7 +26,7 @@ const PredictionModal = ({ step, nextStep, onAnswer, onSkip }) => {
     setIsCorrect(false);
   }, [step?.step]);
 
-  // Handle keyboard shortcuts (K for Keep, C for Covered, S for Skip)
+  // Handle keyboard shortcuts (K for Keep, C for Covered, S for Skip, Enter to Submit)
   useEffect(() => {
     const handleKeyPress = (event) => {
       // Ignore if already showing feedback
@@ -34,14 +34,24 @@ const PredictionModal = ({ step, nextStep, onAnswer, onSkip }) => {
 
       switch (event.key.toLowerCase()) {
         case "k":
+          event.preventDefault();
           setSelected("keep");
           break;
         case "c":
+          event.preventDefault();
           setSelected("covered");
           break;
         case "s":
+          event.preventDefault();
           if (onSkip) {
             onSkip();
+          }
+          break;
+        case "enter":
+          // Only submit if user has made a selection
+          if (selected) {
+            event.preventDefault();
+            handleSubmit();
           }
           break;
         default:
@@ -51,7 +61,7 @@ const PredictionModal = ({ step, nextStep, onAnswer, onSkip }) => {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [showFeedback, onSkip]);
+  }, [showFeedback, onSkip, selected]); // Added 'selected' to dependencies
 
   const handleSubmit = () => {
     if (!selected) return;
@@ -73,7 +83,7 @@ const PredictionModal = ({ step, nextStep, onAnswer, onSkip }) => {
   const { interval, comparison } = predictionData;
   const hintText = getHintText(predictionData);
   const explanation = getExplanation(correctAnswer, predictionData);
-  
+
   // Use utility function for interval color
   const intervalColors = getIntervalColor(interval.color);
 
@@ -184,7 +194,7 @@ const PredictionModal = ({ step, nextStep, onAnswer, onSkip }) => {
               disabled={!selected}
               className="flex-1 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-lg transition-colors"
             >
-              Submit Answer
+              Submit Answer {selected && "(Enter)"}
             </button>
           </div>
         )}
