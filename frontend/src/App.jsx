@@ -11,6 +11,51 @@ import PredictionModal from "./components/PredictionModal";
 // Import prediction utilities
 import { isPredictionPoint } from "./utils/predictionUtils";
 
+// Helper function to get badge styling based on step type
+const getStepTypeBadge = (stepType) => {
+  if (!stepType) return { color: 'bg-slate-600 text-slate-200', label: 'UNKNOWN' };
+  
+  const type = stepType.toUpperCase();
+  
+  // Decision points (most important)
+  if (type.includes('DECISION')) {
+    return { color: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50', label: '⚖️ DECISION' };
+  }
+  
+  // Coverage tracking
+  if (type.includes('MAX_END')) {
+    return { color: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/50', label: '📏 COVERAGE' };
+  }
+  
+  // Examining intervals
+  if (type.includes('EXAMINING')) {
+    return { color: 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/50', label: '🔍 EXAMINE' };
+  }
+  
+  // Recursion (calls and returns)
+  if (type.includes('CALL_START') || type.includes('CALL_RETURN')) {
+    return { color: 'bg-blue-500/20 text-blue-300 border border-blue-500/50', label: '🔄 RECURSION' };
+  }
+  
+  // Base case
+  if (type.includes('BASE_CASE')) {
+    return { color: 'bg-purple-500/20 text-purple-300 border border-purple-500/50', label: '🎯 BASE CASE' };
+  }
+  
+  // Sorting
+  if (type.includes('SORT')) {
+    return { color: 'bg-orange-500/20 text-orange-300 border border-orange-500/50', label: '📊 SORT' };
+  }
+  
+  // Algorithm states
+  if (type.includes('INITIAL') || type.includes('COMPLETE')) {
+    return { color: 'bg-pink-500/20 text-pink-300 border border-pink-500/50', label: '🎬 STATE' };
+  }
+  
+  // Default
+  return { color: 'bg-slate-600/50 text-slate-300', label: type.replace(/_/g, ' ') };
+};
+
 const TimelineView = ({ step, highlightedIntervalId, onIntervalHover }) => {
   const allIntervals = step?.data?.all_intervals || [];
   const maxEnd = step?.data?.max_end;
@@ -301,10 +346,10 @@ const AlgorithmTracePlayer = () => {
 
     const step = trace?.trace?.steps?.[currentStep];
     const callStack = step?.data?.call_stack_state || [];
-    
+
     // Get the active call (last in stack)
     const activeCall = callStack[callStack.length - 1];
-    
+
     if (activeCall?.current_interval?.id !== undefined) {
       setHighlightedIntervalId(activeCall.current_interval.id);
     } else {
@@ -535,6 +580,7 @@ const AlgorithmTracePlayer = () => {
   }
 
   const isComplete = step.type === "ALGORITHM_COMPLETE";
+  const badge = getStepTypeBadge(step?.type);
 
   return (
     <div className="w-full h-screen bg-slate-900 flex items-center justify-center p-4 overflow-hidden">
@@ -596,8 +642,8 @@ const AlgorithmTracePlayer = () => {
             </h2>
             <div className="flex-1 overflow-hidden">
               <ErrorBoundary>
-                <TimelineView 
-                  step={step} 
+                <TimelineView
+                  step={step}
                   highlightedIntervalId={effectiveHighlight}
                   onIntervalHover={handleIntervalHover}
                 />
@@ -611,20 +657,27 @@ const AlgorithmTracePlayer = () => {
             </div>
             <div className="flex-1 overflow-y-auto p-6">
               <ErrorBoundary>
-                <CallStackView 
-                  step={step} 
+                <CallStackView
+                  step={step}
                   activeCallRef={activeCallRef}
                   onIntervalHover={handleIntervalHover}
                 />
               </ErrorBoundary>
             </div>
+            
+            {/* PHASE 3: Enhanced Description Section */}
             <div className="border-t border-slate-700 p-4 bg-slate-800">
-              <div className="mb-3 p-3 bg-slate-700/50 rounded-lg">
-                <p className="text-white text-sm font-medium mb-1">
+              <div className="p-4 bg-gradient-to-br from-slate-700/60 to-slate-800/60 rounded-lg border border-slate-600/50 shadow-lg">
+                {/* Step type badge at the top */}
+                <div className="mb-3">
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold ${badge.color}`}>
+                    {badge.label}
+                  </span>
+                </div>
+                
+                {/* Description text - larger and more prominent */}
+                <p className="text-white text-base font-medium leading-relaxed">
                   {step?.description || "No description available"}
-                </p>
-                <p className="text-slate-400 text-xs">
-                  {step?.type ? step.type.replace(/_/g, " ") : "Unknown step type"}
                 </p>
               </div>
             </div>
