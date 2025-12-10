@@ -1,4 +1,17 @@
-# Algorithm Visualization Platform v1.0.0: Multi-Algorithm Support
+# Algorithm Visualization Platform: Multi-Algorithm Support
+
+PS NOTES:
+**IMPORTANT** - Use proper absolute path when asking user to copy and paste into fies:
+
+```bash
+pwd ~/Jupyter_Notebooks/interval-viz-poc/
+# Project Absolute Path:
+# /home/akbar/Jupyter_Notebooks/interval-viz-poc/
+```
+
+**IMPORTANT** - Use `pnpm`
+
+---
 
 ## Requirements Analysis
 
@@ -6,13 +19,15 @@
 
 **Core Goal**: Transform into extensible platform supporting 5-8 diverse algorithms (Binary Search, DFS, Merge Sort, etc.) without breaking "backend thinks, frontend reacts" philosophy
 
-**Technical Constraints**: 
+**Technical Constraints**:
+
 - Python 3.11+ Flask backend, React frontend
 - Solo dev + LLM workflow (20-40 sessions)
 - Must preserve existing UX (prediction mode, visual highlighting, step descriptions)
 - Current POC already has `base_tracer.py` (partially generic)
 
 **Assumptions to Validate**:
+
 1. Base tracer can define generic trace structure while allowing algorithm-specific visualization data
 2. Frontend can dynamically render different visualization types without hardcoded components per algorithm
 3. Prediction mode logic can generalize across algorithm types
@@ -24,17 +39,19 @@
 
 **Why This Phasing?**
 
-Phase 0 is **mandatory design validation** - the trap is real. The current code logs `all_intervals` and `call_stack_state` which are interval-specific. We must prove the architecture works for Binary Search (arrays) and DFS (graphs) *on paper* before writing code.
+Phase 0 is **mandatory design validation** - the trap is real. The current code logs `all_intervals` and `call_stack_state` which are interval-specific. We must prove the architecture works for Binary Search (arrays) and DFS (graphs) _on paper_ before writing code.
 
 Phases 1-2 establish the foundation (registry + second algorithm proof), Phases 3-4 complete the infrastructure, Phase 5 adds 3-5 more algorithms rapidly.
 
 **Main Risk Areas**:
+
 1. **Overfitting to intervals** - Base class design fails for array/graph algorithms
 2. **Frontend visualization coupling** - TimelineView hardcoded for intervals
 3. **Prediction logic assumptions** - Current logic assumes EXAMINING_INTERVAL/DECISION_MADE pattern
 4. **Data structure explosion** - Each algorithm needs different state serialization
 
 **Validation Strategy**:
+
 - Phase 0: Paper design + thought experiments (STOP if fails)
 - Phase 1: Implement Binary Search as acid test (different data structure)
 - Phase 2: Registry pattern proves scalability
@@ -45,9 +62,11 @@ Phases 1-2 establish the foundation (registry + second algorithm proof), Phases 
 ## Phase 0: Architectural Design & Validation (3-5 hours, **CRITICAL**)
 
 ### Goal
+
 **Prove on paper that a generic base class can support Interval Coverage, Binary Search, and DFS without hacks or base class modifications.**
 
 ### Success Criteria
+
 - ✅ Base class contract defined with clear hook points
 - ✅ Three thought experiments pass (Interval, Binary Search, DFS)
 - ✅ Visualization data injection pattern documented
@@ -62,6 +81,7 @@ Phases 1-2 establish the foundation (registry + second algorithm proof), Phases 
 - Document method signatures and their assumptions
 
 **Current Analysis**:
+
 ```python
 # ALREADY GENERIC ✓
 - execute() → abstract, no assumptions
@@ -90,7 +110,7 @@ class AlgorithmTracer(ABC):
         """
         Hook: Subclass returns current visualization data.
         Called automatically by _add_step() to enrich trace.
-        
+
         Examples:
         - IntervalTracer: {'all_intervals': [...], 'call_stack_state': [...]}
         - BinarySearchTracer: {'array': [...], 'left': int, 'right': int, 'mid': int}
@@ -108,6 +128,7 @@ class AlgorithmTracer(ABC):
 ```
 
 **Validation Questions**:
+
 - Q: Does this work if Binary Search has no call stack?
 - A: Yes! Binary Search's `_get_visualization_state()` returns `{'array': [...], 'pointers': {...}}` instead
 - Q: What if DFS needs both adjacency list AND visited set?
@@ -128,10 +149,10 @@ class BinarySearchTracer(AlgorithmTracer):
         self.right = 0
         self.mid = None
         self.target = None
-    
+
     def _get_visualization_state(self) -> dict:
         return {
-            'array': [{'index': i, 'value': v, 'state': self._get_element_state(i)} 
+            'array': [{'index': i, 'value': v, 'state': self._get_element_state(i)}
                       for i, v in enumerate(self.array)],
             'pointers': {
                 'left': self.left,
@@ -140,35 +161,35 @@ class BinarySearchTracer(AlgorithmTracer):
                 'target': self.target
             }
         }
-    
+
     def _get_element_state(self, index):
         if index == self.mid:
             return 'examining'
         if index < self.left or index > self.right:
             return 'excluded'
         return 'active_range'
-    
+
     def execute(self, input_data):
         self.array = input_data['array']
         self.target = input_data['target']
         self.left = 0
         self.right = len(self.array) - 1
-        
+
         self._add_step(
             "INITIAL_STATE",
             {'target': self.target},
             f"Searching for {self.target} in sorted array"
         )
-        
+
         while self.left <= self.right:
             self.mid = (self.left + self.right) // 2
-            
+
             self._add_step(
                 "CALCULATE_MID",
                 {'mid_index': self.mid, 'mid_value': self.array[self.mid]},
                 f"Check middle element: array[{self.mid}] = {self.array[self.mid]}"
             )
-            
+
             if self.array[self.mid] == self.target:
                 self._add_step(
                     "TARGET_FOUND",
@@ -180,6 +201,7 @@ class BinarySearchTracer(AlgorithmTracer):
 ```
 
 **Validation Results**:
+
 - ✅ No modifications to base class needed
 - ✅ `_get_visualization_state()` hook provides array-specific data
 - ✅ Step types (CALCULATE_MID) are algorithm-specific, not hardcoded in base
@@ -194,7 +216,7 @@ class DFSTracer(AlgorithmTracer):
     def _get_visualization_state(self) -> dict:
         return {
             'graph': {
-                'nodes': [{'id': n, 'state': self._get_node_state(n)} 
+                'nodes': [{'id': n, 'state': self._get_node_state(n)}
                          for n in self.graph.nodes],
                 'edges': self.graph.edges
             },
@@ -204,7 +226,7 @@ class DFSTracer(AlgorithmTracer):
                 'stack': list(self.stack)
             }
         }
-    
+
     def execute(self, input_data):
         # Similar pattern - no base class changes needed
         self._add_step(
@@ -216,6 +238,7 @@ class DFSTracer(AlgorithmTracer):
 ```
 
 **Validation Results**:
+
 - ✅ Works with graph structure instead of intervals/arrays
 - ✅ Hook pattern flexible enough for visited sets + stacks
 - ✅ No collision with Binary Search or Interval implementations
@@ -223,10 +246,12 @@ class DFSTracer(AlgorithmTracer):
 **0.5: Define Prediction Point Pattern (30 min)**
 
 Current prediction logic assumes:
+
 - Step type `EXAMINING_INTERVAL` triggers prediction
 - Next step type `DECISION_MADE` provides answer
 
 **Generalized Pattern**:
+
 ```python
 def get_prediction_points(self) -> List[Dict]:
     """
@@ -272,9 +297,11 @@ def _is_prediction_question(self, step) -> bool:
 ## Phase 1: Prove Architecture with Binary Search (6-8 hours)
 
 ### Goal
+
 **Implement Binary Search tracer to validate Phase 0 design actually works in code. This is the acid test.**
 
 ### Success Criteria
+
 - ✅ Binary Search tracer implemented without modifying `base_tracer.py`
 - ✅ Produces valid trace with array visualization data
 - ✅ `/api/trace` endpoint works for both algorithms
@@ -292,17 +319,17 @@ class BinarySearchTracer(AlgorithmTracer):
     def _get_visualization_state(self) -> dict:
         """Implementation details: Handle during coding session."""
         pass
-    
+
     def execute(self, input_data) -> dict:
         """Implementation details: Handle during coding session."""
         pass
-    
+
     def get_prediction_points(self) -> List[Dict]:
         """Implementation details: Handle during coding session."""
         pass
 ```
 
-**Key Decision**: If this requires *any* changes to `base_tracer.py` beyond adding optional helper methods, **STOP and reassess architecture**.
+**Key Decision**: If this requires _any_ changes to `base_tracer.py` beyond adding optional helper methods, **STOP and reassess architecture**.
 
 **1.2: Add Binary Search Endpoint (1 hour)**
 
@@ -323,7 +350,7 @@ def generate_binary_search_trace():
 def test_binary_search_tracer():
     tracer = BinarySearchTracer()
     result = tracer.execute({'array': [1,3,5,7,9], 'target': 5})
-    
+
     assert result['result']['found'] == True
     assert result['metadata']['visualization_type'] == 'array'
     assert 'visualization' in result['trace']['steps'][0]['data']
@@ -358,9 +385,11 @@ Modify `useTraceLoader` to call new endpoint, display raw JSON in console.
 ## Phase 2: Algorithm Registry & Dynamic Routing (4-6 hours)
 
 ### Goal
+
 **Create registry system so adding new algorithms requires zero changes to `app.py` or frontend loading logic.**
 
 ### Success Criteria
+
 - ✅ Registry auto-discovers algorithm tracers
 - ✅ Single `/api/trace` endpoint routes to correct algorithm
 - ✅ Frontend selects algorithm via dropdown
@@ -378,15 +407,15 @@ from .base_tracer import AlgorithmTracer
 class AlgorithmRegistry:
     def __init__(self):
         self._algorithms: Dict[str, Type[AlgorithmTracer]] = {}
-    
+
     def register(self, name: str, tracer_class: Type[AlgorithmTracer]):
         """Register algorithm tracer."""
         pass
-    
+
     def get(self, name: str) -> Type[AlgorithmTracer]:
         """Get tracer by name."""
         pass
-    
+
     def list_algorithms(self) -> List[Dict]:
         """Return metadata for all algorithms."""
         pass
@@ -430,14 +459,14 @@ def list_algorithms():
 // New component: AlgorithmSelector.jsx
 const AlgorithmSelector = ({ onSelect }) => {
   const [algorithms, setAlgorithms] = useState([]);
-  
+
   useEffect(() => {
     fetch(`${API_URL}/algorithms`).then(/*...*/);
   }, []);
-  
+
   return (
     <select onChange={(e) => onSelect(e.target.value)}>
-      {algorithms.map(alg => (
+      {algorithms.map((alg) => (
         <option value={alg.name}>{alg.display_name}</option>
       ))}
     </select>
@@ -466,9 +495,11 @@ Modify `useTraceLoader` to accept algorithm parameter.
 ## Phase 3: Visualization Component Registry (6-8 hours)
 
 ### Goal
+
 **Create system where each algorithm declares its visualization component, frontend dynamically renders correct one.**
 
 ### Success Criteria
+
 - ✅ Each algorithm's metadata specifies visualization type
 - ✅ Frontend registry maps types to React components
 - ✅ Array visualizer renders Binary Search correctly
@@ -504,7 +535,7 @@ def execute(self, input_data):
 const ArrayView = ({ step, highlightConfig }) => {
   const arrayData = step?.data?.visualization?.array || [];
   const pointers = step?.data?.visualization?.pointers || {};
-  
+
   return (
     <div className="flex items-center gap-2">
       {arrayData.map((item, idx) => (
@@ -521,12 +552,12 @@ const ArrayView = ({ step, highlightConfig }) => {
 
 ```jsx
 // utils/visualizationRegistry.js
-import TimelineView from '../components/visualizations/TimelineView';
-import ArrayView from '../components/visualizations/ArrayView';
+import TimelineView from "../components/visualizations/TimelineView";
+import ArrayView from "../components/visualizations/ArrayView";
 
 const VISUALIZATION_REGISTRY = {
-  'timeline': TimelineView,
-  'array': ArrayView,
+  timeline: TimelineView,
+  array: ArrayView,
   // Future: 'graph', 'tree', 'matrix'
 };
 
@@ -540,12 +571,10 @@ export const getVisualizationComponent = (type) => {
 ```jsx
 const AlgorithmTracePlayer = () => {
   const { trace } = useTraceLoader();
-  const vizType = trace?.metadata?.visualization_type || 'timeline';
+  const vizType = trace?.metadata?.visualization_type || "timeline";
   const VisualizationComponent = getVisualizationComponent(vizType);
-  
-  return (
-    <VisualizationComponent step={currentStepData} />
-  );
+
+  return <VisualizationComponent step={currentStepData} />;
 };
 ```
 
@@ -571,9 +600,11 @@ const AlgorithmTracePlayer = () => {
 ## Phase 4: Generalize Prediction Mode (5-7 hours)
 
 ### Goal
+
 **Make prediction mode work for any algorithm that defines prediction points.**
 
 ### Success Criteria
+
 - ✅ PredictionModal renders algorithm-agnostic questions
 - ✅ Binary Search predictions work (compare mid to target)
 - ✅ Interval Coverage predictions still work
@@ -606,11 +637,11 @@ def get_prediction_points(self) -> List[Dict]:
 const PredictionModal = ({ predictionPoint, onAnswer }) => {
   // predictionPoint now has algorithm-agnostic structure
   const { question, choices, hint } = predictionPoint;
-  
+
   return (
     <div>
       <h2>{question}</h2>
-      {choices.map(choice => (
+      {choices.map((choice) => (
         <button onClick={() => onAnswer(choice)}>{choice}</button>
       ))}
       {hint && <p>{hint}</p>}
@@ -626,7 +657,7 @@ const PredictionModal = ({ predictionPoint, onAnswer }) => {
 useEffect(() => {
   const predictions = trace?.metadata?.prediction_points || [];
   const matchingPrediction = predictions.find(
-    p => p.step_index === currentStep
+    (p) => p.step_index === currentStep
   );
   setActivePrediction(matchingPrediction);
 }, [currentStep, trace]);
@@ -668,9 +699,11 @@ metadata = {
 ## Phase 5: Add 3-5 More Algorithms (12-20 hours, 3-5 hours each)
 
 ### Goal
+
 **Prove scalability by rapidly adding diverse algorithms using established patterns.**
 
 ### Success Criteria
+
 - ✅ Each new algorithm takes <5 hours to add
 - ✅ No modifications to base infrastructure
 - ✅ All algorithms have working visualizations and predictions
@@ -678,26 +711,31 @@ metadata = {
 ### Algorithms to Add (Choose 3-5)
 
 **5.1: Merge Sort (4 hours)**
+
 - Visualization: Array with merge animations
 - Prediction: Which subarray will merge next?
 - Data structure: Array + recursion
 
 **5.2: Depth-First Search (5 hours)**
+
 - Visualization: Graph with nodes/edges
 - Prediction: Which node visited next?
 - Data structure: Graph (adjacency list)
 
 **5.3: Dijkstra's Algorithm (6 hours)**
+
 - Visualization: Weighted graph
 - Prediction: Which node's distance updated next?
 - Data structure: Graph + priority queue
 
 **5.4: Quick Sort (4 hours)**
+
 - Visualization: Array with pivot highlighting
 - Prediction: Where will pivot end up?
 - Data structure: Array + partitioning
 
 **5.5: Breadth-First Search (4 hours)**
+
 - Visualization: Graph with level-by-level coloring
 - Prediction: Next node in queue?
 - Data structure: Graph + queue
@@ -707,16 +745,19 @@ metadata = {
 **Phase 5.X: [Algorithm Name] (est. time)**
 
 1. **Implement Tracer** (2 hours)
+
    - Inherit from `AlgorithmTracer`
    - Implement `_get_visualization_state()`
    - Implement `execute()`
    - Define step types
 
 2. **Create Visualization Component** (1.5 hours)
+
    - New component or extend existing
    - Register in visualization registry
 
 3. **Define Prediction Points** (1 hour)
+
    - Implement `get_prediction_points()`
    - Test predictions
 
@@ -776,6 +817,7 @@ PHASE 5: Scale to 5-8 Algorithms
 ### Explicit Stop Conditions
 
 **STOP if:**
+
 1. **Phase 0 fails validation** - Thought experiments reveal architectural impossibility
 2. **Phase 1 requires breaking changes** - Base tracer needs algorithm-specific code
 3. **Registry adds >2 hours per algorithm** - Pattern too complex
@@ -785,6 +827,7 @@ PHASE 5: Scale to 5-8 Algorithms
 7. **Existing features break** - Interval Coverage stops working during refactor
 
 **Red Flags** (investigate but don't stop immediately):
+
 - Binary Search trace >2x size of Interval Coverage trace
 - Frontend rerender performance drops >50ms
 - Base tracer grows >300 lines
@@ -794,15 +837,15 @@ PHASE 5: Scale to 5-8 Algorithms
 
 ## Risk Mitigation Summary
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| Base class overfitted to intervals | High | Critical | Phase 0 mandatory design validation before coding |
-| Frontend hardcoded for Timeline | Medium | High | Phase 3 registry + component abstraction |
-| Prediction logic too interval-specific | Medium | Medium | Phase 4 metadata-driven predictions |
-| Registry pattern over-engineered | Medium | Medium | Phase 2 includes simplification rollback |
-| New algorithms take >8 hours each | Low | High | Phase 5 uses validated patterns, stop if exceeds |
-| Performance degradation | Low | Medium | Profile after Phase 3, optimize if needed |
-| Existing POC breaks | Low | Critical | Git commits per phase, rollback plan each phase |
+| Risk                                   | Likelihood | Impact   | Mitigation                                        |
+| -------------------------------------- | ---------- | -------- | ------------------------------------------------- |
+| Base class overfitted to intervals     | High       | Critical | Phase 0 mandatory design validation before coding |
+| Frontend hardcoded for Timeline        | Medium     | High     | Phase 3 registry + component abstraction          |
+| Prediction logic too interval-specific | Medium     | Medium   | Phase 4 metadata-driven predictions               |
+| Registry pattern over-engineered       | Medium     | Medium   | Phase 2 includes simplification rollback          |
+| New algorithms take >8 hours each      | Low        | High     | Phase 5 uses validated patterns, stop if exceeds  |
+| Performance degradation                | Low        | Medium   | Profile after Phase 3, optimize if needed         |
+| Existing POC breaks                    | Low        | Critical | Git commits per phase, rollback plan each phase   |
 
 ---
 
@@ -828,6 +871,7 @@ PHASE 5: Scale to 5-8 Algorithms
 ## Scope Boundaries
 
 ### In Scope
+
 - ✅ 5-8 distinct algorithms (Interval, Binary, DFS, Sorting)
 - ✅ Dynamic visualization component selection
 - ✅ Generalized prediction mode
@@ -835,6 +879,7 @@ PHASE 5: Scale to 5-8 Algorithms
 - ✅ Existing UX features preserved (highlighting, keyboard shortcuts)
 
 ### Out of Scope
+
 - ❌ User-created custom algorithms
 - ❌ LLM-generated explanations
 - ❌ Side-by-side algorithm comparison
@@ -857,16 +902,19 @@ PHASE 5: Scale to 5-8 Algorithms
 ## Implementation Notes
 
 **Technologies Requiring Research**:
+
 - React dynamic component rendering (`React.lazy` for visualization components?)
 - Python plugin/registry patterns (importlib for auto-discovery?)
 
 **Potential Blockers**:
+
 - Frontend component registry might need React Context for global access
 - Graph visualization library selection (D3.js? Cytoscape.js?)
 - Large traces (DFS on 100-node graph) might need pagination
 
 **Recommended Starting Point**:
 Create `docs/phase0_architecture.md` with:
+
 1. Base class contract specification
 2. Three thought experiment pseudo-code implementations
 3. Explicit GO/NO-GO decision before any code changes
