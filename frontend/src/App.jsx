@@ -31,7 +31,7 @@ const AlgorithmTracePlayer = () => {
     currentAlgorithm,
     availableAlgorithms,
     loadExampleIntervalTrace,
-    loadExampleBinarySearchTrace
+    loadExampleBinarySearchTrace,
   } = useTraceLoader();
 
   // 2. Navigation Hook (requires prediction reset function)
@@ -50,7 +50,7 @@ const AlgorithmTracePlayer = () => {
 
   const activeCallRef = useRef(null);
 
-  // 3. Prediction Hook
+  // 3. Prediction Hook (PHASE 4: Now returns activePrediction)
   const prediction = usePredictionMode(trace, currentStep, navNextStep);
 
   // Update the navigation hook's reset function reference
@@ -64,7 +64,8 @@ const AlgorithmTracePlayer = () => {
   // PHASE 3: Dynamically select visualization component
   const visualizationType = trace?.metadata?.visualization_type || "timeline";
   const visualizationConfig = trace?.metadata?.visualization_config || {};
-  const MainVisualizationComponent = getVisualizationComponent(visualizationType);
+  const MainVisualizationComponent =
+    getVisualizationComponent(visualizationType);
 
   // --- HANDLERS ---
 
@@ -74,9 +75,9 @@ const AlgorithmTracePlayer = () => {
     navNextStep();
   };
 
-  // Handler: Prediction Answer
-  const handlePredictionAnswer = (isCorrect) => {
-    prediction.handlePredictionAnswer(isCorrect);
+  // PHASE 4: Updated handler - now receives userAnswer instead of isCorrect
+  const handlePredictionAnswer = (userAnswer) => {
+    prediction.handlePredictionAnswer(userAnswer);
   };
 
   // Handler: Prediction Skip
@@ -167,20 +168,30 @@ const AlgorithmTracePlayer = () => {
 
   const isIntervalCoverage = currentAlgorithm === "interval-coverage";
 
-  const algorithmButtons = availableAlgorithms.length > 0
-    ? availableAlgorithms.map((alg) => ({
-        name: alg.name,
-        display_name: alg.display_name,
-        handler: alg.name === "binary-search"
-          ? loadExampleBinarySearchTrace
-          : loadExampleIntervalTrace,
-      }))
-    : [
-        { name: "interval-coverage", display_name: "Interval Coverage", handler: loadExampleIntervalTrace },
-        { name: "binary-search", display_name: "Binary Search", handler: loadExampleBinarySearchTrace },
-      ];
+  const algorithmButtons =
+    availableAlgorithms.length > 0
+      ? availableAlgorithms.map((alg) => ({
+          name: alg.name,
+          display_name: alg.display_name,
+          handler:
+            alg.name === "binary-search"
+              ? loadExampleBinarySearchTrace
+              : loadExampleIntervalTrace,
+        }))
+      : [
+          {
+            name: "interval-coverage",
+            display_name: "Interval Coverage",
+            handler: loadExampleIntervalTrace,
+          },
+          {
+            name: "binary-search",
+            display_name: "Binary Search",
+            handler: loadExampleBinarySearchTrace,
+          },
+        ];
 
-  // ✅ FIX: Create a generic props object and conditionally add algorithm-specific props.
+  // Create a generic props object and conditionally add algorithm-specific props
   const mainVisualizationProps = {
     step: step,
     config: visualizationConfig,
@@ -192,8 +203,14 @@ const AlgorithmTracePlayer = () => {
   }
 
   return (
-    <div id="app-root" className="w-full h-screen bg-slate-900 flex flex-col overflow-hidden">
-      <div id="app-header" className="bg-slate-800 border-b border-slate-700 px-4 py-3">
+    <div
+      id="app-root"
+      className="w-full h-screen bg-slate-900 flex flex-col overflow-hidden"
+    >
+      <div
+        id="app-header"
+        className="bg-slate-800 border-b border-slate-700 px-4 py-3"
+      >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div>
@@ -243,10 +260,10 @@ const AlgorithmTracePlayer = () => {
       </div>
 
       <div className="flex-1 flex items-center justify-center p-4 overflow-hidden">
-        {prediction.showPrediction && (
+        {/* PHASE 4: Pass activePrediction instead of step/nextStep */}
+        {prediction.showPrediction && prediction.activePrediction && (
           <PredictionModal
-            step={trace?.trace?.steps?.[currentStep]}
-            nextStep={trace?.trace?.steps?.[currentStep + 1]}
+            predictionData={prediction.activePrediction}
             onAnswer={handlePredictionAnswer}
             onSkip={handlePredictionSkip}
           />
@@ -265,12 +282,13 @@ const AlgorithmTracePlayer = () => {
           >
             <div className="px-6 pt-6 pb-3 border-b border-slate-700">
               <h2 className="text-white font-bold">
-                {visualizationType === "array" ? "Array Visualization" : "Timeline Visualization"}
+                {visualizationType === "array"
+                  ? "Array Visualization"
+                  : "Timeline Visualization"}
               </h2>
             </div>
             <div className="flex-1 overflow-auto p-6">
               <ErrorBoundary>
-                {/* ✅ FIX: Spread the conditional props object */}
                 <MainVisualizationComponent {...mainVisualizationProps} />
               </ErrorBoundary>
             </div>
@@ -281,7 +299,9 @@ const AlgorithmTracePlayer = () => {
           >
             <div className="px-6 py-4 border-b border-slate-700">
               <h2 className="text-white font-bold">
-                {isIntervalCoverage ? "Recursive Call Stack" : "Algorithm State"}
+                {isIntervalCoverage
+                  ? "Recursive Call Stack"
+                  : "Algorithm State"}
               </h2>
             </div>
             <div
@@ -299,22 +319,33 @@ const AlgorithmTracePlayer = () => {
                   <div className="space-y-4">
                     {step?.data?.visualization?.pointers && (
                       <div className="bg-slate-700/50 rounded-lg p-4">
-                        <h3 className="text-white font-semibold mb-2">Pointers</h3>
+                        <h3 className="text-white font-semibold mb-2">
+                          Pointers
+                        </h3>
                         <div className="space-y-2 text-sm">
-                          {Object.entries(step.data.visualization.pointers).map(([key, value]) => (
-                            value !== null && value !== undefined && (
-                              <div key={key} className="flex justify-between">
-                                <span className="text-gray-400 capitalize">{key}:</span>
-                                <span className="text-white font-mono">{value}</span>
-                              </div>
-                            )
-                          ))}
+                          {Object.entries(step.data.visualization.pointers).map(
+                            ([key, value]) =>
+                              value !== null &&
+                              value !== undefined && (
+                                <div key={key} className="flex justify-between">
+                                  <span className="text-gray-400 capitalize">
+                                    {key}:
+                                  </span>
+                                  <span className="text-white font-mono">
+                                    {value}
+                                  </span>
+                                </div>
+                              )
+                          )}
                         </div>
                       </div>
                     )}
-                    {step?.data?.visualization?.search_space_size !== undefined && (
+                    {step?.data?.visualization?.search_space_size !==
+                      undefined && (
                       <div className="bg-slate-700/50 rounded-lg p-4">
-                        <h3 className="text-white font-semibold mb-2">Search Progress</h3>
+                        <h3 className="text-white font-semibold mb-2">
+                          Search Progress
+                        </h3>
                         <div className="text-sm">
                           <div className="flex justify-between mb-2">
                             <span className="text-gray-400">Space Size:</span>
@@ -328,9 +359,11 @@ const AlgorithmTracePlayer = () => {
                               style={{
                                 width: `${Math.max(
                                   0,
-                                  100 - (step.data.visualization.search_space_size /
-                                         (trace?.metadata?.input_size || 1) * 100)
-                                )}%`
+                                  100 -
+                                    (step.data.visualization.search_space_size /
+                                      (trace?.metadata?.input_size || 1)) *
+                                      100
+                                )}%`,
                               }}
                             />
                           </div>

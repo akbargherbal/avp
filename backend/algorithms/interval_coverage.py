@@ -151,34 +151,56 @@ class IntervalCoverageTracer(AlgorithmTracer):
             'all_intervals': self._get_all_intervals_with_state(),
             'call_stack_state': self._get_call_stack_state()
         }
-
+    
     def get_prediction_points(self) -> List[Dict[str, Any]]:
-        """
-        Identify prediction moments in the trace.
-
-        Finds all EXAMINING_INTERVAL steps and creates prediction questions
-        about whether the interval will be kept or covered.
-        """
-        predictions = []
-        
-        for i, step in enumerate(self.trace):
-            if step.type == "EXAMINING_INTERVAL":
-                # Look ahead to find the decision
-                if i + 1 < len(self.trace):
-                    decision_step = self.trace[i + 1]
-                    if decision_step.type == "DECISION_MADE":
-                        interval_data = step.data.get('interval', {})
-                        decision = decision_step.data.get('decision')
-                        
-                        predictions.append({
-                            'step_index': i,
-                            'question': f"Will interval ({interval_data.get('start')}, {interval_data.get('end')}) be kept or covered?",
-                            'choices': ['keep', 'covered'],
-                            'hint': f"Compare interval.end with max_end",
-                            'correct_answer': decision
-                        })
-        
-        return predictions
+            """
+            Identify prediction moments in the trace.
+            Finds all EXAMINING_INTERVAL steps and creates prediction questions
+            about whether the interval will be kept or covered.
+            
+            Returns predictions in standardized format matching binary_search.py:
+            {
+                'step_index': int,
+                'question': str,
+                'choices': [{'id': str, 'label': str}, ...],
+                'hint': str,
+                'correct_answer': str,
+                'explanation': str (optional)
+            }
+            """
+            predictions = []
+            for i, step in enumerate(self.trace):
+                if step.type == "EXAMINING_INTERVAL":
+                    # Look ahead to find the decision
+                    if i + 1 < len(self.trace):
+                        decision_step = self.trace[i + 1]
+                        if decision_step.type == "DECISION_MADE":
+                            interval_data = step.data.get('interval', {})
+                            decision = decision_step.data.get('decision')
+                            start = interval_data.get('start')
+                            end = interval_data.get('end')
+                            
+                            predictions.append({
+                                'step_index': i,
+                                'question': f"Will interval ({start}, {end}) be kept or covered?",
+                                'choices': [
+                                    {
+                                        'id': 'keep',
+                                        'label': 'Keep this interval'
+                                    },
+                                    {
+                                        'id': 'covered',
+                                        'label': 'Covered by previous'
+                                    }
+                                ],
+                                'hint': f"Compare interval.end ({end}) with max_end",
+                                'correct_answer': decision,
+                                'explanation': (
+                                    f"Interval ({start}, {end}) was {decision}." if decision == 'keep'
+                                    else f"Interval ({start}, {end}) is covered by a previous interval."
+                                )
+                            })
+            return predictions
 
     def _get_all_intervals_with_state(self):
         """Get all original intervals with their current visual state."""
