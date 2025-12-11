@@ -3,11 +3,11 @@ import PropTypes from "prop-types";
 import { ChevronRight } from "lucide-react";
 import { getIntervalColor } from "../../constants/intervalColors";
 
-const CallStackView = ({ step, activeCallRef, onIntervalHover }) => {
+const CallStackView = ({ step, activeCallRef, onIntervalHover, currentStep }) => {
   // FIXED: Updated to use new standardized path (step.data.visualization.call_stack_state)
   const callStack = step?.data?.visualization?.call_stack_state || [];
 
-  // FIXED (Session 9): Ensure auto-scroll happens when callStack changes
+  // FIXED (Session 21): Use currentStep as dependency instead of callStack
   useEffect(() => {
     if (activeCallRef?.current) {
       activeCallRef.current.scrollIntoView({
@@ -15,7 +15,7 @@ const CallStackView = ({ step, activeCallRef, onIntervalHover }) => {
         block: "center",
       });
     }
-  }, [callStack, activeCallRef]);
+  }, [currentStep, activeCallRef]);
 
   if (callStack.length === 0) {
     return (
@@ -142,6 +142,7 @@ CallStackView.propTypes = {
   step: PropTypes.object,
   activeCallRef: PropTypes.object,
   onIntervalHover: PropTypes.func.isRequired,
+  currentStep: PropTypes.number,
 };
 
 export default React.memo(CallStackView);

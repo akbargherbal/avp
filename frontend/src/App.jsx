@@ -278,7 +278,7 @@ const AlgorithmTracePlayer = () => {
         <div className="w-full h-full max-w-7xl flex gap-4 overflow-hidden">
           <div
             id="panel-visualization"
-            className="flex-1 bg-slate-800 rounded-xl shadow-2xl flex flex-col overflow-hidden"
+            className="flex-[3] bg-slate-800 rounded-xl shadow-2xl flex flex-col overflow-hidden"
           >
             <div className="px-6 pt-6 pb-3 border-b border-slate-700">
               <h2 className="text-white font-bold">
@@ -314,6 +314,7 @@ const AlgorithmTracePlayer = () => {
                     step={step}
                     activeCallRef={activeCallRef}
                     onIntervalHover={highlight.handleIntervalHover}
+                    currentStep={currentStep}
                   />
                 ) : (
                   <div className="space-y-4">

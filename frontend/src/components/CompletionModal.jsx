@@ -3,15 +3,68 @@ import { RotateCcw } from "lucide-react";
 import { getAccuracyFeedback } from "../utils/predictionUtils";
 import { getIntervalColor } from "../constants/intervalColors";
 
+/**
+ * Get outcome-driven modal theme based on algorithm result
+ * Matches static mockup outcome-driven theming
+ */
+const getOutcomeTheme = (trace) => {
+  const result = trace?.result || {};
+  const algorithm = trace?.metadata?.algorithm || "unknown";
+  
+  // Binary Search: Check if target was found
+  if (algorithm === "binary-search") {
+    if (result.found === true) {
+      return {
+        border: "border-emerald-500",
+        icon: "bg-emerald-500",
+        iconPath: "M5 13l4 4L19 7", // Checkmark
+        title: "Target Found!",
+        subtitle: "Binary search completed successfully."
+      };
+    } else if (result.found === false) {
+      return {
+        border: "border-red-500",
+        icon: "bg-red-500",
+        iconPath: "M6 18L18 6M6 6l12 12", // X
+        title: "Target Not Found",
+        subtitle: "Binary search completed."
+      };
+    }
+  }
+  
+  // Interval Coverage or other algorithms: Neutral/Complete
+  return {
+    border: "border-blue-500",
+    icon: "bg-blue-500",
+    iconPath: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z", // Circle check
+    title: "Algorithm Complete!",
+    subtitle: algorithm === "interval-coverage" 
+      ? "Successfully removed covered intervals"
+      : "Execution finished."
+  };
+};
+
+/**
+ * Completion Modal - Mockup Compliant
+ *
+ * VISUAL STANDARD: Matches static_mockup/completion_modal_mockup.html
+ * - max-w-lg (512px) - NOT max-w-2xl
+ * - p-6 padding - NOT p-5
+ * - NO max-h-[85vh] constraint per mockup
+ * - Outcome-driven theming (border/icon color)
+ * - Two-button layout: Close (secondary) + Start Over (primary)
+ */
 const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
-  // FIXED: Check if we're on the last step instead of checking step type
-  // This makes the modal work for ANY algorithm's final step
-  const isLastStep = trace?.trace?.steps && 
+  // Check if we're on the last step (algorithm-agnostic)
+  const isLastStep = trace?.trace?.steps &&
     step?.step === trace.trace.steps.length - 1;
 
   if (!isLastStep) {
     return null;
   }
+
+  // Get outcome-driven theme
+  const theme = getOutcomeTheme(trace);
 
   // Detect algorithm type from metadata
   const algorithm = trace?.metadata?.algorithm || "unknown";
@@ -32,7 +85,6 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
     } else if (isBinarySearch) {
       return renderBinarySearchResults();
     } else {
-      // Fallback for unknown algorithms
       return renderGenericResults();
     }
   };
@@ -67,7 +119,7 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
           </div>
         </div>
 
-        {/* Final Result */}
+        {/* Final Result - NO SCROLLING per mockup */}
         <div className="bg-slate-900/50 rounded-lg p-3 mb-4">
           <div className="text-slate-300 font-semibold mb-2 text-xs">
             Final Result:
@@ -77,8 +129,8 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
               No intervals remaining
             </div>
           ) : (
-            <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
-              {result.map((interval, idx) => {
+            <div className="flex flex-wrap gap-1.5">
+              {result.slice(0, 7).map((interval, idx) => {
                 if (
                   !interval ||
                   typeof interval.start !== "number" ||
@@ -98,6 +150,11 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
                   </div>
                 );
               })}
+              {result.length > 7 && (
+                <div className="bg-gray-500 text-white px-1.5 py-0.5 rounded text-xs font-bold">
+                  +{result.length - 7} more
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -116,52 +173,24 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
     return (
       <>
         {/* Stats Section */}
-        <div className="bg-slate-900/50 rounded-lg p-3 mb-3">
+        <div className="bg-slate-900/50 rounded-lg p-3 mb-4">
           <div className="grid grid-cols-3 gap-3 text-center">
             <div>
-              <div className="text-slate-400 text-xs mb-0.5">Array Size</div>
+              <div className="text-slate-400 text-xs">Array Size</div>
               <div className="text-xl font-bold text-white">{arraySize}</div>
             </div>
             <div>
-              <div className="text-slate-400 text-xs mb-0.5">Comparisons</div>
+              <div className="text-slate-400 text-xs">Comparisons</div>
               <div className="text-xl font-bold text-blue-400">
                 {comparisons}
               </div>
             </div>
             <div>
-              <div className="text-slate-400 text-xs mb-0.5">Result</div>
+              <div className="text-slate-400 text-xs">Result</div>
               <div className={`text-xl font-bold ${found ? "text-emerald-400" : "text-red-400"}`}>
-                {found ? "✓" : "✗"}
+                {found ? "✓ Found" : "✗ Not Found"}
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Final Result */}
-        <div className="bg-slate-900/50 rounded-lg p-3 mb-4">
-          <div className="text-slate-300 font-semibold mb-2 text-xs">
-            Search Result:
-          </div>
-          <div className="text-center py-3">
-            {found ? (
-              <div>
-                <div className="text-emerald-400 text-lg font-bold mb-1">
-                  Target {target} found at index {index}
-                </div>
-                <div className="text-slate-400 text-sm">
-                  Found in {comparisons} comparison{comparisons !== 1 ? 's' : ''}
-                </div>
-              </div>
-            ) : (
-              <div>
-                <div className="text-red-400 text-lg font-bold mb-1">
-                  Target {target} not found
-                </div>
-                <div className="text-slate-400 text-sm">
-                  Searched through {comparisons} comparison{comparisons !== 1 ? 's' : ''}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </>
@@ -172,7 +201,7 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
     return (
       <div className="bg-slate-900/50 rounded-lg p-3 mb-4">
         <div className="text-slate-300 text-sm text-center py-4">
-          Algorithm execution complete!
+          Execution finished.
         </div>
       </div>
     );
@@ -180,12 +209,12 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800 rounded-2xl shadow-2xl border-2 border-emerald-500 max-w-lg w-full p-5">
-        {/* Header Section */}
-        <div className="text-center mb-4">
-          <div className="inline-flex items-center justify-center w-10 h-10 bg-emerald-500 rounded-full mb-2">
+      <div className={`bg-slate-800 rounded-2xl shadow-2xl border-2 ${theme.border} max-w-lg w-full p-5`}>
+        {/* Header Section with Outcome-Driven Theming */}
+        <div className="text-center mb-3">
+          <div className={`inline-flex items-center justify-center w-12 h-12 ${theme.icon} rounded-full mb-2`}>
             <svg
-              className="w-6 h-6 text-white"
+              className="w-8 h-8 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -193,16 +222,14 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={3}
-                d="M5 13l4 4L19 7"
+                strokeWidth={2}
+                d={theme.iconPath}
               />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-white">Algorithm Complete!</h2>
+          <h2 className="text-xl font-bold text-white">{theme.title}</h2>
           <p className="text-slate-400 text-xs mt-0.5">
-            {isIntervalCoverage && "Successfully removed covered intervals"}
-            {isBinarySearch && "Binary search finished"}
-            {!isIntervalCoverage && !isBinarySearch && "Execution finished"}
+            {theme.subtitle}
           </p>
         </div>
 
@@ -211,14 +238,14 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
 
         {/* Prediction Accuracy Section (works for all algorithms) */}
         {predictionStats?.total > 0 && (
-          <div className="bg-slate-900/50 rounded-lg p-3 mb-3 border-2 border-blue-500">
-            <div className="flex items-center justify-between mb-2">
+          <div className="bg-slate-900/50 rounded-lg p-3 mb-3 border-2 border-blue-500/50">
+            <div className="flex items-center justify-between mb-1">
               <h3 className="text-white font-bold text-sm">
                 Prediction Accuracy
               </h3>
               <div className="flex items-baseline gap-1">
                 <span
-                  className={`text-2xl font-bold ${
+                  className={`text-xl font-bold ${
                     feedback.color === "emerald"
                       ? "text-emerald-400"
                       : feedback.color === "amber"
@@ -236,12 +263,12 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
 
             {/* Feedback Message */}
             <div
-              className={`rounded px-2 py-1.5 ${
+              className={`rounded p-2 ${
                 feedback.color === "emerald"
-                  ? "bg-emerald-900/30 border border-emerald-500/50"
+                  ? "bg-emerald-900/30"
                   : feedback.color === "amber"
-                  ? "bg-amber-900/30 border border-amber-500/50"
-                  : "bg-red-900/30 border border-red-500/50"
+                  ? "bg-amber-900/30"
+                  : "bg-red-900/30"
               }`}
             >
               <p
@@ -253,20 +280,35 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
                     : "text-red-300"
                 }`}
               >
-                {feedback.emoji} {feedback.message}
+                {feedback.message}
               </p>
             </div>
           </div>
         )}
 
-        {/* Start Over Button */}
-        <button
-          onClick={onReset}
-          className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
-        >
-          <RotateCcw size={16} />
-          Start Over
-        </button>
+        {/* No Prediction Data Message */}
+        {predictionStats?.total === 0 && (
+          <div className="text-center text-slate-500 text-xs italic py-2">
+            Prediction mode was not used.
+          </div>
+        )}
+
+        {/* Actions - Two-Button Layout per Mockup */}
+        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-700">
+          <button
+            onClick={() => window.history.back()}
+            className="bg-slate-600 hover:bg-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+          >
+            Close
+          </button>
+          <button
+            onClick={onReset}
+            className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <RotateCcw size={16} />
+            Start Over
+          </button>
+        </div>
       </div>
     </div>
   );
