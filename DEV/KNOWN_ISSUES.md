@@ -340,7 +340,7 @@ Phase 4 Complete: Smart prediction shortcuts
 - Falls back to numbers when conflicts exist
 - Restores PoC-quality UX (Press K/C vs Press 1/2)
 
-Known Issues (see DEV/KNOWN_ISSUES.md):
+Known Issues (see KNOWN_ISSUES.md):
 - Binary Search missing Completion Modal (Issue #1)
 - Simple examples feel scripted (Issue #2)
 - Prediction choice count needs philosophy (Issue #3)
