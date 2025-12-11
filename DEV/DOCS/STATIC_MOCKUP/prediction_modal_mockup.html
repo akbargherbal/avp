@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Modal - Visual Standards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        .modal-backdrop {
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8">
+    <!-- Header -->
+    <div class="max-w-6xl mx-auto mb-8">
+        <h1 class="text-4xl font-bold text-white mb-2">Prediction Modal Visual Standards</h1>
+        <p class="text-slate-400 text-lg">Reference implementation for Tenant Guide Section 1.1 (Modal Standards)</p>
+    </div>
+
+    <!-- Documentation Box -->
+    <div class="max-w-6xl mx-auto mb-8 bg-slate-800/50 border border-blue-500/30 rounded-lg p-6">
+        <h2 class="text-xl font-bold text-blue-400 mb-3">🔒 LOCKED Requirements (Tenant Guide 1.1 + 2.3)</h2>
+        <ul class="space-y-2 text-slate-300">
+            <li>✅ <strong>Max Height:</strong> max-h-[85vh] - No scrolling allowed</li>
+            <li>✅ <strong>Max Width:</strong> max-w-lg (512px) for prediction modals</li>
+            <li>✅ <strong>Choice Limit:</strong> 2-3 choices maximum (HARD LIMIT)</li>
+            <li>✅ <strong>Button Colors:</strong> Different visual weights for Primary/Secondary actions</li>
+            <li>✅ <strong>Keyboard Shortcuts:</strong> Semantic keys (F/L/R) + numbers (1/2/3) fallback</li>
+        </ul>
+    </div>
+
+    <!-- Examples Container -->
+    <div class="max-w-6xl mx-auto space-y-12">
+        
+        <!-- Example 1: Binary Choice (2 choices) -->
+        <div>
+            <h3 class="text-2xl font-bold text-white mb-4">Example 1: Binary Choice (2 Choices)</h3>
+            <p class="text-slate-400 mb-4">Used for yes/no decisions, keep/discard, left/right navigation</p>
+            
+            <div class="relative bg-slate-900/50 rounded-xl p-8 border border-slate-700">
+                <!-- Simulated Modal -->
+                <div class="max-w-lg mx-auto">
+                    <div class="bg-slate-800 rounded-2xl shadow-2xl border-2 border-blue-500 p-6">
+                        <!-- Question -->
+                        <div class="mb-6">
+                            <h3 class="text-2xl font-bold text-white mb-2">What will happen to this interval?</h3>
+                            <p class="text-slate-400 text-sm">Step 5 of 12 - Interval Coverage</p>
+                        </div>
+
+                        <!-- Hint Box -->
+                        <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mb-6">
+                            <p class="text-blue-300 text-sm">
+                                💡 <strong>Hint:</strong> Check if current interval's start is before the previous end
+                            </p>
+                        </div>
+
+                        <!-- 2 Choices - Grid -->
+                        <div class="grid grid-cols-2 gap-3 mb-6">
+                            <button class="bg-emerald-600 hover:bg-emerald-500 text-white py-4 px-4 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg">
+                                <div class="text-base mb-1">Keep this interval</div>
+                                <div class="text-xs opacity-75">Press K or 1</div>
+                            </button>
+                            <button class="bg-orange-600 hover:bg-orange-500 text-white py-4 px-4 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg">
+                                <div class="text-base mb-1">Covered by previous</div>
+                                <div class="text-xs opacity-75">Press C or 2</div>
+                            </button>
+                        </div>
+
+                        <!-- Actions - Two-Step Confirmation -->
+                        <div class="flex justify-between items-center pt-4 border-t border-slate-700">
+                            <button class="text-slate-400 hover:text-slate-300 text-sm transition-colors">
+                                Skip (Press S)
+                            </button>
+                            <button class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold transition-all opacity-50 cursor-not-allowed">
+                                Submit (Enter)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Example 2: Ternary Choice (3 choices) -->
+        <div>
+            <h3 class="text-2xl font-bold text-white mb-4">Example 2: Ternary Choice (3 Choices - MAXIMUM)</h3>
+            <p class="text-slate-400 mb-4">Used for left/middle/right decisions, found/continue/end states</p>
+            
+            <div class="relative bg-slate-900/50 rounded-xl p-8 border border-slate-700">
+                <!-- Simulated Modal -->
+                <div class="max-w-lg mx-auto">
+                    <div class="bg-slate-800 rounded-2xl shadow-2xl border-2 border-blue-500 p-6">
+                        <!-- Question -->
+                        <div class="mb-6">
+                            <h3 class="text-2xl font-bold text-white mb-2">Where should we search next?</h3>
+                            <p class="text-slate-400 text-sm">Step 3 of 8 - Binary Search</p>
+                        </div>
+
+                        <!-- Hint Box -->
+                        <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mb-6">
+                            <p class="text-blue-300 text-sm">
+                                💡 <strong>Hint:</strong> Compare mid (67) with target (67)
+                            </p>
+                        </div>
+
+                        <!-- 3 Choices - Grid -->
+                        <div class="grid grid-cols-3 gap-3 mb-6">
+                            <button class="bg-emerald-600 hover:bg-emerald-500 text-white py-4 px-3 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg">
+                                <div class="text-sm mb-1">Found!</div>
+                                <div class="text-xs opacity-75">Press F or 1</div>
+                            </button>
+                            <button class="bg-blue-600 hover:bg-blue-500 text-white py-4 px-3 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg">
+                                <div class="text-sm mb-1">Search Left</div>
+                                <div class="text-xs opacity-75">Press L or 2</div>
+                            </button>
+                            <button class="bg-red-600 hover:bg-red-500 text-white py-4 px-3 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg">
+                                <div class="text-sm mb-1">Search Right</div>
+                                <div class="text-xs opacity-75">Press R or 3</div>
+                            </button>
+                        </div>
+
+                        <!-- Actions - Two-Step Confirmation -->
+                        <div class="flex justify-between items-center pt-4 border-t border-slate-700">
+                            <button class="text-slate-400 hover:text-slate-300 text-sm transition-colors">
+                                Skip (Press S)
+                            </button>
+                            <button class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold transition-all opacity-50 cursor-not-allowed">
+                                Submit (Enter)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Example 2b: With Selection (Shows Two-Step Pattern) -->
+        <div>
+            <h3 class="text-2xl font-bold text-white mb-4">Example 2b: After Selection (Two-Step Confirmation)</h3>
+            <p class="text-slate-400 mb-4">User has selected an answer - now Submit button activates</p>
+            
+            <div class="relative bg-slate-900/50 rounded-xl p-8 border border-slate-700">
+                <!-- Simulated Modal with Selection -->
+                <div class="max-w-lg mx-auto">
+                    <div class="bg-slate-800 rounded-2xl shadow-2xl border-2 border-blue-500 p-6">
+                        <!-- Question -->
+                        <div class="mb-6">
+                            <h3 class="text-2xl font-bold text-white mb-2">Where should we search next?</h3>
+                            <p class="text-slate-400 text-sm">Step 3 of 8 - Binary Search</p>
+                        </div>
+
+                        <!-- Hint Box -->
+                        <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mb-6">
+                            <p class="text-blue-300 text-sm">
+                                💡 <strong>Hint:</strong> Compare mid (67) with target (67)
+                            </p>
+                        </div>
+
+                        <!-- 3 Choices - Grid (with selection) -->
+                        <div class="grid grid-cols-3 gap-3 mb-6">
+                            <button class="bg-emerald-600 text-white py-4 px-3 rounded-lg font-semibold transition-all scale-105 ring-2 ring-emerald-400 shadow-xl">
+                                <div class="text-sm mb-1">Found! ✓</div>
+                                <div class="text-xs opacity-75">Press F or 1</div>
+                            </button>
+                            <button class="bg-blue-600/50 text-white py-4 px-3 rounded-lg font-semibold opacity-60">
+                                <div class="text-sm mb-1">Search Left</div>
+                                <div class="text-xs opacity-75">Press L or 2</div>
+                            </button>
+                            <button class="bg-red-600/50 text-white py-4 px-3 rounded-lg font-semibold opacity-60">
+                                <div class="text-sm mb-1">Search Right</div>
+                                <div class="text-xs opacity-75">Press R or 3</div>
+                            </button>
+                        </div>
+
+                        <!-- Actions - Submit Now Active -->
+                        <div class="flex justify-between items-center pt-4 border-t border-slate-700">
+                            <button class="text-slate-400 hover:text-slate-300 text-sm transition-colors">
+                                Skip (Press S)
+                            </button>
+                            <button class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg animate-pulse">
+                                Submit (Enter) ✓
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Example 3: WHY NOT 4+ Choices (Violation) -->
+        <div>
+            <h3 class="text-2xl font-bold text-red-400 mb-4">❌ Anti-Pattern: 4+ Choices (VIOLATES HARD LIMIT)</h3>
+            <p class="text-slate-400 mb-4">This example shows why >3 choices breaks the design</p>
+            
+            <div class="relative bg-red-900/10 rounded-xl p-8 border-2 border-red-500/50">
+                <!-- Simulated Modal with TOO MANY CHOICES -->
+                <div class="max-w-lg mx-auto">
+                    <div class="bg-slate-800 rounded-2xl shadow-2xl border-2 border-red-500 p-6">
+                        <!-- Question -->
+                        <div class="mb-6">
+                            <h3 class="text-2xl font-bold text-white mb-2">Which node will DFS visit next?</h3>
+                            <p class="text-slate-400 text-sm">Step 7 of 15 - Depth-First Search</p>
+                        </div>
+
+                        <!-- 4 Choices - Breaks Layout -->
+                        <div class="grid grid-cols-2 gap-2 mb-6">
+                            <button class="bg-slate-700 text-white py-3 px-3 rounded-lg font-semibold text-sm opacity-50">
+                                <div class="mb-1">Node A</div>
+                                <div class="text-xs opacity-75">Press A or 1</div>
+                            </button>
+                            <button class="bg-slate-700 text-white py-3 px-3 rounded-lg font-semibold text-sm opacity-50">
+                                <div class="mb-1">Node B</div>
+                                <div class="text-xs opacity-75">Press B or 2</div>
+                            </button>
+                            <button class="bg-slate-700 text-white py-3 px-3 rounded-lg font-semibold text-sm opacity-50">
+                                <div class="mb-1">Node C</div>
+                                <div class="text-xs opacity-75">Press C or 3</div>
+                            </button>
+                            <button class="bg-slate-700 text-white py-3 px-3 rounded-lg font-semibold text-sm opacity-50">
+                                <div class="mb-1">Node D</div>
+                                <div class="text-xs opacity-75">Press D or 4</div>
+                            </button>
+                        </div>
+
+                        <!-- Problem Indicators -->
+                        <div class="space-y-3 mb-4">
+                            <div class="bg-red-900/30 border border-red-500/50 rounded-lg p-3">
+                                <p class="text-red-300 text-sm">
+                                    ⚠️ <strong>Problem 1:</strong> Buttons too small, text cramped
+                                </p>
+                            </div>
+                            <div class="bg-red-900/30 border border-red-500/50 rounded-lg p-3">
+                                <p class="text-red-300 text-sm">
+                                    ⚠️ <strong>Problem 2:</strong> Cognitive overload - decision tree, not algorithm focus
+                                </p>
+                            </div>
+                            <div class="bg-red-900/30 border border-red-500/50 rounded-lg p-3">
+                                <p class="text-red-300 text-sm">
+                                    ⚠️ <strong>Problem 3:</strong> Keyboard shortcuts conflict (A/B/C/D ambiguous)
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Solution Suggestion -->
+                        <div class="bg-emerald-900/20 border border-emerald-500/30 rounded-lg p-4">
+                            <p class="text-emerald-300 text-sm mb-2">
+                                <strong>✅ Better Question:</strong>
+                            </p>
+                            <p class="text-slate-300 text-sm italic">
+                                "Will DFS find a path to the target?"<br>
+                                Choices: Yes / No / Not enough info
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Palette Reference -->
+        <div>
+            <h3 class="text-2xl font-bold text-white mb-4">Button Color Guidelines</h3>
+            <p class="text-slate-400 mb-4">Use semantic colors to differentiate choice types</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Positive/Success Actions -->
+                <div class="bg-slate-900/50 rounded-xl p-6 border border-slate-700">
+                    <h4 class="text-lg font-bold text-emerald-400 mb-4">✅ Positive/Success Actions</h4>
+                    <div class="space-y-3">
+                        <button class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 px-4 rounded-lg font-semibold transition-all">
+                            Found! / Keep / Yes / Continue
+                        </button>
+                        <p class="text-slate-400 text-sm">Use: bg-emerald-600 hover:bg-emerald-500</p>
+                    </div>
+                </div>
+
+                <!-- Negative/Discard Actions -->
+                <div class="bg-slate-900/50 rounded-xl p-6 border border-slate-700">
+                    <h4 class="text-lg font-bold text-orange-400 mb-4">🚫 Negative/Discard Actions</h4>
+                    <div class="space-y-3">
+                        <button class="w-full bg-orange-600 hover:bg-orange-500 text-white py-3 px-4 rounded-lg font-semibold transition-all">
+                            Covered / Discard / No / Stop
+                        </button>
+                        <p class="text-slate-400 text-sm">Use: bg-orange-600 hover:bg-orange-500</p>
+                    </div>
+                </div>
+
+                <!-- Directional Actions (Left) -->
+                <div class="bg-slate-900/50 rounded-xl p-6 border border-slate-700">
+                    <h4 class="text-lg font-bold text-blue-400 mb-4">← Left/Previous Direction</h4>
+                    <div class="space-y-3">
+                        <button class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 px-4 rounded-lg font-semibold transition-all">
+                            Search Left / Go Back / Previous
+                        </button>
+                        <p class="text-slate-400 text-sm">Use: bg-blue-600 hover:bg-blue-500</p>
+                    </div>
+                </div>
+
+                <!-- Directional Actions (Right) -->
+                <div class="bg-slate-900/50 rounded-xl p-6 border border-slate-700">
+                    <h4 class="text-lg font-bold text-red-400 mb-4">→ Right/Next Direction</h4>
+                    <div class="space-y-3">
+                        <button class="w-full bg-red-600 hover:bg-red-500 text-white py-3 px-4 rounded-lg font-semibold transition-all">
+                            Search Right / Go Forward / Next
+                        </button>
+                        <p class="text-slate-400 text-sm">Use: bg-red-600 hover:bg-red-500</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementation Notes -->
+        <div class="bg-slate-800/50 border border-blue-500/30 rounded-lg p-6">
+            <h3 class="text-xl font-bold text-blue-400 mb-4">Implementation Notes (Tenant Guide Reference)</h3>
+            <div class="space-y-4 text-slate-300">
+                <div>
+                    <p class="font-semibold text-white mb-2">Two-Step Confirmation Pattern (LOCKED - Section 1.4):</p>
+                    <ol class="list-decimal list-inside space-y-1 text-sm">
+                        <li><strong>Step 1:</strong> User selects a choice (F/L/R or 1/2/3)</li>
+                        <li><strong>Step 2:</strong> User confirms with Enter or clicks Submit button</li>
+                        <li>Submit button disabled until choice selected (opacity-50 cursor-not-allowed)</li>
+                        <li>Submit button activates with pulse animation when choice made</li>
+                        <li>Selected choice shows: scale-105 ring-2 ring-{color}-400 shadow-xl</li>
+                        <li>Unselected choices dim: opacity-60</li>
+                    </ol>
+                </div>
+                <div>
+                    <p class="font-semibold text-white mb-2">Keyboard Shortcuts (LOCKED - Section 1.4):</p>
+                    <ul class="list-disc list-inside space-y-1 text-sm">
+                        <li><strong>F/L/R</strong> (or semantic letters) - Select choice</li>
+                        <li><strong>1/2/3</strong> - Fallback numeric selection</li>
+                        <li><strong>Enter</strong> - Submit selected choice</li>
+                        <li><strong>S</strong> - Skip prediction (always available)</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-semibold text-white mb-2">Modal Size (LOCKED - Section 1.1):</p>
+                    <code class="bg-slate-900 px-3 py-1 rounded text-sm text-blue-300">
+                        className="max-w-lg w-full max-h-[85vh]"
+                    </code>
+                </div>
+                <div>
+                    <p class="font-semibold text-white mb-2">Grid Layout for Choices:</p>
+                    <code class="bg-slate-900 px-3 py-1 rounded text-sm text-blue-300">
+                        2 choices: grid-cols-2<br>
+                        3 choices: grid-cols-3
+                    </code>
+                </div>
+                <div>
+                    <p class="font-semibold text-white mb-2">Button States:</p>
+                    <ul class="list-disc list-inside space-y-1 text-sm">
+                        <li>Default: bg-{color}-600</li>
+                        <li>Hover: hover:bg-{color}-500 hover:scale-105</li>
+                        <li>Selected: scale-105 ring-2 ring-{color}-400 shadow-xl</li>
+                        <li>Unselected (after selection): opacity-60</li>
+                        <li>Submit disabled: opacity-50 cursor-not-allowed</li>
+                        <li>Submit active: animate-pulse hover:scale-105</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-semibold text-white mb-2">Why These Colors?</p>
+                    <ul class="list-disc list-inside space-y-1 text-sm">
+                        <li><strong>Emerald:</strong> Success/positive outcomes (found, keep, yes)</li>
+                        <li><strong>Orange:</strong> Discard/negative outcomes (covered, no, stop)</li>
+                        <li><strong>Blue:</strong> Left/backward navigation + Submit button (universal convention)</li>
+                        <li><strong>Red:</strong> Right/forward navigation (universal convention)</li>
+                        <li><strong>All have sufficient contrast</strong> with dark background (WCAG AAA)</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-semibold text-white mb-2">Why Two-Step Confirmation?</p>
+                    <ul class="list-disc list-inside space-y-1 text-sm">
+                        <li>Prevents accidental submissions (especially with keyboard shortcuts)</li>
+                        <li>Gives user time to review their choice</li>
+                        <li>Clear visual feedback before committing</li>
+                        <li>Consistent with form design best practices</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="max-w-6xl mx-auto mt-12 pt-8 border-t border-slate-700">
+        <p class="text-slate-500 text-sm text-center">
+            Prediction Modal Visual Standards v1.0 | Tenant Guide Section 1.1 + 2.3<br>
+            Created: Session 16 | Last Updated: December 11, 2025
+        </p>
+    </div>
+
+</body>
+</html>
