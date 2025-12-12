@@ -2,6 +2,14 @@ import React from "react";
 import PropTypes from "prop-types";
 import { getIntervalColor } from "../../constants/intervalColors";
 
+/**
+ * TimelineView - Interval Coverage Visualization
+ * 
+ * ✅ FIXES (Session: Integration Testing):
+ * 1. Changed from interval.visual_state (object) to interval.state (string)
+ * 2. Reduced hover magnification (removed scale-110, reduced ring and shadow)
+ * 3. Enhanced "covered" state styling with grayscale and opacity
+ */
 const TimelineView = ({ step, highlightedIntervalId, onIntervalHover }) => {
   // FIXED: Check for data in both new structure (visualization) and legacy (top-level)
   // New structure (Phase 2+): step.data.visualization.all_intervals
@@ -58,10 +66,11 @@ const TimelineView = ({ step, highlightedIntervalId, onIntervalHover }) => {
           const width = toPercent(interval.end) - toPercent(interval.start);
           const colors = getIntervalColor(interval.color);
 
-          const visualState = interval.visual_state || {};
-          const isExamining = visualState.is_examining || false;
-          const isCovered = visualState.is_covered || false;
-          const isKept = visualState.is_kept || false;
+          // ✅ FIX #3: Backend now sends 'state' as string, not 'visual_state' as object
+          const state = interval.state || 'active';
+          const isExamining = state === 'examining';
+          const isCovered = state === 'covered';
+          const isKept = state === 'kept';
 
           // Check if this interval is currently highlighted
           const isHighlighted = interval.id === highlightedIntervalId;
@@ -69,10 +78,10 @@ const TimelineView = ({ step, highlightedIntervalId, onIntervalHover }) => {
 
           let additionalClasses = "transition-all duration-300";
 
-          // Highlighting takes precedence over examining state
+          // ✅ FIX #4: Reduced hover magnification (removed scale-110, reduced ring/shadow)
           if (isHighlighted) {
             additionalClasses +=
-              " ring-4 ring-yellow-400 scale-110 z-30 shadow-[0_0_20px_8px_rgba(250,204,21,0.5)]";
+              " ring-2 ring-yellow-400 z-30 shadow-[0_0_12px_4px_rgba(250,204,21,0.3)]";
           } else if (isDimmed) {
             additionalClasses += " opacity-40";
           } else if (isExamining) {
@@ -80,8 +89,9 @@ const TimelineView = ({ step, highlightedIntervalId, onIntervalHover }) => {
               " border-4 border-yellow-300 scale-105 shadow-[0_0_15px_5px_rgba(234,179,8,0.6)] z-20";
           }
 
+          // ✅ FIX #5: Enhanced "covered" state with grayscale and opacity
           if (isCovered) {
-            additionalClasses += " line-through";
+            additionalClasses += " opacity-30 grayscale line-through bg-gray-800/50";
           }
 
           if (isKept && !isHighlighted) {
@@ -120,7 +130,7 @@ const TimelineView = ({ step, highlightedIntervalId, onIntervalHover }) => {
           <span className="text-slate-400">examining</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-3 bg-slate-500 opacity-30 rounded line-through"></div>
+          <div className="w-8 h-3 bg-slate-500 opacity-30 rounded line-through grayscale"></div>
           <span className="text-slate-400">covered (skipped)</span>
         </div>
       </div>

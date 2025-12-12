@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { RotateCcw } from "lucide-react";
 import { getAccuracyFeedback } from "../utils/predictionUtils";
 import { getIntervalColor } from "../constants/intervalColors";
@@ -56,11 +56,29 @@ const getOutcomeTheme = (trace) => {
  * - Horizontal prediction accuracy layout
  * - mb-4 → mb-3 for tighter spacing in stats sections
  * - Added leading-tight to title for better visual density
+ * 
+ * SESSION 23 FIX: Added smooth fade-in and scale animations
+ * - 500ms fade-in for backdrop
+ * - 500ms scale-up + fade-in for modal (95% → 100%)
+ * - 100ms initial delay for smooth appearance
  */
 const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  
   // Check if we're on the last step (algorithm-agnostic)
   const isLastStep = trace?.trace?.steps &&
     step?.step === trace.trace.steps.length - 1;
+
+  // Trigger fade-in animation when modal should appear
+  useEffect(() => {
+    if (isLastStep) {
+      // Small delay before animation starts for smooth appearance
+      const timer = setTimeout(() => setIsVisible(true), 100);
+      return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+    }
+  }, [isLastStep]);
 
   if (!isLastStep) {
     return null;
@@ -211,8 +229,14 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 select-none">
-      <div className={`bg-slate-800 rounded-2xl shadow-2xl border-2 ${theme.border} max-w-lg w-full p-5`}>
+    <div 
+      className={`fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 select-none
+        transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+    >
+      <div 
+        className={`bg-slate-800 rounded-2xl shadow-2xl border-2 ${theme.border} max-w-lg w-full p-5
+          transition-all duration-500 ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+      >
         {/* Compact Header (Horizontal Layout) */}
         <div className="flex items-center gap-4 mb-4">
           <div className={`flex-shrink-0 inline-flex items-center justify-center w-12 h-12 ${theme.icon} rounded-full`}>
