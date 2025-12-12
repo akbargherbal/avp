@@ -272,6 +272,7 @@ const AlgorithmTracePlayer = () => {
           trace={trace}
           step={step}
           onReset={resetTrace}
+          onClose={prevStep}
           predictionStats={prediction.predictionStats}
         />
         <KeyboardHints />

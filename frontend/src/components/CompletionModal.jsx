@@ -53,6 +53,7 @@ const getOutcomeTheme = (trace) => {
  * - NO max-h-[85vh] constraint per mockup
  * - Outcome-driven theming (border/icon color)
  * - Two-button layout: Close (secondary) + Start Over (primary)
+ * - Both buttons reset the trace to prevent state inconsistencies
  */
 const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
   // Check if we're on the last step (algorithm-agnostic)
@@ -208,7 +209,7 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 select-none">
       <div className={`bg-slate-800 rounded-2xl shadow-2xl border-2 ${theme.border} max-w-lg w-full p-6`}>
         {/* Header Section with Outcome-Driven Theming */}
         <div className="text-center mb-4">
@@ -296,7 +297,7 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
         {/* Actions - Two-Button Layout per Mockup */}
         <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-700">
           <button
-            onClick={() => window.history.back()}
+            onClick={onReset}
             className="bg-slate-600 hover:bg-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
           >
             Close
