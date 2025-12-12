@@ -39,21 +39,23 @@ const getOutcomeTheme = (trace) => {
     iconPath: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z", // Circle check
     title: "Algorithm Complete!",
     subtitle: algorithm === "interval-coverage"
-      ? "Successfully removed covered intervals"
+      ? "Interval coverage finished."
       : "Execution finished."
   };
 };
 
 /**
- * Completion Modal - Mockup Compliant
+ * Completion Modal - Mockup Compliant (Compact Redesign)
  *
  * VISUAL STANDARD: Matches static_mockup/completion_modal_mockup.html
- * - max-w-lg (512px) - NOT max-w-2xl
- * - p-6 padding - NOT p-5
- * - NO max-h-[85vh] constraint per mockup
- * - Outcome-driven theming (border/icon color)
- * - Two-button layout: Close (secondary) + Start Over (primary)
- * - Both buttons reset the trace to prevent state inconsistencies
+ * KEY CHANGES FROM PREVIOUS VERSION:
+ * - p-5 padding (was p-6) - compact design
+ * - Horizontal header layout (icon + text side-by-side)
+ * - Smaller icon: w-12 h-12 (was w-16 h-16)
+ * - Compact stats: gap-2 (was gap-3), uppercase tracking on labels
+ * - Horizontal prediction accuracy layout
+ * - mb-4 → mb-3 for tighter spacing in stats sections
+ * - Added leading-tight to title for better visual density
  */
 const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
   // Check if we're on the last step (algorithm-agnostic)
@@ -98,21 +100,21 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
 
     return (
       <>
-        {/* Stats Section */}
-        <div className="bg-slate-900/50 rounded-lg p-3 mb-4">
-          <div className="grid grid-cols-3 gap-3 text-center">
+        {/* Stats Section - Compact */}
+        <div className="bg-slate-900/50 rounded-lg p-3 mb-3">
+          <div className="grid grid-cols-3 gap-2 text-center">
             <div>
-              <div className="text-slate-400 text-xs">Initial</div>
+              <div className="text-slate-400 text-xs uppercase tracking-wide">Initial</div>
               <div className="text-xl font-bold text-white">{inputSize}</div>
             </div>
-            <div>
-              <div className="text-slate-400 text-xs">Kept</div>
+            <div className="border-l border-slate-700">
+              <div className="text-slate-400 text-xs uppercase tracking-wide">Kept</div>
               <div className="text-xl font-bold text-emerald-400">
                 {keptCount}
               </div>
             </div>
-            <div>
-              <div className="text-slate-400 text-xs">Removed</div>
+            <div className="border-l border-slate-700">
+              <div className="text-slate-400 text-xs uppercase tracking-wide">Removed</div>
               <div className="text-xl font-bold text-red-400">
                 {removedCount}
               </div>
@@ -120,10 +122,10 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
           </div>
         </div>
 
-        {/* Final Result - NO SCROLLING per mockup */}
+        {/* Final Result - Integrated Label */}
         <div className="bg-slate-900/50 rounded-lg p-3 mb-4">
-          <div className="text-slate-300 font-semibold mb-2 text-xs">
-            Final Result:
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-slate-300 font-semibold text-xs uppercase tracking-wide">Final Result:</span>
           </div>
           {result.length === 0 ? (
             <div className="text-slate-500 text-xs italic text-center py-2">
@@ -173,23 +175,23 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
 
     return (
       <>
-        {/* Stats Section */}
-        <div className="bg-slate-900/50 rounded-lg p-3 mb-4">
-          <div className="grid grid-cols-3 gap-3 text-center">
+        {/* Stats Section - Compact */}
+        <div className="bg-slate-900/50 rounded-lg p-3 mb-3">
+          <div className="grid grid-cols-3 gap-2 text-center">
             <div>
-              <div className="text-slate-400 text-xs">Array Size</div>
+              <div className="text-slate-400 text-xs uppercase tracking-wide">Array Size</div>
               <div className="text-xl font-bold text-white">{arraySize}</div>
             </div>
-            <div>
-              <div className="text-slate-400 text-xs">Comparisons</div>
+            <div className="border-l border-slate-700">
+              <div className="text-slate-400 text-xs uppercase tracking-wide">Comparisons</div>
               <div className="text-xl font-bold text-blue-400">
                 {comparisons}
               </div>
             </div>
-            <div>
-              <div className="text-slate-400 text-xs">Result</div>
+            <div className="border-l border-slate-700">
+              <div className="text-slate-400 text-xs uppercase tracking-wide">Result</div>
               <div className={`text-xl font-bold ${found ? "text-emerald-400" : "text-red-400"}`}>
-                {found ? "✓ Found" : "✗ Not Found"}
+                {found ? "✓ Found" : "✗ Missing"}
               </div>
             </div>
           </div>
@@ -200,9 +202,9 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
 
   const renderGenericResults = () => {
     return (
-      <div className="bg-slate-900/50 rounded-lg p-3 mb-4">
-        <div className="text-slate-300 text-sm text-center py-4">
-          Execution finished.
+      <div className="bg-slate-900/50 rounded-lg p-3 mb-3">
+        <div className="text-slate-300 text-sm text-center py-2">
+          Execution finished successfully.
         </div>
       </div>
     );
@@ -210,12 +212,12 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 select-none">
-      <div className={`bg-slate-800 rounded-2xl shadow-2xl border-2 ${theme.border} max-w-lg w-full p-6`}>
-        {/* Header Section with Outcome-Driven Theming */}
-        <div className="text-center mb-4">
-          <div className={`inline-flex items-center justify-center w-12 h-12 ${theme.icon} rounded-full mb-3`}>
+      <div className={`bg-slate-800 rounded-2xl shadow-2xl border-2 ${theme.border} max-w-lg w-full p-5`}>
+        {/* Compact Header (Horizontal Layout) */}
+        <div className="flex items-center gap-4 mb-4">
+          <div className={`flex-shrink-0 inline-flex items-center justify-center w-12 h-12 ${theme.icon} rounded-full`}>
             <svg
-              className="w-8 h-8 text-white"
+              className="w-7 h-7 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -228,52 +230,26 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-white">{theme.title}</h2>
-          <p className="text-slate-400 text-sm mt-1">
-            {theme.subtitle}
-          </p>
+          <div>
+            <h2 className="text-2xl font-bold text-white leading-tight">{theme.title}</h2>
+            <p className="text-slate-400 text-sm">
+              {theme.subtitle}
+            </p>
+          </div>
         </div>
 
         {/* Algorithm-Specific Results */}
         {renderAlgorithmResults()}
 
-        {/* Prediction Accuracy Section (works for all algorithms) */}
+        {/* Prediction Accuracy Section (Horizontal Layout) */}
         {predictionStats?.total > 0 && (
-          <div className="bg-slate-900/50 rounded-lg p-3 mb-4 border-2 border-blue-500/50">
-            <div className="flex items-center justify-between mb-2">
+          <div className="bg-slate-900/50 rounded-lg p-3 mb-4 border border-blue-500/30 flex items-center justify-between">
+            <div>
               <h3 className="text-white font-bold text-sm">
                 Prediction Accuracy
               </h3>
-              <div className="flex items-baseline gap-1">
-                <span
-                  className={`text-2xl font-bold ${
-                    feedback.color === "emerald"
-                      ? "text-emerald-400"
-                      : feedback.color === "amber"
-                      ? "text-amber-400"
-                      : "text-red-400"
-                  }`}
-                >
-                  {accuracy}%
-                </span>
-                <span className="text-slate-400 text-xs">
-                  ({predictionStats.correct}/{predictionStats.total})
-                </span>
-              </div>
-            </div>
-
-            {/* Feedback Message */}
-            <div
-              className={`rounded p-2 ${
-                feedback.color === "emerald"
-                  ? "bg-emerald-900/30"
-                  : feedback.color === "amber"
-                  ? "bg-amber-900/30"
-                  : "bg-red-900/30"
-              }`}
-            >
-              <p
-                className={`text-xs text-center ${
+              <div
+                className={`text-xs mt-0.5 ${
                   feedback.color === "emerald"
                     ? "text-emerald-300"
                     : feedback.color === "amber"
@@ -282,20 +258,36 @@ const CompletionModal = ({ trace, step, onReset, predictionStats }) => {
                 }`}
               >
                 {feedback.message}
-              </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div
+                className={`text-2xl font-bold leading-none ${
+                  feedback.color === "emerald"
+                    ? "text-emerald-400"
+                    : feedback.color === "amber"
+                    ? "text-amber-400"
+                    : "text-red-400"
+                }`}
+              >
+                {accuracy}%
+              </div>
+              <div className="text-slate-400 text-xs">
+                ({predictionStats.correct}/{predictionStats.total})
+              </div>
             </div>
           </div>
         )}
 
         {/* No Prediction Data Message */}
         {predictionStats?.total === 0 && (
-          <div className="text-center text-slate-500 text-xs italic py-4">
+          <div className="text-center text-slate-500 text-xs italic py-2 mb-2">
             Prediction mode was not used.
           </div>
         )}
 
         {/* Actions - Two-Button Layout per Mockup */}
-        <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-700">
+        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-700">
           <button
             onClick={onReset}
             className="bg-slate-600 hover:bg-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
