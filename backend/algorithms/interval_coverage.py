@@ -264,16 +264,23 @@ class IntervalCoverageTracer(AlgorithmTracer):
             }
             for call in self.call_stack
         ]
-
+    
     def _reset_all_visual_states(self):
-        """Reset all interval visual states."""
+        """
+        Reset transient visual states (examining, in_current_subset).
+        
+        IMPORTANT: DO NOT reset is_covered or is_kept - these are permanent decisions
+        that must persist for the rest of the algorithm execution.
+        
+        BUG FIX (Session 23): Previously reset ALL states including is_covered,
+        causing covered intervals to flash gray then revert to original color.
+        """
         for interval_id in self.interval_states:
-            self.interval_states[interval_id] = {
-                'is_examining': False,
-                'is_covered': False,
-                'is_kept': False,
-                'in_current_subset': True
-            }
+            # Only reset transient states
+            self.interval_states[interval_id]['is_examining'] = False
+            self.interval_states[interval_id]['in_current_subset'] = True
+            # Keep is_covered and is_kept intact - they represent final decisions
+
 
     def _set_visual_state(self, interval_id, **kwargs):
         """Update visual state for a specific interval."""
