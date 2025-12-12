@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Completion Modal - Visual Standards</title>
+    <title>Completion Modal - Compact Redesign</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -16,70 +16,60 @@
     <!-- Header -->
     <div class="max-w-6xl mx-auto mb-8">
         <h1 class="text-4xl font-bold text-white mb-2">Completion Modal Visual Standards</h1>
-        <p class="text-slate-400 text-lg">Reference implementation for Tenant Guide Section 1.1 & 2.4</p>
-    </div>
-
-    <!-- Documentation Box -->
-    <div class="max-w-6xl mx-auto mb-8 bg-slate-800/50 border border-blue-500/30 rounded-lg p-6">
-        <h2 class="text-xl font-bold text-blue-400 mb-3">🔒 LOCKED Requirements & New Standards</h2>
-        <ul class="space-y-2 text-slate-300">
-            <li>✅ <strong>Max Height:</strong> `max-h-[85vh]` - No internal scrolling allowed (Section 1.1)</li>
-            <li>✅ <strong>Max Width:</strong> `max-w-lg` (512px) for completion modals (Section 1.1)</li>
-            <li>✅ <strong>Detection:</strong> Must use last-step detection, not step type (Section 2.4)</li>
-            <li>✅ <strong>New - Outcome-Driven Theming:</strong> Border and icon color must reflect the algorithm result (Success/Failure).</li>
-            <li>✅ <strong>New - Standardized Actions:</strong> Primary action (Start Over) is blue, secondary (Close) is gray.</li>
-        </ul>
+        <p class="text-slate-400 text-lg">Redesigned for Vertical Efficiency (No Element Removal / No Font Scaling)</p>
     </div>
 
     <!-- Examples Container -->
     <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
         
-        <!-- Example 1: Binary Search - SUCCESS -->
+        <!-- Example 1: Binary Search - SUCCESS (Compact) -->
         <div>
-            <h3 class="text-2xl font-bold text-white mb-4">Example 1: Success Outcome (Binary Search - Found)</h3>
+            <h3 class="text-2xl font-bold text-white mb-4">Example 1: Success (Compact)</h3>
             <div class="relative bg-slate-900/50 rounded-xl p-8 border border-slate-700">
-                <div class="bg-slate-800 rounded-2xl shadow-2xl border-2 border-emerald-500 max-w-lg w-full p-6">
-                    <!-- Header -->
-                    <div class="text-center mb-4">
-                        <div class="inline-flex items-center justify-center w-12 h-12 bg-emerald-500 rounded-full mb-3">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <div class="bg-slate-800 rounded-2xl shadow-2xl border-2 border-emerald-500 max-w-lg w-full p-5">
+                    <!-- Compact Header (Row Layout) -->
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="flex-shrink-0 inline-flex items-center justify-center w-12 h-12 bg-emerald-500 rounded-full">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                         </div>
-                        <h2 class="text-2xl font-bold text-white">Target Found!</h2>
-                        <p class="text-slate-400 text-sm mt-1">Binary search completed successfully.</p>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white leading-tight">Target Found!</h2>
+                            <p class="text-slate-400 text-sm">Binary search completed successfully.</p>
+                        </div>
                     </div>
 
                     <!-- Stats Section -->
-                    <div class="bg-slate-900/50 rounded-lg p-3 mb-4">
-                        <div class="grid grid-cols-3 gap-3 text-center">
+                    <div class="bg-slate-900/50 rounded-lg p-3 mb-3">
+                        <div class="grid grid-cols-3 gap-2 text-center">
                             <div>
-                                <div class="text-slate-400 text-xs">Array Size</div>
+                                <div class="text-slate-400 text-xs uppercase tracking-wide">Array Size</div>
                                 <div class="text-xl font-bold text-white">16</div>
                             </div>
-                            <div>
-                                <div class="text-slate-400 text-xs">Comparisons</div>
+                            <div class="border-l border-slate-700">
+                                <div class="text-slate-400 text-xs uppercase tracking-wide">Comparisons</div>
                                 <div class="text-xl font-bold text-blue-400">4</div>
                             </div>
-                            <div>
-                                <div class="text-slate-400 text-xs">Result</div>
+                            <div class="border-l border-slate-700">
+                                <div class="text-slate-400 text-xs uppercase tracking-wide">Result</div>
                                 <div class="text-xl font-bold text-emerald-400">✓ Found</div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Prediction Accuracy -->
-                    <div class="bg-slate-900/50 rounded-lg p-3 mb-4 border-2 border-blue-500/50">
-                        <div class="flex items-center justify-between mb-2">
+                    <!-- Prediction Accuracy (Horizontal Layout) -->
+                    <div class="bg-slate-900/50 rounded-lg p-3 mb-4 border border-blue-500/30 flex items-center justify-between">
+                        <div>
                             <h3 class="text-white font-bold text-sm">Prediction Accuracy</h3>
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-2xl font-bold text-emerald-400">95%</span>
-                                <span class="text-slate-400 text-xs">(19/20)</span>
-                            </div>
+                            <div class="text-xs text-emerald-300 mt-0.5">Excellent work!</div>
                         </div>
-                        <div class="bg-emerald-900/30 rounded p-2"><p class="text-xs text-center text-emerald-300">Excellent work!</p></div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-emerald-400 leading-none">95%</div>
+                            <div class="text-slate-400 text-xs">(19/20)</div>
+                        </div>
                     </div>
 
                     <!-- Actions -->
-                    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-700">
+                    <div class="grid grid-cols-2 gap-3 pt-3 border-t border-slate-700">
                         <button class="bg-slate-600 hover:bg-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Close</button>
                         <button class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition-colors">Start Over</button>
                     </div>
@@ -87,52 +77,54 @@
             </div>
         </div>
 
-        <!-- Example 2: Binary Search - FAILURE -->
+        <!-- Example 2: Binary Search - FAILURE (Compact) -->
         <div>
-            <h3 class="text-2xl font-bold text-white mb-4">Example 2: Failure Outcome (Binary Search - Not Found)</h3>
+            <h3 class="text-2xl font-bold text-white mb-4">Example 2: Failure (Compact)</h3>
             <div class="relative bg-slate-900/50 rounded-xl p-8 border border-slate-700">
-                <div class="bg-slate-800 rounded-2xl shadow-2xl border-2 border-red-500 max-w-lg w-full p-6">
-                    <!-- Header -->
-                    <div class="text-center mb-4">
-                        <div class="inline-flex items-center justify-center w-12 h-12 bg-red-500 rounded-full mb-3">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <div class="bg-slate-800 rounded-2xl shadow-2xl border-2 border-red-500 max-w-lg w-full p-5">
+                    <!-- Compact Header -->
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="flex-shrink-0 inline-flex items-center justify-center w-12 h-12 bg-red-500 rounded-full">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </div>
-                        <h2 class="text-2xl font-bold text-white">Target Not Found</h2>
-                        <p class="text-slate-400 text-sm mt-1">Binary search completed.</p>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white leading-tight">Target Not Found</h2>
+                            <p class="text-slate-400 text-sm">Binary search completed.</p>
+                        </div>
                     </div>
 
                     <!-- Stats Section -->
-                    <div class="bg-slate-900/50 rounded-lg p-3 mb-4">
-                        <div class="grid grid-cols-3 gap-3 text-center">
+                    <div class="bg-slate-900/50 rounded-lg p-3 mb-3">
+                        <div class="grid grid-cols-3 gap-2 text-center">
                             <div>
-                                <div class="text-slate-400 text-xs">Array Size</div>
+                                <div class="text-slate-400 text-xs uppercase tracking-wide">Array Size</div>
                                 <div class="text-xl font-bold text-white">16</div>
                             </div>
-                            <div>
-                                <div class="text-slate-400 text-xs">Comparisons</div>
+                            <div class="border-l border-slate-700">
+                                <div class="text-slate-400 text-xs uppercase tracking-wide">Comparisons</div>
                                 <div class="text-xl font-bold text-blue-400">4</div>
                             </div>
-                            <div>
-                                <div class="text-slate-400 text-xs">Result</div>
-                                <div class="text-xl font-bold text-red-400">✗ Not Found</div>
+                            <div class="border-l border-slate-700">
+                                <div class="text-slate-400 text-xs uppercase tracking-wide">Result</div>
+                                <div class="text-xl font-bold text-red-400">✗ Missing</div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Prediction Accuracy -->
-                    <div class="bg-slate-900/50 rounded-lg p-3 mb-4 border-2 border-blue-500/50">
-                        <div class="flex items-center justify-between mb-2">
+                    <!-- Prediction Accuracy (Horizontal) -->
+                    <div class="bg-slate-900/50 rounded-lg p-3 mb-4 border border-blue-500/30 flex items-center justify-between">
+                        <div>
                             <h3 class="text-white font-bold text-sm">Prediction Accuracy</h3>
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-2xl font-bold text-amber-400">75%</span>
-                                <span class="text-slate-400 text-xs">(15/20)</span>
-                            </div>
+                            <div class="text-xs text-amber-300 mt-0.5">Good effort!</div>
                         </div>
-                        <div class="bg-amber-900/30 rounded p-2"><p class="text-xs text-center text-amber-300">Good effort!</p></div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-amber-400 leading-none">75%</div>
+                            <div class="text-slate-400 text-xs">(15/20)</div>
+                        </div>
                     </div>
 
                     <!-- Actions -->
-                    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-700">
+                    <div class="grid grid-cols-2 gap-3 pt-3 border-t border-slate-700">
                         <button class="bg-slate-600 hover:bg-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Close</button>
                         <button class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition-colors">Start Over</button>
                     </div>
@@ -140,34 +132,37 @@
             </div>
         </div>
 
-        <!-- Example 3: Interval Coverage - NO SCROLLING -->
+        <!-- Example 3: Complex Data - NO SCROLL (Compact) -->
         <div>
-            <h3 class="text-2xl font-bold text-white mb-4">Example 3: Complex Data (Interval Coverage - No Scroll)</h3>
+            <h3 class="text-2xl font-bold text-white mb-4">Example 3: Complex Data (Compact)</h3>
             <div class="relative bg-slate-900/50 rounded-xl p-8 border border-slate-700">
-                <div class="bg-slate-800 rounded-2xl shadow-2xl border-2 border-blue-500 max-w-lg w-full p-6">
-                    <!-- Header -->
-                    <div class="text-center mb-4">
-                        <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-500 rounded-full mb-3">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div class="bg-slate-800 rounded-2xl shadow-2xl border-2 border-blue-500 max-w-lg w-full p-5">
+                    <!-- Compact Header -->
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="flex-shrink-0 inline-flex items-center justify-center w-12 h-12 bg-blue-500 rounded-full">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
-                        <h2 class="text-2xl font-bold text-white">Algorithm Complete</h2>
-                        <p class="text-slate-400 text-sm mt-1">Interval coverage finished.</p>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white leading-tight">Algorithm Complete</h2>
+                            <p class="text-slate-400 text-sm">Interval coverage finished.</p>
+                        </div>
                     </div>
 
                     <!-- Stats Section -->
-                    <div class="bg-slate-900/50 rounded-lg p-3 mb-4">
-                        <div class="grid grid-cols-3 gap-3 text-center">
-                            <div><div class="text-slate-400 text-xs">Initial</div><div class="text-xl font-bold text-white">15</div></div>
-                            <div><div class="text-slate-400 text-xs">Kept</div><div class="text-xl font-bold text-emerald-400">8</div></div>
-                            <div><div class="text-slate-400 text-xs">Removed</div><div class="text-xl font-bold text-red-400">7</div></div>
+                    <div class="bg-slate-900/50 rounded-lg p-3 mb-3">
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div><div class="text-slate-400 text-xs uppercase tracking-wide">Initial</div><div class="text-xl font-bold text-white">15</div></div>
+                            <div class="border-l border-slate-700"><div class="text-slate-400 text-xs uppercase tracking-wide">Kept</div><div class="text-xl font-bold text-emerald-400">8</div></div>
+                            <div class="border-l border-slate-700"><div class="text-slate-400 text-xs uppercase tracking-wide">Removed</div><div class="text-xl font-bold text-red-400">7</div></div>
                         </div>
                     </div>
 
-                    <!-- Final Result - NO SCROLLING -->
+                    <!-- Final Result - Integrated Label -->
                     <div class="bg-slate-900/50 rounded-lg p-3 mb-4">
-                        <div class="text-slate-300 font-semibold mb-2 text-xs">Final Result:</div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-slate-300 font-semibold text-xs uppercase tracking-wide">Final Result:</span>
+                        </div>
                         <div class="flex flex-wrap gap-1.5">
-                            <!-- This pattern prevents internal scrolling -->
                             <div class="bg-blue-600 text-white px-1.5 py-0.5 rounded text-xs font-bold">(1, 8)</div>
                             <div class="bg-green-600 text-white px-1.5 py-0.5 rounded text-xs font-bold">(9, 12)</div>
                             <div class="bg-yellow-600 text-white px-1.5 py-0.5 rounded text-xs font-bold">(14, 18)</div>
@@ -180,7 +175,7 @@
                     </div>
 
                     <!-- Actions -->
-                    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-700">
+                    <div class="grid grid-cols-2 gap-3 pt-3 border-t border-slate-700">
                         <button class="bg-slate-600 hover:bg-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Close</button>
                         <button class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition-colors">Start Over</button>
                     </div>
@@ -188,66 +183,40 @@
             </div>
         </div>
 
-        <!-- Example 4: No Prediction Mode -->
+        <!-- Example 4: No Prediction (Compact) -->
         <div>
-            <h3 class="text-2xl font-bold text-white mb-4">Example 4: No Prediction Data</h3>
+            <h3 class="text-2xl font-bold text-white mb-4">Example 4: No Prediction (Compact)</h3>
             <div class="relative bg-slate-900/50 rounded-xl p-8 border border-slate-700">
-                <div class="bg-slate-800 rounded-2xl shadow-2xl border-2 border-blue-500 max-w-lg w-full p-6">
-                    <!-- Header -->
-                    <div class="text-center mb-4">
-                        <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-500 rounded-full mb-3">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div class="bg-slate-800 rounded-2xl shadow-2xl border-2 border-blue-500 max-w-lg w-full p-5">
+                    <!-- Compact Header -->
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="flex-shrink-0 inline-flex items-center justify-center w-12 h-12 bg-blue-500 rounded-full">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
-                        <h2 class="text-2xl font-bold text-white">Algorithm Complete</h2>
-                        <p class="text-slate-400 text-sm mt-1">Generic algorithm finished.</p>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white leading-tight">Algorithm Complete</h2>
+                            <p class="text-slate-400 text-sm">Generic algorithm finished.</p>
+                        </div>
                     </div>
 
                     <!-- Generic Results -->
-                    <div class="bg-slate-900/50 rounded-lg p-3 mb-4">
-                        <div class="text-slate-300 text-sm text-center py-4">
-                            Execution finished.
+                    <div class="bg-slate-900/50 rounded-lg p-3 mb-3">
+                        <div class="text-slate-300 text-sm text-center py-2">
+                            Execution finished successfully.
                         </div>
                     </div>
 
-                    <!-- NO PREDICTION SECTION -->
-                    <div class="text-center text-slate-500 text-xs italic py-4">
+                    <!-- Disclaimer -->
+                    <div class="text-center text-slate-500 text-xs italic py-2 mb-2">
                         Prediction mode was not used.
                     </div>
 
                     <!-- Actions -->
-                    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-700">
+                    <div class="grid grid-cols-2 gap-3 pt-3 border-t border-slate-700">
                         <button class="bg-slate-600 hover:bg-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Close</button>
                         <button class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition-colors">Start Over</button>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Implementation Notes -->
-    <div class="max-w-6xl mx-auto mt-12 bg-slate-800/50 border border-blue-500/30 rounded-lg p-6">
-        <h3 class="text-xl font-bold text-blue-400 mb-4">Implementation Notes</h3>
-        <div class="space-y-4 text-slate-300 text-sm">
-            <div>
-                <p class="font-semibold text-white">1. Outcome-Driven Theming:</p>
-                <p>The `border-color` of the modal and the header `icon/color` should be determined by `trace.result`. For example, `trace.result.found` being true/false for Binary Search.</p>
-                <ul class="list-disc list-inside ml-4 mt-1">
-                    <li>Success: `border-emerald-500`, green checkmark icon.</li>
-                    <li>Failure: `border-red-500`, red 'X' icon.</li>
-                    <li>Neutral/Complete: `border-blue-500`, blue completion icon.</li>
-                </ul>
-            </div>
-            <div>
-                <p class="font-semibold text-white">2. No Internal Scrolling (LOCKED):</p>
-                <p>For results with many items (like Interval Coverage), use `flex flex-wrap` to display items. If the list is too long, show a subset and a summary (e.g., "+5 more") rather than enabling scroll. This enforces the `max-h-[85vh]` constraint without breaking UX.</p>
-            </div>
-            <div>
-                <p class="font-semibold text-white">3. Standardized Actions:</p>
-                <p>The primary action ("Start Over") should consistently use `bg-blue-600`. A secondary action ("Close") can be added using `bg-slate-600` for a clear visual hierarchy.</p>
-            </div>
-            <div>
-                <p class="font-semibold text-white">4. Graceful Fallbacks:</p>
-                <p>The modal must handle cases where prediction mode wasn't used (`predictionStats.total === 0`) by hiding the accuracy section. It must also have a generic result display for unknown algorithms.</p>
             </div>
         </div>
     </div>
