@@ -51,6 +51,70 @@ This guide is designed to be included in LLM context when generating new algorit
 - **Automated validation** - Generated code can be checked against this spec
 - **Rapid prototyping** - New algorithms can be added in <5 hours using established patterns
 
+<!-- UPDATE 11/12/2025 -->
+
+### Design Authority Hierarchy
+
+When conflicts arise between documentation sources, follow this hierarchy:
+
+#### 1. **Static Mockups** (Highest Authority for Visual Standards)
+
+- **Location:** `docs/static_mockup/*.html`
+- **Authority for:** Visual appearance, sizing, spacing, colors, layout, typography
+- **Created:** Session 16
+- **Status:** Canonical visual reference
+
+#### 2. **Tenant Guide** (This Document)
+
+- **Authority for:** Functional requirements, behavioral patterns, architectural constraints
+- **Must reference mockups** for all visual specifications
+- **If guide contradicts mockup:** Mockup wins for visual decisions, guide needs correction
+
+#### 3. **Compliance Checklists**
+
+- **Location:** `docs/compliance/*.md`
+- **Authority for:** Validation procedures, testing criteria, audit checklists
+- **Derived from:** Tenant Guide + Static Mockups
+- **If checklist contradicts mockup:** File issue to update checklist
+
+**Critical Principle:** Static mockups are the **visual source of truth**. All other documents must align with them.
+
+#### When Adding New Requirements
+
+**Before documenting any visual requirement, ask:**
+
+1. **Is this shown in the mockup?**
+
+   - If YES → Codify exactly what mockup shows (don't add extra constraints)
+   - If NO → Proceed to step 2
+
+2. **Is this a functional or visual requirement?**
+
+   - **Functional** (behavior, logic, data flow) → Can add to guide directly
+   - **Visual** (size, color, spacing, layout) → Must create mockup first, then codify
+
+3. **Am I adding "defensive" constraints not in the design?**
+   - Examples: `max-h-[85vh]` "for safety", extra padding "just in case"
+   - **Red flag:** Using phrases like "should be", "could be", "might need", "to prevent"
+   - **Solution:** Only codify what's actually in the mockup
+
+#### Red Flags Indicating Over-Specification
+
+⚠️ **Warning signs that you're adding requirements not in mockups:**
+
+- Adding size constraints not present in mockup HTML
+- Specifying values "for safety" or "to prevent overflow"
+- Using defensive coding principles without design evidence
+- Assuming "more complex data = need bigger container"
+- Adding requirements based on hypothetical edge cases
+
+**Example of Over-Specification:**
+
+```
+❌ WRONG: "CompletionModal needs max-w-2xl because complex results might be cramped"
+✅ CORRECT: "CompletionModal uses max-w-lg as shown in completion_modal_mockup.html Example 3"
+```
+
 ---
 
 ## Section 1: LOCKED REQUIREMENTS (Zero Freedom) 🔒
@@ -63,23 +127,48 @@ These are **architectural invariants**. Frontend developers must implement exact
 
 **Purpose:** Modals must fit cleanly within the viewport without scrolling. This maintains focus and prevents distraction.
 
+<!-- UPDATE 11/12/2025 -->
+
 #### Size Constraints
+
+**IMPORTANT:** These constraints are derived from `docs/static_mockup/completion_modal_mockup.html` and `prediction_modal_mockup.html` (Session 16).
 
 ```jsx
 // ✅ CORRECT: Modal sizing (must be used exactly)
-<div className="max-w-lg w-full">  {/* Small modal: 512px max */}
-  {/* PredictionModal, simple dialogs */}
+// ALL modals use the same width for consistency
+<div className="max-w-lg w-full p-6">
+  {/* PredictionModal - 512px max width */}
+  {/* CompletionModal - 512px max width */}
+  {/* All other modals - 512px max width */}
 </div>
 
-<div className="max-w-2xl w-full"> {/* Large modal: 672px max */}
-  {/* CompletionModal, complex results */}
+// ❌ WRONG: Different widths for different modals
+<div className="max-w-2xl w-full"> {/* CompletionModal */}
+  {/* This contradicts the mockup! */}
 </div>
 
-// Maximum height constraint (MANDATORY)
-<div className="max-h-[85vh]">  {/* Never exceed 85% of viewport height */}
-  {/* Modal content */}
+// ❌ WRONG: Height constraints
+<div className="max-h-[85vh]"> {/* NOT in mockup */}
+  {/* Height constraints are unnecessary - content is designed to fit naturally */}
 </div>
 ```
+
+**Rationale - Why No Height Constraints:**
+
+The mockups show that content is designed to fit naturally without height constraints:
+
+1. **PredictionModal:** Limited to ≤3 choices (HARD LIMIT) prevents vertical overflow
+2. **CompletionModal:** Uses flex-wrap patterns (e.g., interval badges wrap to multiple rows)
+3. **Compact spacing:** Efficient use of margins/padding keeps modals under ~400px height
+
+**Rationale - Why Single Width (max-w-lg):**
+
+The mockups show `completion_modal_mockup.html` Example 3 handles complex interval coverage data perfectly at 512px width using flex-wrap pattern. Larger widths waste horizontal space and break visual consistency.
+
+**Source References:**
+
+- `completion_modal_mockup.html` - All 4 examples use `max-w-lg w-full p-6`
+- `prediction_modal_mockup.html` - All examples use `max-w-lg w-full p-6`
 
 #### Positioning Rules
 
@@ -130,6 +219,169 @@ These are **architectural invariants**. Frontend developers must implement exact
 // - z-10: Elevated content
 // - z-0: Base content
 ```
+
+<!-- UPDATE 11/12/2025 -->
+
+### 1.1.1 Modal Spacing Standards
+
+**Purpose:** Efficient spacing ensures modals remain compact without wasting vertical space.
+
+**Source:** Extracted from `docs/static_mockup/completion_modal_mockup.html` and `prediction_modal_mockup.html` HTML structure.
+
+#### CompletionModal Spacing
+
+```jsx
+// Outer container
+<div className="bg-slate-800 rounded-2xl shadow-2xl border-2 border-blue-500 max-w-lg w-full p-6">
+  {/* Header section */}
+  <div className="text-center mb-4">
+    {" "}
+    {/* 16px bottom margin */}
+    <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-500 rounded-full mb-3">
+      {/* Icon - 12px margin below */}
+    </div>
+    <h2 className="text-2xl font-bold text-white">Title</h2> {/* text-2xl NOT text-3xl */}
+    <p className="text-slate-400 text-sm mt-1">Subtitle</p>{" "}
+    {/* text-sm NOT text-base */}
+  </div>
+
+  {/* Stats section */}
+  <div className="bg-slate-900/50 rounded-lg p-3 mb-4">
+    {" "}
+    {/* p-3 (12px), mb-4 (16px) */}
+    <div className="grid grid-cols-3 gap-3 text-center">
+      {" "}
+      {/* gap-3 (12px) */}
+      <div>
+        <div className="text-slate-400 text-xs">Label</div>{" "}
+        {/* text-xs (12px) */}
+        <div className="text-xl font-bold text-white">Value</div> {/* text-xl NOT text-2xl */}
+      </div>
+    </div>
+  </div>
+
+  {/* Prediction accuracy section */}
+  <div className="bg-slate-900/50 rounded-lg p-3 mb-4 border-2 border-blue-500/50">
+    <div className="flex items-center justify-between mb-2">
+      {" "}
+      {/* mb-2 (8px) */}
+      <h3 className="text-white font-bold text-sm">Prediction Accuracy</h3>
+      <div className="flex items-baseline gap-1">
+        <span className="text-2xl font-bold text-emerald-400">95%</span>{" "}
+        {/* text-2xl for emphasis */}
+        <span className="text-slate-400 text-xs">(19/20)</span>
+      </div>
+    </div>
+    <div className="bg-emerald-900/30 rounded p-2">
+      {" "}
+      {/* p-2 (8px) */}
+      <p className="text-xs text-center text-emerald-300">Feedback message</p>
+    </div>
+  </div>
+
+  {/* Results section (for complex data like intervals) */}
+  <div className="bg-slate-900/50 rounded-lg p-3 mb-4">
+    {" "}
+    {/* p-3, mb-4 */}
+    <div className="text-slate-300 font-semibold mb-2 text-xs">Label:</div>
+    <div className="flex flex-wrap gap-1.5">
+      {" "}
+      {/* gap-1.5 (6px) - tight wrapping */}
+      {/* Interval badges or similar items */}
+    </div>
+  </div>
+
+  {/* Actions */}
+  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-700">
+    {" "}
+    {/* pt-4 (16px), gap-3 */}
+    <button className="bg-slate-600 py-2 px-4">Close</button>
+    <button className="bg-blue-600 py-2 px-4">Start Over</button>
+  </div>
+</div>
+```
+
+#### PredictionModal Spacing
+
+```jsx
+// Outer container
+<div className="bg-slate-800 rounded-2xl shadow-2xl border-2 border-blue-500 max-w-lg w-full p-6">
+  {/* Question header */}
+  <div className="mb-6">
+    {" "}
+    {/* 24px bottom margin - major section */}
+    <h3 className="text-2xl font-bold text-white mb-2">Question?</h3>{" "}
+    {/* text-2xl, mb-2 */}
+    <p className="text-slate-400 text-sm">Step X of Y - Algorithm Name</p>
+  </div>
+
+  {/* Hint box */}
+  <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mb-6">
+    {" "}
+    {/* p-4, mb-6 */}
+    <p className="text-blue-300 text-sm">
+      💡 <strong>Hint:</strong> Hint text here
+    </p>
+  </div>
+
+  {/* Choices grid */}
+  <div className="grid grid-cols-2 gap-3 mb-6">
+    {" "}
+    {/* For 2 choices - gap-3, mb-6 */}
+    {/* OR grid-cols-3 for 3 choices */}
+    <button className="bg-emerald-600 py-4 px-4 rounded-lg font-semibold">
+      <div className="text-base mb-1">Choice Text</div> {/* text-base (16px) */}
+      <div className="text-xs opacity-75">Press K or 1</div>
+    </button>
+  </div>
+
+  {/* Actions */}
+  <div className="flex justify-between items-center pt-4 border-t border-slate-700">
+    <button className="text-slate-400 text-sm">Skip (Press S)</button>
+    <button className="bg-blue-600 px-6 py-2 rounded-lg font-semibold">
+      Submit (Enter)
+    </button>
+  </div>
+</div>
+```
+
+#### Spacing Philosophy Summary
+
+| Element                   | Spacing                   | Purpose                        |
+| ------------------------- | ------------------------- | ------------------------------ |
+| **Outer padding**         | `p-6` (24px)              | Consistent breathing room      |
+| **Major sections**        | `mb-6` (24px)             | Clear visual separation        |
+| **Minor sections**        | `mb-4` (16px)             | Related content grouping       |
+| **Tight grouping**        | `mb-2` or `mb-3` (8-12px) | Closely related items          |
+| **Inner content padding** | `p-3` or `p-4` (12-16px)  | Compact content boxes          |
+| **Grid/flex gaps**        | `gap-3` (12px)            | Balanced element spacing       |
+| **Wrapping items**        | `gap-1.5` (6px)           | Tight wrapping (badges, chips) |
+
+#### Typography Scale
+
+| Element               | Font Size               | Purpose                                |
+| --------------------- | ----------------------- | -------------------------------------- |
+| **Modal titles**      | `text-2xl` (24px)       | Primary heading - NOT text-3xl         |
+| **Section headers**   | `text-sm` (14px)        | Subsection labels                      |
+| **Body text**         | `text-sm` (14px)        | Content, descriptions                  |
+| **Emphasized values** | `text-xl` or `text-2xl` | Stats, percentages (context-dependent) |
+| **Labels**            | `text-xs` (12px)        | Field labels, hints                    |
+| **Button text**       | `text-base` (16px)      | Choice button primary text             |
+| **Button shortcuts**  | `text-xs` (12px)        | Keyboard hints below button text       |
+
+**Critical Anti-Patterns:**
+
+❌ **Don't use `mb-8` or larger** - Wastes vertical space  
+❌ **Don't use `text-3xl` for modal titles** - Makes modals feel bloated  
+❌ **Don't use `p-8` for outer padding** - Excessive whitespace  
+❌ **Don't use `text-base` for labels** - Makes UI feel cluttered
+
+**Visual Test Criteria:**
+
+✅ Modal height ≤ 400px when all sections visible (typical case)  
+✅ No excessive white space between sections  
+✅ Text sizes create clear hierarchy without wasting space  
+✅ Compact feel without feeling cramped
 
 ---
 
@@ -279,96 +531,105 @@ const CallStackView = ({ step, activeCallRef }) => {
 
 ### 1.4 Keyboard Navigation
 
-**Purpose:** Power users rely on keyboard shortcuts. These shortcuts are **non-negotiable** and must work consistently across all algorithms.
+**Purpose:** Consistent keyboard shortcuts across all algorithms enable power users to navigate efficiently.
+
+**Source:** `algorithm_page_mockup.html` keyboard shortcuts help panel (lines 856-874)
 
 #### Standard Shortcuts (Always Active)
 
 ```javascript
-// Required keyboard shortcuts (implement exactly as specified):
+// Navigation shortcuts
+{
+  "→" (Right Arrow): "Next Step",
+  "Space": "Next Step",  // Alternative to Right Arrow
+  "←" (Left Arrow): "Previous Step",
+  "R": "Reset",  // Restart trace from beginning
+  "Home": "Reset"  // Alternative to R
+}
+```
 
-// Navigation
-→ (Right Arrow)  - Next Step
-← (Left Arrow)   - Previous Step
-Space            - Toggle Mode (Watch/Predict)
-R                - Reset (restart trace from beginning)
+**Implementation Requirements:**
 
-// Modal-specific (when modal is active)
-Enter            - Submit (in PredictionModal)
-S                - Skip (in PredictionModal)
-Escape           - Close modal (optional enhancement)
+- [ ] **Right Arrow OR Space** - Advance to next step (same behavior)
+- [ ] **Left Arrow** - Go to previous step
+- [ ] **R OR Home** - Reset to step 0
+- [ ] **Global listener** - Active unless modal is open or user is typing
+
+#### Modal-Specific Shortcuts (When Modal Active)
+
+```javascript
+// PredictionModal shortcuts
+{
+  "Enter": "Submit selected answer",
+  "S": "Skip prediction",
+  "Escape": "Close modal (optional)"
+}
+```
+
+#### Prediction Choice Shortcuts (Auto-Derived, Max 3)
+
+**HARD LIMIT: ≤3 prediction choices** - Never exceed this limit.
+
+**Derivation Strategy:**
+
+1. **First letter of choice text** (preferred)
+   - Example: "Found" → F, "Search Left" → L, "Search Right" → R
+2. **Keyword extraction** (if conflicts exist)
+   - Example: "Keep interval" → K, "Covered by previous" → C
+3. **Number fallback** (always available)
+   - 1, 2, 3 map to first, second, third choice
+
+**Example:**
+
+```javascript
+// Binary Search prediction question
+{
+  "F or 1": "Found!",
+  "L or 2": "Search Left",
+  "R or 3": "Search Right"
+}
 ```
 
 #### Implementation Pattern
 
-```javascript
-// ✅ CORRECT: Global keyboard listener (from useKeyboardShortcuts.js)
+```jsx
 useEffect(() => {
   const handleKeyPress = (event) => {
-    // Ignore if modal is open (modals handle their own shortcuts)
-    if (modalOpen) return;
+    // Don't intercept if user is typing
+    if (event.target.matches("input, textarea")) return;
 
-    // Ignore if user is typing in an input field
-    if (
-      event.target.tagName === "INPUT" ||
-      event.target.tagName === "TEXTAREA"
-    ) {
-      return;
-    }
+    // Don't intercept if modal is handling keys
+    if (modalOpen) return;
 
     switch (event.key) {
       case "ArrowRight":
+      case " ": // Space bar
         event.preventDefault();
-        onNext();
+        nextStep();
         break;
       case "ArrowLeft":
         event.preventDefault();
-        onPrev();
-        break;
-      case " ": // Space
-        event.preventDefault();
-        onToggleMode();
+        prevStep();
         break;
       case "r":
-      case "R":
+      case "Home":
         event.preventDefault();
-        onReset();
+        reset();
         break;
-      default:
-      // No action
     }
   };
 
   window.addEventListener("keydown", handleKeyPress);
   return () => window.removeEventListener("keydown", handleKeyPress);
-}, [modalOpen, onNext, onPrev, onToggleMode, onReset]);
+}, [modalOpen, currentStep]);
 ```
 
-#### Prediction Shortcuts (Auto-Derived, Maximum 3)
+**Critical Rules:**
 
-**HARD LIMIT:** Prediction questions can have **at most 3 choices**, each with a keyboard shortcut.
-
-```javascript
-// Shortcut derivation strategy (from PredictionModal.jsx):
-// 1. Try first letter of label (if unique among choices)
-// 2. Try first letter of key words (capitalized words)
-// 3. Fall back to numbers (1, 2, 3)
-
-// Examples:
-// "Found! (5 == 5)"    → F (first letter)
-// "Search Left"        → L (key word "Left")
-// "Search Right"       → R (key word "Right")
-// "Keep this interval" → K (first letter)
-// "Covered by previous"→ C (first letter)
-
-// Always supported as fallback:
-// 1 - First choice
-// 2 - Second choice
-// 3 - Third choice
-```
-
-**Rationale:** Consistent keyboard shortcuts reduce friction for power users and enable efficient trace navigation without mouse interaction. The 3-choice limit prevents shortcut conflicts and cognitive overload.
-
----
+- ⛔ **NEVER override Space for mode toggling** - Space is for navigation only
+- ✅ **Prevent default browser behavior** - Use `event.preventDefault()`
+- ✅ **Ignore keypress when typing** - Check if input/textarea focused
+- ✅ **Ignore when modal open** - Modals handle their own shortcuts
 
 ### 1.5 Auto-Scroll Behavior
 
