@@ -270,8 +270,8 @@ def register_algorithms():
             {
                 'name': 'Basic Search - Target Found',
                 'input': {
-                    'array': [1, 3, 5, 7, 9, 11, 13, 15],
-                    'target': 7
+                    'array': [4, 11, 12, 14, 22, 23, 33, 34, 39, 48, 51, 59, 63, 69, 70, 71, 74, 79, 91, 98],
+                    'target': 59
                 }
             },
             {

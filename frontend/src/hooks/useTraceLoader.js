@@ -4,7 +4,7 @@ export const useTraceLoader = () => {
   const [trace, setTrace] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentAlgorithm, setCurrentAlgorithm] = useState("interval-coverage");
+  const [currentAlgorithm, setCurrentAlgorithm] = useState(null);
   const [availableAlgorithms, setAvailableAlgorithms] = useState([]);
 
   const BACKEND_URL =
@@ -126,47 +126,10 @@ export const useTraceLoader = () => {
   );
 
   /**
-   * Load example interval coverage trace (default on startup)
-   */
-  const loadExampleIntervalTrace = useCallback(() => {
-    // loadIntervalTrace wraps the array in {intervals: [...]} format
-    loadIntervalTrace([
-      { id: 1, start: 540, end: 660, color: "blue" },
-      { id: 2, start: 600, end: 720, color: "green" },
-      { id: 3, start: 540, end: 720, color: "amber" },
-      { id: 4, start: 900, end: 960, color: "purple" },
-    ]);
-  }, [loadIntervalTrace]);
-
-  /**
-   * Load example binary search trace
-   *
-   * FIXED: Changed from simple array (8 elements, target found immediately)
-   * to larger array (16 elements) where target requires 3-4 comparisons.
-   *
-   * Array: [2, 5, 8, 12, 16, 23, 38, 45, 56, 67, 78, 84, 91, 95, 99, 104]
-   * Target: 67 (at index 9)
-   *
-   * This provides better educational value:
-   * - Multiple comparison steps (not immediate find)
-   * - Shows search space reduction clearly
-   * - More meaningful prediction opportunities
-   */
-  const loadExampleBinarySearchTrace = useCallback(() => {
-    loadBinarySearchTrace(
-      [2, 5, 8, 12, 16, 23, 38, 45, 56, 67, 78, 84, 91, 95, 99, 104],
-      67
-    );
-  }, [loadBinarySearchTrace]);
-
-  /**
    * Switch to a different algorithm and load its first example.
    *
-   * This is the main handler for the algorithm switcher dropdown.
-   * When user selects an algorithm:
-   * 1. Find the algorithm in availableAlgorithms
-   * 2. Get its first example input
-   * 3. Load trace with that example
+   * ✅ FIXED: This is the PRIMARY way to load traces - uses backend examples.
+   * Frontend never generates data, only requests it from backend.
    *
    * @param {string} algorithmName - Name of algorithm to switch to
    */
@@ -205,26 +168,29 @@ export const useTraceLoader = () => {
     fetchAvailableAlgorithms();
   }, [fetchAvailableAlgorithms]);
 
-  // Initial load effect - loads interval coverage by default (backward compatible)
+  // ✅ FIXED: Initial load now uses backend examples instead of hardcoded frontend data
+  // Wait for algorithms to load, then switch to first algorithm (which loads its first example)
   useEffect(() => {
-    loadExampleIntervalTrace();
-  }, [loadExampleIntervalTrace]);
+    if (availableAlgorithms.length > 0 && !currentAlgorithm) {
+      // Load the first available algorithm's first example
+      // This could be 'interval-coverage' or 'binary-search' depending on registration order
+      const firstAlgorithm = availableAlgorithms[0];
+      switchAlgorithm(firstAlgorithm.name);
+    }
+  }, [availableAlgorithms, currentAlgorithm, switchAlgorithm]);
 
   return {
     trace,
     loading,
     error,
     currentAlgorithm,
-    availableAlgorithms, // NEW: List of algorithms from registry
+    availableAlgorithms, // List of algorithms from registry
     // Generic loader
     loadTrace,
-    // Algorithm-specific loaders
+    // Algorithm-specific loaders (backward compatible, but deprecated)
     loadIntervalTrace,
     loadBinarySearchTrace,
-    // Example loaders
-    loadExampleIntervalTrace,
-    loadExampleBinarySearchTrace,
-    // NEW: Algorithm switcher handler
+    // ✅ PRIMARY METHOD: Algorithm switcher handler (uses backend examples)
     switchAlgorithm,
     // Utility
     fetchAvailableAlgorithms,
