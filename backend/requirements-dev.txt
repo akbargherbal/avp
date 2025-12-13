@@ -1,0 +1,21 @@
+# Development and Testing Dependencies
+# Install with: pip install -r requirements-dev.txt
+
+# Testing Framework
+pytest
+pytest-cov
+pytest-mock
+
+# Code Coverage
+coverage[toml]
+
+# Test Utilities
+pytest-xdist  # Parallel test execution
+pytest-timeout  # Timeout handling for long tests
+
+# Code Quality (optional but recommended)
+pytest-clarity  # Better assertion output
+pytest-sugar  # Better test output formatting
+
+# Async testing support (future-proofing)
+pytest-asyncio
