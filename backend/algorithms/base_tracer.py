@@ -7,6 +7,8 @@ algorithm implementations must follow to generate traces compatible with the
 frontend visualization system.
 
 Philosophy: Backend does ALL the thinking, frontend does ALL the reacting.
+
+Version: 2.0 - Added narrative generation requirement (WORKFLOW.md v2.0)
 """
 
 from abc import ABC, abstractmethod
@@ -37,6 +39,7 @@ class AlgorithmTracer(ABC):
     All algorithm implementations inherit from this class and implement:
     - execute(): Main algorithm entry point
     - get_prediction_points(): Educational prediction moments
+    - generate_narrative(): Convert trace to human-readable markdown (NEW in v2.0)
     - _get_visualization_state(): Optional hook for automatic state enrichment
 
     The base class provides:
@@ -127,6 +130,71 @@ class AlgorithmTracer(ABC):
             }
         """
         pass
+
+    @abstractmethod
+    def generate_narrative(self, trace_result: dict) -> str:
+        """
+        Convert trace JSON to human-readable markdown narrative.
+
+        This method transforms the algorithm's execution trace into a narrative
+        that allows QA reviewers and students to understand the algorithm's
+        logic WITHOUT needing to reference code or raw JSON.
+
+        CRITICAL REQUIREMENTS (from BACKEND_CHECKLIST.md v2.0):
+        1. Show ALL decision data - if you reference a variable, SHOW its value
+        2. Make comparisons explicit with actual values
+        3. Explain decision outcomes clearly
+        4. Fail loudly (KeyError) if visualization data is incomplete
+        5. Narrative must be self-contained and logically complete
+
+        Args:
+            trace_result: Complete trace dictionary returned by execute()
+                         Contains: result, trace, metadata
+
+        Returns:
+            str: Markdown-formatted narrative of the algorithm execution
+
+        Raises:
+            KeyError: If required visualization data is missing (this is GOOD - catches bugs!)
+            NotImplementedError: If subclass doesn't implement this method
+
+        Example Structure:
+            # [Algorithm Name] Execution Narrative
+
+            **Input:** [Describe input with key parameters]
+            **Goal:** [What we're trying to achieve]
+
+            ## Step 0: [Description]
+            **State:** [Show relevant visualization state]
+            **Decision:** [If applicable, show comparison with actual values]
+            **Result:** [Outcome of decision]
+
+            ## Step 1: ...
+
+            ## Final Result
+            **Output:** [Algorithm result]
+            **Performance:** [Key metrics if applicable]
+
+        Anti-Patterns to AVOID:
+        - ❌ Referencing undefined variables: "Compare with max_end" (but max_end not shown)
+        - ❌ Skipping decision outcomes: "Examining interval... [next step unrelated]"
+        - ❌ Narratives requiring code to understand
+        - ❌ Missing visualization data references
+
+        Good Patterns:
+        - ✅ "Compare interval.start (600) with max_end (660) → 600 < 660"
+        - ✅ "Decision: Keep interval [600, 720] because it extends coverage"
+        - ✅ Show array/graph state at each decision point
+        - ✅ Temporal coherence: step N clearly leads to step N+1
+
+        Note:
+            This narrative is reviewed by QA BEFORE frontend integration.
+            Missing data caught here prevents bugs in production.
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__name__} must implement generate_narrative(). "
+            "See BACKEND_CHECKLIST.md v2.0 for implementation pattern and examples."
+        )
 
     def _get_visualization_state(self) -> dict:
         """
