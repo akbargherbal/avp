@@ -1,10 +1,11 @@
 /**
  * Visualization Components Index
- * 
- * Phase 3: Centralized exports for all visualization components.
- * Makes imports cleaner and maintains a single source of truth.
+ *
+ * Phase 5: Reusable visualization components only.
+ * These are generic, algorithm-agnostic building blocks.
+ *
+ * Naming convention: {Concept}View.jsx
  */
 
 export { default as TimelineView } from './TimelineView';
-export { default as IntervalCoverageState } from './IntervalCoverageState';
-export { default as ArrayView } from './ArrayView'; // NEW - Phase 3
+export { default as ArrayView } from './ArrayView';

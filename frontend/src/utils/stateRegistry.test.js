@@ -3,8 +3,8 @@ import {
   isStateComponentRegistered,
   getRegisteredAlgorithms,
 } from "./stateRegistry";
-import IntervalCoverageState from "../components/visualizations/IntervalCoverageState";
-import BinarySearchState from "../components/visualizations/BinarySearchState";
+import IntervalCoverageState from "../components/algorithm-states/IntervalCoverageState";
+import BinarySearchState from "../components/algorithm-states/BinarySearchState";
 
 describe("stateRegistry", () => {
   describe("getStateComponent", () => {
@@ -49,7 +49,7 @@ describe("stateRegistry", () => {
       const consoleSpy = jest.spyOn(console, "warn").mockImplementation();
       getStateComponent(null);
       expect(consoleSpy).toHaveBeenCalledWith(
-        "No algorithm name provided to getStateComponent"
+        expect.stringContaining("getStateComponent called with null/undefined")
       );
       consoleSpy.mockRestore();
     });
