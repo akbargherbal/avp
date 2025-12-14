@@ -8,11 +8,12 @@ import CompletionModal from "./components/CompletionModal";
 import ErrorBoundary from "./components/ErrorBoundary";
 import KeyboardHints from "./components/KeyboardHints";
 import PredictionModal from "./components/PredictionModal";
-import IntervalCoverageState from "./components/visualizations/IntervalCoverageState"; // Direct import for right panel
-import BinarySearchState from "./components/visualizations/BinarySearchState"; // Binary Search state component
 
 // PHASE 3: Import visualization registry
 import { getVisualizationComponent } from "./utils/visualizationRegistry";
+
+// PHASE 4: Import state registry (replaces direct component imports)
+import { getStateComponent } from "./utils/stateRegistry";
 
 // Import extracted utilities
 import { getStepTypeBadge } from "./utils/stepBadges";
@@ -167,7 +168,9 @@ const AlgorithmTracePlayer = () => {
 
   const badge = getStepTypeBadge(step?.type);
 
-  const isIntervalCoverage = currentAlgorithm === "interval-coverage";
+  // PHASE 4: Dynamically select state component based on algorithm
+  // Only call after trace validation - currentAlgorithm is guaranteed to be set here
+  const StateComponent = getStateComponent(currentAlgorithm);
 
   // Create a generic props object and conditionally add algorithm-specific props
   const mainVisualizationProps = {
@@ -175,7 +178,8 @@ const AlgorithmTracePlayer = () => {
     config: visualizationConfig,
   };
 
-  if (isIntervalCoverage) {
+  // PHASE 4: Conditional props for interval coverage visualization
+  if (currentAlgorithm === "interval-coverage") {
     mainVisualizationProps.highlightedIntervalId = highlight.effectiveHighlight;
     mainVisualizationProps.onIntervalHover = highlight.handleIntervalHover;
   }
@@ -274,27 +278,21 @@ const AlgorithmTracePlayer = () => {
             className="w-96 bg-slate-800 rounded-xl shadow-2xl flex flex-col overflow-hidden"
           >
             <div className="px-6 py-4 border-b border-slate-700">
-              <h2 className="text-white font-bold">
-                {isIntervalCoverage
-                  ? "Recursive Call Stack"
-                  : "Algorithm State"}
-              </h2>
+              <h2 className="text-white font-bold">Algorithm State</h2>
             </div>
             <div
               id="panel-steps-list"
               className="flex-1 overflow-y-auto px-6 py-4"
             >
               <ErrorBoundary>
-                {isIntervalCoverage ? (
-                  <IntervalCoverageState
-                    step={step}
-                    activeCallRef={activeCallRef}
-                    onIntervalHover={highlight.handleIntervalHover}
-                    currentStep={currentStep}
-                  />
-                ) : (
-                  <BinarySearchState step={step} trace={trace} />
-                )}
+                {/* PHASE 4: Registry-based component rendering - zero algorithm-specific conditionals */}
+                <StateComponent
+                  step={step}
+                  trace={trace}
+                  activeCallRef={activeCallRef}
+                  onIntervalHover={highlight.handleIntervalHover}
+                  currentStep={currentStep}
+                />
               </ErrorBoundary>
             </div>
             <div
