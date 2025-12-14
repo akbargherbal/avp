@@ -6,11 +6,25 @@
 
 ---
 
+PS:
+**IMPORTANT NOTES**:
+Since I cannot share the entire codebase all at once, I rely on you to explicitly ask for the specific files you need to make an informed decision; do not make guesses or assumptions.
+
+Provide `cat` commands that I can copy and paste into my terminal to share file contents with you. For example:
+`cat absolute/path/to/file`
+
+For large JSON files, use `jq` with appropriate flags to specify the data you want me to provide.
+
+Use `pnpm` instead of `npm`, unless there is a specific need to use `npm`.
+
+---
+
 ## Plan Overview
 
 This plan implements the **Frontend Testing Strategy** in 6 phases across 6-8 sessions. Each phase builds on the previous, starting with LOCKED requirements (architectural contracts) and ending with comprehensive coverage.
 
 **Key Principles:**
+
 1. **LOCKED requirements first** - Break builds if violated
 2. **Test behavior, not implementation** - Focus on user-facing outcomes
 3. **Complement, don't duplicate backend** - Test consumption, not generation
@@ -21,6 +35,7 @@ This plan implements the **Frontend Testing Strategy** in 6 phases across 6-8 se
 ## Session Overview
 
 ### Session 1: Infrastructure + LOCKED Requirements (Part 1)
+
 **Goal:** Set up testing infrastructure and test critical modal IDs  
 **Duration:** ~5 hours  
 **Priority:** CRITICAL (Blocking gate)
@@ -28,23 +43,26 @@ This plan implements the **Frontend Testing Strategy** in 6 phases across 6-8 se
 **Tasks:**
 
 1. **Infrastructure Setup** (1 hour)
+
    ```bash
    # Install additional dependencies
    cd frontend
    pnpm add -D msw@^2.0.0 jest-axe@^8.0.0
-   
+
    # Create directory structure
    mkdir -p src/__tests__/{compliance,integration,fixtures}
    mkdir -p src/mocks
    ```
 
 2. **Mock Service Worker Setup** (1 hour)
+
    - Create `src/mocks/handlers.js` - API mock handlers
    - Create `src/mocks/server.js` - Test server setup
    - Create `src/mocks/browser.js` - Browser server (for manual testing)
    - Update `src/setupTests.js` - Integrate MSW
 
 3. **Test Fixtures** (1 hour)
+
    - Create `src/__tests__/fixtures/traces.js` - Mock trace data
    - Create `src/__tests__/fixtures/predictions.js` - Mock prediction data
    - Create `src/__tests__/fixtures/algorithms.js` - Mock algorithm list
@@ -57,6 +75,7 @@ This plan implements the **Frontend Testing Strategy** in 6 phases across 6-8 se
    - Verify tests pass
 
 **Success Criteria:**
+
 - [ ] MSW configured and working
 - [ ] Test fixtures created
 - [ ] Modal ID tests passing
@@ -64,6 +83,7 @@ This plan implements the **Frontend Testing Strategy** in 6 phases across 6-8 se
 - [ ] CI/CD script created (`scripts/check-compliance.sh`)
 
 **Files to Create:**
+
 ```
 frontend/
 ├── src/
@@ -87,6 +107,7 @@ frontend/
 ---
 
 ### Session 2: LOCKED Requirements (Part 2) + Critical Modal Tests
+
 **Goal:** Complete LOCKED requirement coverage and test prediction modal  
 **Duration:** ~5 hours  
 **Priority:** CRITICAL
@@ -94,6 +115,7 @@ frontend/
 **Tasks:**
 
 1. **LOCKED: Keyboard Shortcuts** (2 hours)
+
    - Create `src/__tests__/compliance/locked-keyboard-shortcuts.test.jsx`
    - Test navigation shortcuts (→/← arrows, Space, Home, End, R)
    - Test prediction shortcuts (K, C, S, Enter)
@@ -102,6 +124,7 @@ frontend/
    - Integration with App.jsx (not just hook tests)
 
 2. **LOCKED: Overflow Pattern** (1.5 hours)
+
    - Create `src/__tests__/compliance/locked-overflow-pattern.test.jsx`
    - Test visualization panel uses `items-start` + `mx-auto`
    - Test anti-pattern detection (no `items-center` on overflow container)
@@ -116,12 +139,14 @@ frontend/
    - Test auto-advance behavior (2.5s timeout)
 
 **Success Criteria:**
+
 - [ ] 100% LOCKED requirement coverage
 - [ ] All compliance tests passing
 - [ ] PredictionModal fully tested
 - [ ] CI/CD compliance gate working
 
 **Files to Create:**
+
 ```
 frontend/src/
 ├── __tests__/compliance/
@@ -134,6 +159,7 @@ frontend/src/
 ---
 
 ### Session 3: Modal Components + Registry Integration
+
 **Goal:** Complete modal testing and test dynamic component selection  
 **Duration:** ~5 hours  
 **Priority:** HIGH
@@ -141,6 +167,7 @@ frontend/src/
 **Tasks:**
 
 1. **Component: CompletionModal** (2 hours)
+
    - Create `src/components/CompletionModal.test.jsx`
    - Test modal structure (ID verified in Session 1)
    - Test visibility logic (only on last step)
@@ -153,6 +180,7 @@ frontend/src/
    - Test keyboard shortcuts (Escape)
 
 2. **Integration: Visualization Registry** (1.5 hours)
+
    - Create `src/__tests__/integration/visualization-registry.test.jsx`
    - Test ArrayView selection for binary-search
    - Test TimelineView selection for interval-coverage
@@ -168,12 +196,14 @@ frontend/src/
    - Test props passing (step, trace, activeCallRef, etc.)
 
 **Success Criteria:**
+
 - [ ] CompletionModal fully tested
 - [ ] Registry integration verified
 - [ ] Dynamic component selection working
 - [ ] Coverage: Modals ~80%, Integration tests created
 
 **Files to Create:**
+
 ```
 frontend/src/
 ├── components/
@@ -186,6 +216,7 @@ frontend/src/
 ---
 
 ### Session 4: Algorithm Switching + Prediction Flow
+
 **Goal:** Test core user workflows  
 **Duration:** ~5 hours  
 **Priority:** HIGH
@@ -193,6 +224,7 @@ frontend/src/
 **Tasks:**
 
 1. **Integration: Algorithm Switching** (2 hours)
+
    - Create `src/__tests__/integration/algorithm-switching.test.jsx`
    - Test: Switch from interval-coverage to binary-search
      - Trace loads from backend
@@ -204,6 +236,7 @@ frontend/src/
    - Test: Handle algorithm with no examples gracefully
 
 2. **Integration: Prediction Flow** (2 hours)
+
    - Create `src/__tests__/integration/prediction-flow.test.jsx`
    - Test: Navigation blocking during prediction modal
      - Click Next button → blocked
@@ -225,12 +258,14 @@ frontend/src/
    - Test: Error handling (network error, 404, 500)
 
 **Success Criteria:**
+
 - [ ] Algorithm switching fully tested
 - [ ] Prediction flow validated end-to-end
 - [ ] API integration verified
 - [ ] All integration tests passing
 
 **Files to Create:**
+
 ```
 frontend/src/__tests__/integration/
 ├── algorithm-switching.test.jsx              # NEW - CRITICAL
@@ -241,6 +276,7 @@ frontend/src/__tests__/integration/
 ---
 
 ### Session 5: Component Coverage (Part 1)
+
 **Goal:** Test navigation and control components  
 **Duration:** ~5 hours  
 **Priority:** HIGH
@@ -248,6 +284,7 @@ frontend/src/__tests__/integration/
 **Tasks:**
 
 1. **Component: AlgorithmSwitcher** (1.5 hours)
+
    - Create `src/components/AlgorithmSwitcher.test.jsx`
    - Test: Displays current algorithm name
    - Test: Opens/closes dropdown
@@ -259,6 +296,7 @@ frontend/src/__tests__/integration/
    - Test: Disabled during loading
 
 2. **Component: ControlBar** (1 hour)
+
    - Create `src/components/ControlBar.test.jsx`
    - Test: Prev button disabled at step 0
    - Test: Next button disabled at last step
@@ -267,6 +305,7 @@ frontend/src/__tests__/integration/
    - Test: Button states during navigation
 
 3. **Component: KeyboardHints** (1 hour)
+
    - Create `src/components/KeyboardHints.test.jsx`
    - Test: Displays shortcut guide
    - Test: Navigation shortcuts listed
@@ -283,12 +322,14 @@ frontend/src/__tests__/integration/
    - Test: Reset mechanism (if implemented)
 
 **Success Criteria:**
+
 - [ ] 4 navigation components fully tested
 - [ ] All callbacks verified
 - [ ] Error handling validated
 - [ ] Coverage: Components ~40%
 
 **Files to Create:**
+
 ```
 frontend/src/components/
 ├── AlgorithmSwitcher.test.jsx               # NEW
@@ -300,6 +341,7 @@ frontend/src/components/
 ---
 
 ### Session 6: Component Coverage (Part 2) - Visualizations
+
 **Goal:** Test visualization and state components  
 **Duration:** ~5 hours  
 **Priority:** HIGH
@@ -307,6 +349,7 @@ frontend/src/components/
 **Tasks:**
 
 1. **Component: ArrayView** (2 hours)
+
    - Create `src/components/visualizations/ArrayView.test.jsx`
    - Test: Renders array elements from visualization data
    - Test: Element highlighting by state:
@@ -321,6 +364,7 @@ frontend/src/components/
    - Add data-testid="array-view"
 
 2. **Component: TimelineView** (2 hours)
+
    - Create `src/components/visualizations/TimelineView.test.jsx`
    - Test: Renders intervals from visualization data
    - Test: Interval highlighting (hovered vs active)
@@ -343,12 +387,14 @@ frontend/src/components/
    - Test: onIntervalHover integration
 
 **Success Criteria:**
+
 - [ ] All visualization components tested
 - [ ] IntervalCoverageState tested (BinarySearchState already has 8 tests)
 - [ ] data-testid added to components
 - [ ] Coverage: Components ~65%
 
 **Files to Create:**
+
 ```
 frontend/src/components/
 ├── visualizations/
@@ -361,6 +407,7 @@ frontend/src/components/
 ---
 
 ### Session 7: Utilities + Hook Updates
+
 **Goal:** Test utilities and update obsolete hook tests  
 **Duration:** ~4 hours  
 **Priority:** MEDIUM
@@ -368,6 +415,7 @@ frontend/src/components/
 **Tasks:**
 
 1. **Utility: predictionUtils** (1 hour)
+
    - Create `src/utils/predictionUtils.test.js`
    - Test `getAccuracyFeedback()`:
      - 90-100% → "Excellent work!" (emerald)
@@ -380,6 +428,7 @@ frontend/src/components/
      - Stats merging
 
 2. **Utility: stepBadges** (1 hour)
+
    - Create `src/utils/stepBadges.test.js`
    - Test all 7 badge types:
      - INITIAL_STATE → blue "Start"
@@ -392,6 +441,7 @@ frontend/src/components/
    - Test default fallback
 
 3. **Utility: visualizationRegistry** (30 min)
+
    - Create `src/utils/visualizationRegistry.test.js`
    - Test `getVisualizationComponent()` (complement existing unit test)
    - Test `getRegisteredTypes()`
@@ -405,12 +455,14 @@ frontend/src/components/
    - Keep existing tests for backward compatibility where possible
 
 **Success Criteria:**
+
 - [ ] All utilities tested
 - [ ] usePredictionMode tests updated for Phase 4 API
 - [ ] No test regressions
 - [ ] Coverage: Utilities ~90%
 
 **Files to Create/Update:**
+
 ```
 frontend/src/
 ├── utils/
@@ -424,6 +476,7 @@ frontend/src/
 ---
 
 ### Session 8: Legacy Cleanup + Final Coverage Push
+
 **Goal:** Archive obsolete tests, achieve 85% coverage, document gaps  
 **Duration:** ~5 hours  
 **Priority:** MEDIUM
@@ -431,6 +484,7 @@ frontend/src/
 **Tasks:**
 
 1. **Legacy Test Audit** (1 hour)
+
    - Review all existing test files
    - Categorize:
      - ✅ Keep (still valid)
@@ -441,18 +495,20 @@ frontend/src/
    - Update `.gitignore` or `package.json` to exclude archived tests
 
 2. **Coverage Analysis** (1 hour)
+
    ```bash
    # Generate coverage report
    pnpm test:coverage
-   
+
    # Open HTML report
    open coverage/index.html
-   
+
    # Identify gaps (target: ≥85%)
    # Focus on uncovered branches and critical paths
    ```
 
 3. **Fill Coverage Gaps** (2 hours)
+
    - Write tests for uncovered components/functions
    - Focus on critical paths first:
      - App.jsx error states
@@ -461,6 +517,7 @@ frontend/src/
    - Aim for 85%+ overall coverage
 
 4. **Documentation** (1 hour)
+
    - Update `frontend/README.md` with testing section
    - Document test structure and conventions
    - Create "How to Test New Features" guide
@@ -474,6 +531,7 @@ frontend/src/
    - Configure compliance gate (LOCKED tests must pass)
 
 **Success Criteria:**
+
 - [ ] Zero obsolete tests in main test suite
 - [ ] Overall coverage ≥85%
 - [ ] LOCKED requirement coverage = 100%
@@ -483,6 +541,7 @@ frontend/src/
 - [ ] CI/CD pipeline working (if implemented)
 
 **Files to Create/Update:**
+
 ```
 frontend/
 ├── tests/archive/poc-era/              # NEW - Archive directory
@@ -497,6 +556,7 @@ frontend/
 ## Session-by-Session Checklist
 
 ### Before Each Session
+
 ```bash
 # Navigate to frontend directory
 cd frontend
@@ -512,6 +572,7 @@ pnpm test --watchAll=false
 ```
 
 ### During Each Session
+
 ```bash
 # Run tests in watch mode
 pnpm test
@@ -530,6 +591,7 @@ pnpm test:compliance
 ```
 
 ### After Each Session
+
 ```bash
 # Run full coverage
 pnpm test:coverage
@@ -551,6 +613,7 @@ git push origin main
 ## Files to Request Per Session
 
 ### Session 1 (Infrastructure + Modal IDs)
+
 ```bash
 # Already have these from strategy session
 cat frontend/src/components/PredictionModal.jsx
@@ -560,6 +623,7 @@ cat frontend/package.json
 ```
 
 ### Session 2 (Keyboard + Overflow + PredictionModal)
+
 ```bash
 # Verify keyboard shortcuts implementation
 cat frontend/src/hooks/useKeyboardShortcuts.js
@@ -567,6 +631,7 @@ cat frontend/src/App.jsx  # Check panel structure for overflow tests
 ```
 
 ### Session 3 (CompletionModal + Registry Integration)
+
 ```bash
 # Registry implementations
 cat frontend/src/utils/visualizationRegistry.js
@@ -574,6 +639,7 @@ cat frontend/src/utils/stateRegistry.js
 ```
 
 ### Session 4 (Algorithm Switching + Prediction Flow)
+
 ```bash
 # Already have these
 cat frontend/src/hooks/useTraceLoader.js
@@ -581,6 +647,7 @@ cat frontend/src/hooks/usePredictionMode.js
 ```
 
 ### Session 5 (Component Coverage Part 1)
+
 ```bash
 cat frontend/src/components/AlgorithmSwitcher.jsx
 cat frontend/src/components/ControlBar.jsx
@@ -589,6 +656,7 @@ cat frontend/src/components/ErrorBoundary.jsx
 ```
 
 ### Session 6 (Component Coverage Part 2)
+
 ```bash
 cat frontend/src/components/visualizations/ArrayView.jsx
 cat frontend/src/components/visualizations/TimelineView.jsx
@@ -596,6 +664,7 @@ cat frontend/src/components/algorithm-states/IntervalCoverageState.jsx
 ```
 
 ### Session 7 (Utilities + Hook Updates)
+
 ```bash
 cat frontend/src/utils/predictionUtils.js
 cat frontend/src/utils/stepBadges.js
@@ -603,6 +672,7 @@ cat frontend/src/hooks/__tests__/usePredictionMode.test.js  # For updating
 ```
 
 ### Session 8 (Legacy Cleanup + Coverage)
+
 ```bash
 # Generate list of all test files
 find frontend/src -name "*.test.js" -o -name "*.test.jsx"
@@ -616,6 +686,7 @@ cat frontend/coverage/coverage-summary.json
 ## Quick Reference: Test Commands
 
 ### Standard Test Commands
+
 ```bash
 # Run all tests
 pnpm test --watchAll=false
@@ -637,6 +708,7 @@ CI=true pnpm test:coverage
 ```
 
 ### Debugging Tests
+
 ```bash
 # Run single test file
 pnpm test PredictionModal.test.jsx --watchAll=false
@@ -655,6 +727,7 @@ pnpm test -u
 ```
 
 ### Coverage Analysis
+
 ```bash
 # Coverage for specific file
 pnpm test --coverage --collectCoverageFrom="src/components/PredictionModal.jsx" --watchAll=false
@@ -673,16 +746,16 @@ cat coverage/coverage-summary.json | jq
 
 ## Coverage Targets Summary
 
-| Component Category | Target | Current | Priority | Sessions |
-|-------------------|--------|---------|----------|----------|
-| LOCKED Requirements | 100% | 0% | CRITICAL | 1-2 |
-| Modals (2 files) | 90% | 0% | CRITICAL | 2-3 |
-| Registry Integration | 90% | 0% | HIGH | 3-4 |
-| Hooks (5 files) | 95% | ~95% | MAINTAIN | 7 |
-| Components (8 files) | 80% | ~10% | HIGH | 5-6 |
-| Utilities (4 files) | 90% | ~60% | MEDIUM | 7 |
-| Integration Tests | 75% | 0% | HIGH | 3-4 |
-| **OVERALL** | **≥85%** | **~50%** | **CRITICAL** | **8** |
+| Component Category   | Target   | Current  | Priority     | Sessions |
+| -------------------- | -------- | -------- | ------------ | -------- |
+| LOCKED Requirements  | 100%     | 0%       | CRITICAL     | 1-2      |
+| Modals (2 files)     | 90%      | 0%       | CRITICAL     | 2-3      |
+| Registry Integration | 90%      | 0%       | HIGH         | 3-4      |
+| Hooks (5 files)      | 95%      | ~95%     | MAINTAIN     | 7        |
+| Components (8 files) | 80%      | ~10%     | HIGH         | 5-6      |
+| Utilities (4 files)  | 90%      | ~60%     | MEDIUM       | 7        |
+| Integration Tests    | 75%      | 0%       | HIGH         | 3-4      |
+| **OVERALL**          | **≥85%** | **~50%** | **CRITICAL** | **8**    |
 
 ---
 
@@ -776,9 +849,10 @@ frontend/
 ✅ **Zero obsolete tests** in main suite (archived, not deleted)  
 ✅ **CI/CD compliance gate** working (LOCKED tests block merge)  
 ✅ **Comprehensive documentation** (testing guide, conventions)  
-✅ **HTML coverage report** showing gaps and progress  
+✅ **HTML coverage report** showing gaps and progress
 
 **Deliverables:**
+
 - 30+ new test files across compliance/integration/component categories
 - Updated hook tests (usePredictionMode for Phase 4 API)
 - Test fixtures and MSW mocks for API testing
@@ -792,65 +866,78 @@ frontend/
 ## Common Issues & Solutions
 
 ### Issue: MSW not intercepting fetch requests
+
 **Symptom:** Tests make real network calls instead of using mocks  
-**Solution:** 
+**Solution:**
+
 ```javascript
 // Ensure MSW server is set up in setupTests.js
-import { server } from './mocks/server';
+import { server } from "./mocks/server";
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 ```
 
 ### Issue: Modal tests fail - "element not in document"
+
 **Symptom:** Modal components don't render in tests  
 **Solution:** Check modal visibility conditions
+
 ```javascript
 // CompletionModal only renders on last step
 const mockStep = {
-  type: 'ALGORITHM_COMPLETE',
-  step: mockTrace.trace.steps.length - 1,  // Must be last step!
-  data: {}
+  type: "ALGORITHM_COMPLETE",
+  step: mockTrace.trace.steps.length - 1, // Must be last step!
+  data: {},
 };
 ```
 
 ### Issue: Keyboard shortcut tests don't work
+
 **Symptom:** Key presses don't trigger expected actions  
 **Solution:** Use proper keyboard event simulation
+
 ```javascript
-import userEvent from '@testing-library/user-event';
+import userEvent from "@testing-library/user-event";
 
 // DON'T: fireEvent.keyDown({ key: 'ArrowRight' })
 // DO:
-await userEvent.keyboard('{ArrowRight}');
+await userEvent.keyboard("{ArrowRight}");
 ```
 
 ### Issue: Registry tests fail - component not found
+
 **Symptom:** `getStateComponent()` returns fallback instead of actual component  
 **Solution:** Mock the registry imports properly
+
 ```javascript
 // Mock must happen before imports
-jest.mock('../utils/stateRegistry', () => ({
+jest.mock("../utils/stateRegistry", () => ({
   getStateComponent: jest.fn(),
-  isStateComponentRegistered: jest.fn()
+  isStateComponentRegistered: jest.fn(),
 }));
 ```
 
 ### Issue: Coverage doesn't update after adding tests
+
 **Symptom:** Coverage percentage stays the same  
 **Solution:** Clear Jest cache
+
 ```bash
 pnpm test --clearCache
 pnpm test:coverage
 ```
 
 ### Issue: Tests are slow (>30 seconds)
+
 **Symptom:** Test suite takes too long to run  
-**Solution:** 
+**Solution:**
+
 1. Use `--maxWorkers=4` to parallelize
 2. Mock heavy operations (API calls, animations)
 3. Use `jest.useFakeTimers()` for timeout tests
+
 ```javascript
 // Speed up 2.5s auto-advance test
 jest.useFakeTimers();
@@ -860,12 +947,14 @@ jest.useRealTimers();
 ```
 
 ### Issue: Overflow pattern test fails intermittently
+
 **Symptom:** `items-start` class sometimes not found  
 **Solution:** Wait for component to fully render
+
 ```javascript
 await waitFor(() => {
-  const panel = screen.getByTestId('panel-visualization');
-  expect(panel).toHaveClass('items-start');
+  const panel = screen.getByTestId("panel-visualization");
+  expect(panel).toHaveClass("items-start");
 });
 ```
 
@@ -876,34 +965,46 @@ await waitFor(() => {
 If time is limited, test these paths first (in order):
 
 ### Priority 1: LOCKED Requirements (Session 1-2)
+
 **Must have 100% coverage - these break builds**
+
 1. Modal IDs (`#prediction-modal`, `#completion-modal`)
 2. Keyboard shortcuts (all 7+ shortcuts working)
 3. Overflow pattern (visual regression prevention)
 
 ### Priority 2: Critical Modals (Session 2-3)
+
 **User-facing features - high impact**
+
 1. PredictionModal (two-step confirmation, feedback)
 2. CompletionModal (outcome themes, stats display)
 
 ### Priority 3: Registry Integration (Session 3-4)
+
 **Core architecture - must work for algorithm expansion**
+
 1. Visualization registry (ArrayView vs TimelineView selection)
 2. State registry (BinarySearchState vs IntervalCoverageState selection)
 3. Algorithm switching (trace loading, component swapping)
 
 ### Priority 4: User Workflows (Session 4)
+
 **End-to-end paths - integration confidence**
+
 1. Prediction flow (modal → answer → feedback → advance)
 2. Algorithm switching (select → load → display)
 
 ### Priority 5: Component Coverage (Session 5-6)
+
 **UI completeness - fills gaps**
+
 1. Visualization components (ArrayView, TimelineView)
 2. Navigation components (AlgorithmSwitcher, ControlBar)
 
 ### Priority 6: Utilities + Cleanup (Session 7-8)
+
 **Polish and maintainability**
+
 1. Utility functions (predictionUtils, stepBadges)
 2. Hook updates (usePredictionMode Phase 4 API)
 3. Legacy test cleanup
@@ -916,23 +1017,23 @@ Use Jest's `describe.skip()` or custom markers to organize tests:
 
 ```javascript
 // Skip slow tests in watch mode
-describe.skip('Performance Tests', () => {
-  it('handles 1000 array elements', () => {
+describe.skip("Performance Tests", () => {
+  it("handles 1000 array elements", () => {
     // This test takes 5 seconds
   });
 });
 
 // Group related tests
-describe('PredictionModal', () => {
-  describe('LOCKED: Modal ID', () => {
+describe("PredictionModal", () => {
+  describe("LOCKED: Modal ID", () => {
     // Critical architectural contract
   });
-  
-  describe('User Interaction', () => {
+
+  describe("User Interaction", () => {
     // Behavior tests
   });
-  
-  describe('Edge Cases', () => {
+
+  describe("Edge Cases", () => {
     // Error handling
   });
 });
@@ -943,22 +1044,26 @@ describe('PredictionModal', () => {
 ## Coverage Report Interpretation
 
 ### Good Coverage Example
+
 ```
 File                    | % Stmts | % Branch | % Funcs | % Lines |
 ------------------------|---------|----------|---------|---------|
 PredictionModal.jsx     |   92.5  |   88.2   |  100.0  |   92.5  |
 CompletionModal.jsx     |   89.7  |   85.0   |   95.0  |   89.7  |
 ```
+
 ✅ High statement coverage  
 ✅ Good branch coverage (different code paths tested)  
-✅ 100% function coverage (all functions called)  
+✅ 100% function coverage (all functions called)
 
 ### Warning Signs
+
 ```
 File                    | % Stmts | % Branch | % Funcs | % Lines |
 ------------------------|---------|----------|---------|---------|
 SomeComponent.jsx       |   95.0  |   45.0   |  100.0  |   95.0  |
 ```
+
 ⚠️ Low branch coverage despite high statement coverage  
 **Action:** Check for untested conditionals, error paths, edge cases
 
@@ -967,10 +1072,12 @@ File                    | % Stmts | % Branch | % Funcs | % Lines |
 ------------------------|---------|----------|---------|---------|
 UtilityFile.js          |   60.0  |   50.0   |   66.0  |   60.0  |
 ```
+
 ❌ Overall low coverage  
 **Action:** Priority for new tests
 
 ### Using Coverage Report
+
 ```bash
 # Generate and open HTML report
 pnpm test:coverage
@@ -1061,6 +1168,7 @@ echo "Safe to merge! 🎉"
 ```
 
 Make executable:
+
 ```bash
 chmod +x scripts/check-compliance.sh
 ```
@@ -1070,6 +1178,7 @@ chmod +x scripts/check-compliance.sh
 ## Next Session Preparation
 
 ### Before Session 1, prepare:
+
 1. Review this test plan
 2. Ensure frontend is working (run `pnpm start`)
 3. Run existing tests to establish baseline: `pnpm test --watchAll=false`
@@ -1077,6 +1186,7 @@ chmod +x scripts/check-compliance.sh
 5. Review Frontend Compliance Checklist
 
 ### Session 1 will create:
+
 - MSW infrastructure
 - Test fixtures
 - First LOCKED test (modal IDs)
