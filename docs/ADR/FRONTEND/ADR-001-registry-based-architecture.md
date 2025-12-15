@@ -264,7 +264,7 @@ The registry pattern was validated through:
 - `frontend/src/utils/stateRegistry.js` - State component registry
 - `frontend/src/utils/visualizationRegistry.js` - Visualization component registry
 - `frontend/src/App.jsx` - Uses both registries (lines 16, 173)
-- `docs/ADR/ADR-001-registry-based-architecture.md` - This document
+- `docs/ADR/FRONTEND/ADR-001-registry-based-architecture.md` - This document
 
 **Registry Functions:**
 - `getStateComponent(algorithmName)` - Get state component for algorithm

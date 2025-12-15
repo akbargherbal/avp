@@ -432,7 +432,7 @@ The organization principles were validated through:
 - Implementation: Session 41 (December 14, 2024)
 - Refactoring Plan: `docs/REFACTORING_FE_PHASED_PLAN.md` (Phase 5)
 - Code Structure: `frontend/src/components/`
-- This Document: `docs/ADR/ADR-002-component-organization-principles.md`
+- This Document: `docs/ADR/FRONTEND/ADR-002-component-organization-principles.md`
 
 ---
 

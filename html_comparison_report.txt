@@ -1,0 +1,149 @@
+================================================================================
+HTML COMPARISON REPORT
+================================================================================
+
+Original: docs/static_mockup/algorithm_page_mockup.html
+Modified: DEV/PROPOSAL/algo_04.html
+
+================================================================================
+1. REQUIRED HTML IDs (Section 1.3 Compliance)
+================================================================================
+
+✅ ALL REQUIRED IDs PRESENT
+
+➕ NEW IDs ADDED:
+   - algorithm-info-trigger
+
+================================================================================
+2. CRITICAL ELEMENTS ANALYSIS
+================================================================================
+
+🔄 MODIFIED - #app-root
+
+✅ UNCHANGED - #panel-step-description
+
+✅ UNCHANGED - #panel-steps-list
+
+✅ UNCHANGED - #app-header
+
+✅ UNCHANGED - #panel-steps
+
+✅ UNCHANGED - #step-current
+
+🔄 MODIFIED - #panel-visualization
+
+================================================================================
+3. NEW ELEMENTS DETECTED
+================================================================================
+
+Tag: <button> | ID: algorithm-info-trigger
+   Classes: p-2 bg-slate-700 hover:bg-slate-600 rounded-full transition-colors group
+
+================================================================================
+4. CHANGE STATISTICS
+================================================================================
+
+Lines Added:   158
+Lines Removed: 25
+Total Changes: 183
+
+================================================================================
+5. DETAILED DIFF (First 50 lines)
+================================================================================
+
+--- docs/static_mockup/algorithm_page_mockup.html
++++ DEV/PROPOSAL/algo_04.html
+@@ -5,10 +5,9 @@
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+     <title>Algorithm Page Layout - Visual Standards</title>
+
+     <script src="https://cdn.tailwindcss.com"></script>
+
+-    <script
+
+-      defer
+
+-      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+
+-    ></script>
+
++    <script defer
+
++      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js">
+
++    </script>
+
+     <style>
+
+       body {
+
+         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+
+@@ -52,6 +51,11 @@
+         color: #e2e8f0; /* slate-200 */
+
+         box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+
+       }
+
++      
+
++      /* NEW: Custom max height for modals (85vh) */
+
++      .max-h-85vh {
+
++        max-height: 85vh;
+
++      }
+
+     </style>
+
+   </head>
+
+   <body
+
+@@ -61,9 +65,10 @@
+     mode: 'watch',
+
+     step: 3,
+
+     totalSteps: 8,
+
+-    showHelp: false
+
++    showHelp: false,
+
++    showAlgorithmInfo: false // NEW: State for Algorithm Info Modal
+
+ }"
+
+-    @keydown.escape="showHelp = false"
+
++    @keydown.escape="showHelp = false; showAlgorithmInfo = false"
+
+   >
+
+     <!-- 
+
+     ================================================================
+
+@@ -442,25 +447,30 @@
+               Array Visualization
+
+             </h2>
+
+ 
+
+-            <!-- Target Display (Algorithm-Specific) -->
+
+-            <div
+
+-              class="px-3 py-1.5 bg-emerald-900/30 border border-emerald-600/50 rounded-lg flex items-center gap-2"
+
+-            >
+
++            <!-- Algorithm Info Trigger (Replaces Target Display) -->
+
+
+... (188 more diff lines omitted)

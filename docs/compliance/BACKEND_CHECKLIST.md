@@ -1,4 +1,4 @@
-# Backend Algorithm Tracer Compliance Checklist
+# Backend Checklist: Algorithm Tracer Compliance Checklist
 
 **Version:** 2.1  
 **Authority:** WORKFLOW.md v2.1 - Backend Requirements  
@@ -65,6 +65,19 @@
   - Address all arithmetic errors flagged by FAA
   - Resubmit until FAA approves (blocking requirement)
   - See Stage 1.5 in WORKFLOW.md for details
+
+- [ ] **Algorithm info markdown file exists**
+  - File location: `docs/algorithm-info/[algorithm-name].md`
+  - Naming convention: Match algorithm name exactly (e.g., `binary-search.md`, `interval-coverage.md`)
+  - Content: Educational overview (what, why, where used, complexity, applications)
+  - No code-heavy content - focus on conceptual understanding; why this algorithm exists
+  - Verified markdown syntax is valid (no broken formatting)
+  - Verify 150-250 words limit.
+
+- [ ] **Registry provides `get_info()` method**
+  - `registry.get_info('algorithm-name')` returns markdown string
+  - Method handles missing files gracefully (raises ValueError with helpful message)
+  - Path resolution works from registry location
 
 - [ ] **Self-review completed before FAA submission**
   - [ ] Can I follow the algorithm logic from narrative alone?

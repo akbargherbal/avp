@@ -1,4 +1,4 @@
-# Frontend UI/UX Compliance Checklist
+# Frontend Checklist: UI/UX Compliance Checklist
 
 **Version:** 2.2  
 **Authority:** WORKFLOW.md v2.1 - Frontend Requirements  
@@ -291,6 +291,11 @@ This means you can trust that:
   - Only ONE element has this ID at a time
   - Updates on step navigation
 
+#### Modal IDs (NEW - Algorithm Info)
+
+- [ ] **`#algorithm-info-modal`** - Algorithm information modal container
+- [ ] **`#algorithm-info-trigger`** - Button that opens algorithm info modal (in visualization header)
+
 ---
 
 ### 1.4 Keyboard Navigation
@@ -339,14 +344,16 @@ This means you can trust that:
 **Correct Pattern:**
 
 ```jsx
-{/* Outer container */}
+{
+  /* Outer container */
+}
 <div className="... items-start overflow-auto">
   {/* Inner wrapper for centering */}
   <div className="mx-auto">
     {/* Content that might overflow */}
     <svg className="flex-shrink-0">...</svg>
   </div>
-</div>
+</div>;
 ```
 
 #### Checklist
@@ -413,18 +420,20 @@ This means you can trust that:
 
 ```jsx
 // algorithm-states/BinarySearchState.jsx
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 const BinarySearchState = ({ step }) => {
   // Extract algorithm-specific state from step data
   const viz = step?.data?.visualization;
   const pointers = viz?.pointers || {};
-  
+
   if (!viz) {
-    return <div className="text-slate-400 text-sm">No state data available</div>;
+    return (
+      <div className="text-slate-400 text-sm">No state data available</div>
+    );
   }
-  
+
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">
@@ -433,15 +442,21 @@ const BinarySearchState = ({ step }) => {
       <div className="space-y-2 text-sm">
         <div className="flex justify-between">
           <span className="text-slate-400">Left:</span>
-          <span className="text-white font-medium font-mono">{pointers.left ?? 'N/A'}</span>
+          <span className="text-white font-medium font-mono">
+            {pointers.left ?? "N/A"}
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-slate-400">Right:</span>
-          <span className="text-white font-medium font-mono">{pointers.right ?? 'N/A'}</span>
+          <span className="text-white font-medium font-mono">
+            {pointers.right ?? "N/A"}
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-slate-400">Mid:</span>
-          <span className="text-white font-medium font-mono">{pointers.mid ?? 'N/A'}</span>
+          <span className="text-white font-medium font-mono">
+            {pointers.mid ?? "N/A"}
+          </span>
         </div>
       </div>
     </div>
@@ -465,18 +480,18 @@ export default BinarySearchState;
 
 ```javascript
 // utils/stateRegistry.js
-import IntervalCoverageState from '../components/algorithm-states/IntervalCoverageState';
-import BinarySearchState from '../components/algorithm-states/BinarySearchState';
+import IntervalCoverageState from "../components/algorithm-states/IntervalCoverageState";
+import BinarySearchState from "../components/algorithm-states/BinarySearchState";
 
 const STATE_REGISTRY = {
-  'interval-coverage': IntervalCoverageState,
-  'binary-search': BinarySearchState,
+  "interval-coverage": IntervalCoverageState,
+  "binary-search": BinarySearchState,
   // Add new algorithms here
 };
 
 export const getStateComponent = (algorithmName) => {
   const component = STATE_REGISTRY[algorithmName];
-  
+
   if (!component) {
     console.warn(`No state component registered for: ${algorithmName}`);
     // Return minimal fallback component
@@ -486,7 +501,7 @@ export const getStateComponent = (algorithmName) => {
       </div>
     );
   }
-  
+
   return component;
 };
 
@@ -518,6 +533,7 @@ frontend/src/components/
 ```
 
 **Key Distinction:**
+
 - `algorithm-states/` - One component per algorithm, not reusable
 - `visualizations/` - Reusable across algorithms (ArrayView can display any array)
 
@@ -526,14 +542,17 @@ frontend/src/components/
 **Architectural Consistency:** Mirrors proven `visualizationRegistry.js` pattern for LEFT panel. Both panels now use symmetric registry-based architecture, achieving true zero-config algorithm addition.
 
 **Before (inconsistent):**
+
 - LEFT panel: Registry-based ✅
 - RIGHT panel: Hardcoded conditionals ❌
 
 **After (consistent):**
+
 - LEFT panel: Registry-based ✅
 - RIGHT panel: Registry-based ✅
 
 **Benefits:**
+
 1. **Zero App.jsx changes** when adding new algorithms
 2. **Symmetric architecture** across both panels
 3. **Self-documenting** - registry is source of truth
@@ -687,8 +706,8 @@ frontend/src/components/
 ```javascript
 // 1. Create state component
 // frontend/src/components/algorithm-states/MyAlgorithmState.jsx
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 const MyAlgorithmState = ({ step }) => {
   const viz = step?.data?.visualization;
@@ -702,10 +721,10 @@ MyAlgorithmState.propTypes = {
 export default MyAlgorithmState;
 
 // 2. Register in stateRegistry.js
-import MyAlgorithmState from '../components/algorithm-states/MyAlgorithmState';
+import MyAlgorithmState from "../components/algorithm-states/MyAlgorithmState";
 
 const STATE_REGISTRY = {
-  'my-algorithm': MyAlgorithmState,
+  "my-algorithm": MyAlgorithmState,
   // ... other algorithms
 };
 
