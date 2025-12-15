@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Loader, AlertCircle } from "lucide-react";
 
 // Import the components
@@ -8,6 +8,7 @@ import CompletionModal from "./components/CompletionModal";
 import ErrorBoundary from "./components/ErrorBoundary";
 import KeyboardHints from "./components/KeyboardHints";
 import PredictionModal from "./components/PredictionModal";
+import AlgorithmInfoModal from './components/AlgorithmInfoModal'; // <-- Import new modal
 
 // PHASE 3: Import visualization registry
 import { getVisualizationComponent } from "./utils/visualizationRegistry";
@@ -26,6 +27,9 @@ import { useVisualHighlight } from "./hooks/useVisualHighlight";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 
 const AlgorithmTracePlayer = () => {
+  // Add state for the new modal
+  const [showAlgorithmInfo, setShowAlgorithmInfo] = useState(false);
+
   // 1. Data Loading Hook
   const {
     trace,
@@ -95,7 +99,7 @@ const AlgorithmTracePlayer = () => {
     onReset: resetTrace,
     onJumpToEnd: jumpToEnd,
     isComplete: showCompletionModal, // Use new state to manage shortcuts context
-    modalOpen: prediction.showPrediction,
+    modalOpen: prediction.showPrediction || showAlgorithmInfo, // <-- Also disable nav shortcuts when info modal is open
   });
 
   // --- RENDER LOGIC ---
@@ -259,12 +263,33 @@ const AlgorithmTracePlayer = () => {
             id="panel-visualization"
             className="flex-[3] bg-slate-800 rounded-xl shadow-2xl flex flex-col overflow-hidden"
           >
-            <div className="px-6 pt-6 pb-3 border-b border-slate-700">
-              <h2 className="text-white font-bold">
-                {visualizationType === "array"
-                  ? "Array Visualization"
-                  : "Timeline Visualization"}
+            {/* MODIFIED: Replaced header with new version including info trigger */}
+            <div className="px-4 py-3 border-b border-slate-700 flex items-center justify-between flex-shrink-0">
+              <h2 className="text-lg font-semibold text-white">
+                {trace?.metadata?.visualization_type === 'array' && 'Array Visualization'}
+                {trace?.metadata?.visualization_type === 'timeline' && 'Timeline Visualization'}
               </h2>
+              <button
+                id="algorithm-info-trigger"
+                onClick={() => setShowAlgorithmInfo(true)}
+                className="p-2 bg-slate-700 hover:bg-slate-600 rounded-full transition-colors group"
+                title="Algorithm Details"
+                aria-label="Show algorithm information"
+              >
+                <svg
+                  className="w-5 h-5 text-blue-400 group-hover:text-blue-300"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="16" x2="12" y2="12" />
+                  <line x1="12" y1="8" x2="12" y2="8" />
+                </svg>
+              </button>
             </div>
             {/* FIX 13: Apply overflow pattern - items-start on outer container, mx-auto on inner wrapper */}
             <div className="flex-1 flex flex-col items-start overflow-auto p-6">
@@ -317,6 +342,12 @@ const AlgorithmTracePlayer = () => {
           </div>
         </div>
       </div>
+      {/* ADDED: Render the new AlgorithmInfoModal */}
+      <AlgorithmInfoModal
+        isOpen={showAlgorithmInfo}
+        onClose={() => setShowAlgorithmInfo(false)}
+        algorithmName={currentAlgorithm}
+      />
     </div>
   );
 };
