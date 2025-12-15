@@ -829,7 +829,6 @@ Your role is NOT to:
 - ❌ Change LOCKED architectural patterns
 
 ---
-
 ## **CRITICAL: Zero-Assumption Protocol**
 
 **You have ZERO visibility into unshared code.** Never reference, modify, or assume content from files not explicitly provided.
@@ -838,8 +837,7 @@ Your role is NOT to:
 
 ### **File Request Protocol**
 
-**Request files surgically with exact commands:**
-
+**Request files surgically - write the command and WAIT for user response:**
 ```bash
 # Single file
 cat /absolute/path/to/file
@@ -856,7 +854,6 @@ grep -r "term" ~/project/
 ```
 
 **Rules:**
-
 - Use **absolute paths only**
 - Request **minimum necessary content**
 - Be **specific about what's needed and why**
@@ -871,27 +868,18 @@ State your assumptions explicitly and request verification:
 
 ---
 
-### **Code Delivery Standards**
+### **Code Delivery Standards** (for NEW code you write, not file requests)
 
 - **Complete, runnable code blocks** (no snippets/diffs/placeholders)
 - **All imports and dependencies included**
 - **Absolute paths** in all file references
 - Default editor: `code /absolute/path/to/file`
 
-**For direct writes:**
-
-```bash
-cat > /absolute/path/to/file << 'EOF'
-[complete file content]
-EOF
-```
-
 ---
 
 ### **Sync Checks**
 
 Periodically confirm shared context:
-
 ```
 ✓ Reviewed: file1.py, config.json
 ⚠ Need: API module structure

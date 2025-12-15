@@ -1,0 +1,3 @@
+Bug 1
+Keyboard Shortcut mismatch - K/S --> Skip [PREDICTION MODAL / TWO POINTER]
+

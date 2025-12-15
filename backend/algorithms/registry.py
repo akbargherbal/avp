@@ -37,7 +37,7 @@ class AlgorithmRegistry:
         display_name: str,
         description: str,
         example_inputs: List[Dict[str, Any]],
-        input_schema: Optional[Dict[str, Any]] = None
+        input_schema: Optional[Dict[str, Any]] = None,
     ):
         """
         Register an algorithm tracer with metadata.
@@ -58,7 +58,9 @@ class AlgorithmRegistry:
             raise ValueError(f"tracer_class must be a class, got {type(tracer_class)}")
 
         if not issubclass(tracer_class, AlgorithmTracer):
-            raise ValueError(f"{tracer_class.__name__} must inherit from AlgorithmTracer")
+            raise ValueError(
+                f"{tracer_class.__name__} must inherit from AlgorithmTracer"
+            )
 
         # Check for duplicate registration
         if name in self._algorithms:
@@ -66,12 +68,12 @@ class AlgorithmRegistry:
 
         # Store algorithm metadata
         self._algorithms[name] = {
-            'name': name,
-            'tracer_class': tracer_class,
-            'display_name': display_name,
-            'description': description,
-            'example_inputs': example_inputs,
-            'input_schema': input_schema
+            "name": name,
+            "tracer_class": tracer_class,
+            "display_name": display_name,
+            "description": description,
+            "example_inputs": example_inputs,
+            "input_schema": input_schema,
         }
 
     def get(self, name: str) -> Type[AlgorithmTracer]:
@@ -88,13 +90,12 @@ class AlgorithmRegistry:
             KeyError: If algorithm not found
         """
         if name not in self._algorithms:
-            available = ', '.join(self._algorithms.keys())
+            available = ", ".join(self._algorithms.keys())
             raise KeyError(
-                f"Algorithm '{name}' not found. "
-                f"Available algorithms: {available}"
+                f"Algorithm '{name}' not found. " f"Available algorithms: {available}"
             )
 
-        return self._algorithms[name]['tracer_class']
+        return self._algorithms[name]["tracer_class"]
 
     def get_metadata(self, name: str) -> Dict[str, Any]:
         """
@@ -114,19 +115,19 @@ class AlgorithmRegistry:
 
         # Return copy without tracer_class (not JSON-serializable)
         metadata = self._algorithms[name].copy()
-        del metadata['tracer_class']
+        del metadata["tracer_class"]
         return metadata
 
     def get_info(self, algorithm_name: str) -> str:
         """
         Retrieve algorithm information markdown.
-        
+
         Args:
             algorithm_name: Algorithm identifier (e.g., 'binary-search')
-            
+
         Returns:
             str: Markdown content
-            
+
         Raises:
             ValueError: If algorithm not registered or info file missing
         """
@@ -135,19 +136,19 @@ class AlgorithmRegistry:
                 f"Unknown algorithm: '{algorithm_name}'. "
                 f"Available: {list(self._algorithms.keys())}"
             )
-        
+
         # Construct path to info file relative to this file's location
         # backend/algorithms/registry.py -> backend/ -> interval-viz-poc/
         base_dir = Path(__file__).parent.parent.parent
         info_path = base_dir / "docs" / "algorithm-info" / f"{algorithm_name}.md"
-        
+
         if not info_path.exists():
             raise ValueError(
                 f"Algorithm info file not found: {info_path}. "
                 f"Create docs/algorithm-info/{algorithm_name}.md"
             )
-        
-        return info_path.read_text(encoding='utf-8')
+
+        return info_path.read_text(encoding="utf-8")
 
     def list_algorithms(self) -> List[Dict[str, Any]]:
         """
@@ -199,6 +200,7 @@ registry = AlgorithmRegistry()
 # Algorithm Registrations
 # =============================================================================
 
+
 def register_algorithms():
     """
     Register all available algorithm tracers.
@@ -217,188 +219,184 @@ def register_algorithms():
     # Interval Coverage (PoC Algorithm - Now Refactored!)
     # -------------------------------------------------------------------------
     registry.register(
-        name='interval-coverage',
+        name="interval-coverage",
         tracer_class=IntervalCoverageTracer,
-        display_name='Interval Coverage',
-        description='Remove intervals that are completely covered by other intervals using a greedy recursive strategy',
+        display_name="Interval Coverage",
+        description="Remove intervals that are completely covered by other intervals using a greedy recursive strategy",
         example_inputs=[
             {
-                'name': 'Basic Example - 4 Intervals',
-                'input': {
-                    'intervals': [
-                        {'id': 1, 'start': 540, 'end': 660, 'color': 'blue'},
-                        {'id': 2, 'start': 600, 'end': 720, 'color': 'green'},
-                        {'id': 3, 'start': 540, 'end': 720, 'color': 'amber'},
-                        {'id': 4, 'start': 900, 'end': 960, 'color': 'purple'}
+                "name": "Basic Example - 4 Intervals",
+                "input": {
+                    "intervals": [
+                        {"id": 1, "start": 540, "end": 660, "color": "blue"},
+                        {"id": 2, "start": 600, "end": 720, "color": "green"},
+                        {"id": 3, "start": 540, "end": 720, "color": "amber"},
+                        {"id": 4, "start": 900, "end": 960, "color": "purple"},
                     ]
-                }
+                },
             },
             {
-                'name': 'No Overlap - All Kept',
-                'input': {
-                    'intervals': [
-                        {'id': 1, 'start': 100, 'end': 200, 'color': 'blue'},
-                        {'id': 2, 'start': 300, 'end': 400, 'color': 'green'},
-                        {'id': 3, 'start': 500, 'end': 600, 'color': 'amber'}
+                "name": "No Overlap - All Kept",
+                "input": {
+                    "intervals": [
+                        {"id": 1, "start": 100, "end": 200, "color": "blue"},
+                        {"id": 2, "start": 300, "end": 400, "color": "green"},
+                        {"id": 3, "start": 500, "end": 600, "color": "amber"},
                     ]
-                }
+                },
             },
             {
-                'name': 'Full Coverage - Only One Kept',
-                'input': {
-                    'intervals': [
-                        {'id': 1, 'start': 100, 'end': 500, 'color': 'blue'},
-                        {'id': 2, 'start': 150, 'end': 250, 'color': 'green'},
-                        {'id': 3, 'start': 200, 'end': 300, 'color': 'amber'},
-                        {'id': 4, 'start': 350, 'end': 450, 'color': 'purple'}
+                "name": "Full Coverage - Only One Kept",
+                "input": {
+                    "intervals": [
+                        {"id": 1, "start": 100, "end": 500, "color": "blue"},
+                        {"id": 2, "start": 150, "end": 250, "color": "green"},
+                        {"id": 3, "start": 200, "end": 300, "color": "amber"},
+                        {"id": 4, "start": 350, "end": 450, "color": "purple"},
                     ]
-                }
+                },
             },
             {
-                'name': 'Complex Case - 6 Intervals',
-                'input': {
-                    'intervals': [
-                        {'id': 1, 'start': 0, 'end': 300, 'color': 'blue'},
-                        {'id': 2, 'start': 100, 'end': 200, 'color': 'green'},
-                        {'id': 3, 'start': 250, 'end': 500, 'color': 'amber'},
-                        {'id': 4, 'start': 150, 'end': 350, 'color': 'purple'},
-                        {'id': 5, 'start': 600, 'end': 700, 'color': 'red'},
-                        {'id': 6, 'start': 650, 'end': 800, 'color': 'orange'}
+                "name": "Complex Case - 6 Intervals",
+                "input": {
+                    "intervals": [
+                        {"id": 1, "start": 0, "end": 300, "color": "blue"},
+                        {"id": 2, "start": 100, "end": 200, "color": "green"},
+                        {"id": 3, "start": 250, "end": 500, "color": "amber"},
+                        {"id": 4, "start": 150, "end": 350, "color": "purple"},
+                        {"id": 5, "start": 600, "end": 700, "color": "red"},
+                        {"id": 6, "start": 650, "end": 800, "color": "orange"},
                     ]
-                }
-            }
+                },
+            },
         ],
         input_schema={
-            'type': 'object',
-            'required': ['intervals'],
-            'properties': {
-                'intervals': {
-                    'type': 'array',
-                    'items': {
-                        'type': 'object',
-                        'required': ['id', 'start', 'end', 'color'],
-                        'properties': {
-                            'id': {'type': 'integer'},
-                            'start': {'type': 'integer'},
-                            'end': {'type': 'integer'},
-                            'color': {'type': 'string'}
-                        }
+            "type": "object",
+            "required": ["intervals"],
+            "properties": {
+                "intervals": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": ["id", "start", "end", "color"],
+                        "properties": {
+                            "id": {"type": "integer"},
+                            "start": {"type": "integer"},
+                            "end": {"type": "integer"},
+                            "color": {"type": "string"},
+                        },
                     },
-                    'minItems': 1,
-                    'maxItems': 100,
-                    'description': 'List of time intervals to analyze'
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "description": "List of time intervals to analyze",
                 }
-            }
-        }
+            },
+        },
     )
 
     # -------------------------------------------------------------------------
     # Binary Search
     # -------------------------------------------------------------------------
     registry.register(
-        name='binary-search',
+        name="binary-search",
         tracer_class=BinarySearchTracer,
-        display_name='Binary Search',
-        description='Search for a target value in a sorted array using divide-and-conquer strategy (O(log n) time complexity)',
+        display_name="Binary Search",
+        description="Search for a target value in a sorted array using divide-and-conquer strategy (O(log n) time complexity)",
         example_inputs=[
             {
-                'name': 'Basic Search - Target Found',
-                'input': {
-                    'array': [4, 11, 12, 14, 22, 23, 33, 34, 39, 48, 51, 59, 63, 69, 70, 71, 74, 79, 91, 98],
-                    'target': 59
-                }
+                "name": "Basic Search - Target Found",
+                "input": {
+                    "array": [
+                        4,
+                        11,
+                        12,
+                        14,
+                        22,
+                        23,
+                        33,
+                        34,
+                        39,
+                        48,
+                        51,
+                        59,
+                        63,
+                        69,
+                        70,
+                        71,
+                        74,
+                        79,
+                        91,
+                        98,
+                    ],
+                    "target": 59,
+                },
             },
             {
-                'name': 'Basic Search - Target Not Found',
-                'input': {
-                    'array': [1, 3, 5, 7, 9, 11, 13, 15],
-                    'target': 6
-                }
+                "name": "Basic Search - Target Not Found",
+                "input": {"array": [1, 3, 5, 7, 9, 11, 13, 15], "target": 6},
             },
             {
-                'name': 'Large Array',
-                'input': {
-                    'array': list(range(1, 101, 2)),  # [1, 3, 5, ..., 99]
-                    'target': 51
-                }
+                "name": "Large Array",
+                "input": {
+                    "array": list(range(1, 101, 2)),  # [1, 3, 5, ..., 99]
+                    "target": 51,
+                },
+            },
+            {"name": "Single Element - Found", "input": {"array": [42], "target": 42}},
+            {
+                "name": "Target at Start",
+                "input": {"array": [10, 20, 30, 40, 50], "target": 10},
             },
             {
-                'name': 'Single Element - Found',
-                'input': {
-                    'array': [42],
-                    'target': 42
-                }
+                "name": "Target at End",
+                "input": {"array": [10, 20, 30, 40, 50], "target": 50},
             },
-            {
-                'name': 'Target at Start',
-                'input': {
-                    'array': [10, 20, 30, 40, 50],
-                    'target': 10
-                }
-            },
-            {
-                'name': 'Target at End',
-                'input': {
-                    'array': [10, 20, 30, 40, 50],
-                    'target': 50
-                }
-            }
         ],
         input_schema={
-            'type': 'object',
-            'required': ['array', 'target'],
-            'properties': {
-                'array': {
-                    'type': 'array',
-                    'items': {'type': 'integer'},
-                    'minItems': 1,
-                    'description': 'Sorted array of integers'
+            "type": "object",
+            "required": ["array", "target"],
+            "properties": {
+                "array": {
+                    "type": "array",
+                    "items": {"type": "integer"},
+                    "minItems": 1,
+                    "description": "Sorted array of integers",
                 },
-                'target': {
-                    'type': 'integer',
-                    'description': 'Value to search for'
-                }
-            }
-        }
+                "target": {"type": "integer", "description": "Value to search for"},
+            },
+        },
     )
-
-
 
     # -------------------------------------------------------------------------
     # Two Pointer Pattern (NEW)
     # -------------------------------------------------------------------------
     registry.register(
-        name='two-pointer',
+        name="two-pointer",
         tracer_class=TwoPointerTracer,
-        display_name='Two Pointer Pattern',
-        description='Remove duplicates from a sorted array in-place using a slow and fast pointer technique.',
+        display_name="Two Pointer Pattern",
+        description="Remove duplicates from a sorted array in-place using a slow and fast pointer technique.",
         example_inputs=[
             {
-                'name': 'Basic Duplicates',
-                'input': {'array': [1, 1, 2, 2, 3]}
+                "name": "Basic Duplicates",
+                "input": {
+                    "array": [0, 1, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 7, 8, 8, 9]
+                },
             },
-            {
-                'name': 'All Unique',
-                'input': {'array': [1, 2, 3, 4, 5]}
-            },
-            {
-                'name': 'All Duplicates',
-                'input': {'array': [1, 1, 1, 1, 1]}
-            }
+            {"name": "All Unique", "input": {"array": [1, 2, 3, 4, 5]}},
+            {"name": "All Duplicates", "input": {"array": [1, 1, 1, 1, 1]}},
         ],
         input_schema={
-            'type': 'object',
-            'required': ['array'],
-            'properties': {
-                'array': {
-                    'type': 'array',
-                    'items': {'type': 'integer'},
-                    'description': 'Sorted array of integers, may contain duplicates'
+            "type": "object",
+            "required": ["array"],
+            "properties": {
+                "array": {
+                    "type": "array",
+                    "items": {"type": "integer"},
+                    "description": "Sorted array of integers, may contain duplicates",
                 }
-            }
-        }
+            },
+        },
     )
-
 
 
 # Auto-register algorithms on module import
@@ -408,6 +406,7 @@ register_algorithms()
 # =============================================================================
 # Convenience Functions
 # =============================================================================
+
 
 def get_algorithm_names() -> List[str]:
     """Get list of all registered algorithm names."""
