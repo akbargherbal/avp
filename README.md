@@ -160,6 +160,7 @@ interval-viz-poc/
 │   │   │   ├── TraceContext.jsx
 │   │   │   ├── NavigationContext.jsx
 │   │   │   ├── PredictionContext.jsx
+│   │   │   ├── HighlightContext.jsx     # ⭐ Visual cross-referencing
 │   │   │   └── KeyboardContext.jsx
 │   │   ├── hooks/                       # Context Consumers
 │   │   │   ├── useTraceLoader.js
@@ -184,6 +185,7 @@ interval-viz-poc/
 │   └── ADR/                             # Architecture decision records
 │       ├── ADR-001-registry-based-architecture.md
 │       └── ADR-002-component-organization-principles.md
+│       └── ADR-003-context-state-management.md
 │
 └── README.md
 
@@ -898,6 +900,7 @@ The application uses React Context to manage state, avoiding prop drilling and "
 - **`TraceContext`** - Raw trace data and metadata loading
 - **`NavigationContext`** - Current step index and derived step data
 - **`PredictionContext`** - Active learning mode and scoring logic
+- **`HighlightContext`** - Visual cross-referencing (hovering intervals/elements)
 - **`KeyboardContext`** - Centralized event handling with priority system
 
 ### Context Consumers (Hooks)
@@ -907,6 +910,7 @@ Custom hooks now serve as convenient wrappers around Contexts:
 - **`useTraceLoader`** - Consumes `TraceContext`
 - **`useTraceNavigation`** - Consumes `NavigationContext`
 - **`usePredictionMode`** - Consumes `PredictionContext`
+- **`useVisualHighlight`** - Consumes `HighlightContext`
 - **`useKeyboardShortcuts`** - Consumes `KeyboardContext`
 
 ### UI Components
@@ -1122,5 +1126,3 @@ MIT License
 **Status:** ✅ Platform Architecture Complete - Ready for Algorithm Expansion
 
 **Next Steps:** Add 3rd algorithm to validate scalability
-
----
