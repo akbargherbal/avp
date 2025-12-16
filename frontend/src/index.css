@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Timeline Visualization Constants */
+  --timeline-padding-x: 4%;
+  --timeline-row-gap: 0.5rem; /* gap-2 = 8px */
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -39,3 +45,4 @@ code {
   color: #e2e8f0; /* slate-200 */
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
 }
+
