@@ -30,15 +30,15 @@ const PredictionModal = ({
         } else if (labelLower.includes('covered') || labelLower.includes('discard') || labelLower.includes('no') || idLower.includes('covered')) {
             colorClass = 'bg-orange-600 hover:bg-orange-500';
         } else if (labelLower.includes('left') || labelLower.includes('back') || labelLower.includes('prev')) {
-            colorClass = 'bg-blue-600 hover:bg-blue-500';
+            colorClass = 'bg-amber-600 hover:bg-amber-500';
         } else if (labelLower.includes('right') || labelLower.includes('next')) {
             colorClass = 'bg-red-600 hover:bg-red-500';
         } else {
             // Fallback cycle for generic choices
             const defaultColors = [
-                'bg-blue-600 hover:bg-blue-500',
-                'bg-purple-600 hover:bg-purple-500',
-                'bg-emerald-600 hover:bg-emerald-500'
+    'bg-amber-600 hover:bg-amber-500',
+    'bg-purple-600 hover:bg-purple-500',
+    'bg-emerald-600 hover:bg-emerald-500'
             ];
             colorClass = defaultColors[index % defaultColors.length];
         }
