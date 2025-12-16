@@ -272,7 +272,7 @@ const AlgorithmTracePlayer = () => {
         />
         <KeyboardHints />
         <div className="w-full h-full max-w-7xl flex gap-4 overflow-hidden">
-          <div id="panel-visualization" className="flex-[3] bg-slate-800 rounded-xl shadow-2xl flex flex-col overflow-hidden">
+          <div id="panel-visualization" className="flex-[3] bg-slate-800 rounded-xl shadow-2xl flex flex-col overflow-hidden select-none">
             <div className="px-4 py-3 border-b border-slate-700 flex items-center justify-between flex-shrink-0">
               <h2 className="text-lg font-semibold text-white">
                 {visualizationType.charAt(0).toUpperCase() + visualizationType.slice(1)} Visualization
