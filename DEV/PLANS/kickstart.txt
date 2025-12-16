@@ -1,4 +1,4 @@
-Session 45
+Session [  ]
 My objective for this session is to kick-start the refactoring plan of the frontend; as outlined in the `Frontend Refactor Implementation Plan`.
 See the attachments for:
 1- `README.md`

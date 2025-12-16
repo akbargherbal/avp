@@ -1,80 +1,57 @@
 // src/App.jsx
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useCallback } from "react";
 import { Loader, AlertCircle } from "lucide-react";
 
 // Import the components
 import AlgorithmSwitcher from "./components/AlgorithmSwitcher";
 import ControlBar from "./components/ControlBar";
 import CompletionModal from "./components/CompletionModal";
-import ErrorBoundary from "./components/ErrorBoundary";
 import KeyboardHints from "./components/KeyboardHints";
 import PredictionModal from "./components/PredictionModal";
-import AlgorithmInfoModal from './components/AlgorithmInfoModal';
+import VisualizationPanel from "./components/panels/VisualizationPanel";
+import StatePanel from "./components/panels/StatePanel";
 
-// Import registries
-import { getVisualizationComponent } from "./utils/visualizationRegistry";
-import { getStateComponent } from "./utils/stateRegistry";
-
-// Import utilities
-import { getStepTypeBadge } from "./utils/stepBadges";
-
-// Import hooks
+// Import hooks (now wrappers around context)
 import { useTraceLoader } from "./hooks/useTraceLoader";
 import { useTraceNavigation } from "./hooks/useTraceNavigation";
 import { usePredictionMode } from "./hooks/usePredictionMode";
-import { useVisualHighlight } from "./hooks/useVisualHighlight";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 
 const AlgorithmTracePlayer = () => {
-  const [showAlgorithmInfo, setShowAlgorithmInfo] = useState(false);
-  const [algorithmInfo, setAlgorithmInfo] = useState({ content: "", loading: false });
+  // 1. Data Loading Hook (Context)
+  const { trace, loading, error, currentAlgorithm, switchAlgorithm } =
+    useTraceLoader();
 
-  // 1. Data Loading Hook
-  const {
-    trace,
-    loading,
-    error,
-    currentAlgorithm,
-    availableAlgorithms,
-    switchAlgorithm,
-  } = useTraceLoader();
-
-  // 2. Navigation Hook
-  const resetPredictionStatsRef = useRef(() => {});
+  // 2. Navigation Hook (Context)
   const {
     currentStep,
     currentStepData,
     totalSteps,
     nextStep: navNextStep,
     prevStep,
-    resetTrace,
+    resetTrace: navResetTrace,
     jumpToEnd,
     showCompletionModal,
     closeCompletionModal,
-    setCurrentStep,
-  } = useTraceNavigation(trace, resetPredictionStatsRef.current);
+  } = useTraceNavigation();
 
-  // 3. Prediction Hook
-  const prediction = usePredictionMode(trace, setCurrentStep);
-
-  // Link the prediction reset function back to the navigation hook via a ref
-  useEffect(() => {
-    resetPredictionStatsRef.current = prediction.resetPredictionStats;
-  }, [prediction.resetPredictionStats]);
-
-  // 4. Visual Highlight Hook
-  const highlight = useVisualHighlight(trace, currentStep);
-
-  // Dynamically select visualization component
-  const visualizationType = trace?.metadata?.visualization_type || "timeline";
-  const visualizationConfig = trace?.metadata?.visualization_config || {};
-  const MainVisualizationComponent = getVisualizationComponent(visualizationType);
+  // 3. Prediction Hook (Context)
+  const {
+    predictionMode,
+    showPrediction,
+    activePrediction,
+    predictionStats,
+    togglePredictionMode,
+    handlePredictionSkip,
+    resetPredictionStats,
+    activatePredictionForStep,
+  } = usePredictionMode();
 
   // --- HANDLERS ---
 
   const nextStep = () => {
-    if (prediction.showPrediction) return;
+    if (showPrediction) return;
 
     const nextStepIndex = currentStep + 1;
     if (nextStepIndex >= totalSteps) {
@@ -82,52 +59,38 @@ const AlgorithmTracePlayer = () => {
       return;
     }
 
-    const wasPredictionActivated = prediction.activatePredictionForStep(nextStepIndex);
+    const wasPredictionActivated = activatePredictionForStep(nextStepIndex);
     if (!wasPredictionActivated) {
       navNextStep();
     }
   };
 
-  const handlePredictionAnswer = (userAnswer) => {
-    prediction.handlePredictionAnswer(userAnswer);
-  };
-
-  const handlePredictionSkip = () => {
-    prediction.handlePredictionSkip();
+  const resetTrace = () => {
+    navResetTrace();
+    resetPredictionStats();
   };
 
   // Unified Modal Close Handler for Keyboard Shortcuts
   const handleCloseModals = useCallback(() => {
-    if (showAlgorithmInfo) {
-      setShowAlgorithmInfo(false);
-      return;
-    }
-    if (prediction.showPrediction) {
-      prediction.handlePredictionSkip();
+    // Note: AlgorithmInfoModal state is now local to VisualizationPanel,
+    // so we can't close it from here via keyboard shortcut easily without
+    // lifting state back up or using a global modal context.
+    // For now, we focus on the critical modals managed here.
+
+    if (showPrediction) {
+      handlePredictionSkip();
       return;
     }
     if (showCompletionModal) {
       closeCompletionModal();
       return;
     }
-  }, [showAlgorithmInfo, prediction, showCompletionModal, closeCompletionModal]);
-
-  // Fetch algorithm info when modal opens
-  useEffect(() => {
-    if (showAlgorithmInfo && currentAlgorithm) {
-      setAlgorithmInfo(prev => ({ ...prev, loading: true }));
-      fetch(`/algorithm-info/${currentAlgorithm}.md`)
-        .then(res => {
-            if (!res.ok) throw new Error("Failed to load info");
-            return res.text();
-        })
-        .then(text => setAlgorithmInfo({ content: text, loading: false }))
-        .catch(err => {
-            console.error(err);
-            setAlgorithmInfo({ content: "# Error\nFailed to load algorithm information.", loading: false });
-        });
-    }
-  }, [showAlgorithmInfo, currentAlgorithm]);
+  }, [
+    showPrediction,
+    showCompletionModal,
+    closeCompletionModal,
+    handlePredictionSkip,
+  ]);
 
   // 5. Keyboard Shortcuts Hook
   useKeyboardShortcuts({
@@ -136,8 +99,8 @@ const AlgorithmTracePlayer = () => {
     onReset: resetTrace,
     onJumpToEnd: jumpToEnd,
     isComplete: showCompletionModal,
-    modalOpen: prediction.showPrediction || showAlgorithmInfo || showCompletionModal,
-    onCloseModal: handleCloseModals, // <-- Connected the handler
+    modalOpen: showPrediction || showCompletionModal,
+    onCloseModal: handleCloseModals,
   });
 
   // --- RENDER LOGIC ---
@@ -146,7 +109,10 @@ const AlgorithmTracePlayer = () => {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <Loader className="animate-spin text-emerald-500 mx-auto mb-4" size={48} />
+          <Loader
+            className="animate-spin text-emerald-500 mx-auto mb-4"
+            size={48}
+          />
           <p className="text-white">Loading trace from backend...</p>
         </div>
       </div>
@@ -158,7 +124,9 @@ const AlgorithmTracePlayer = () => {
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-8">
         <div className="max-w-md text-center">
           <AlertCircle className="text-red-500 mx-auto mb-4" size={64} />
-          <h2 className="text-xl font-bold text-white mb-4">Backend Not Available</h2>
+          <h2 className="text-xl font-bold text-white mb-4">
+            Backend Not Available
+          </h2>
           <p className="text-gray-300 mb-6">{error}</p>
           <button
             onClick={() => switchAlgorithm("interval-coverage")}
@@ -186,9 +154,12 @@ const AlgorithmTracePlayer = () => {
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-8">
         <div className="max-w-md text-center">
           <AlertCircle className="text-red-500 mx-auto mb-4" size={64} />
-          <h2 className="text-xl font-bold text-white mb-4">Invalid Step Data</h2>
+          <h2 className="text-xl font-bold text-white mb-4">
+            Invalid Step Data
+          </h2>
           <p className="text-gray-300 mb-6">
-            Step {currentStep + 1} could not be loaded. The trace data may be malformed.
+            Step {currentStep + 1} could not be loaded. The trace data may be
+            malformed.
           </p>
           <button
             onClick={resetTrace}
@@ -201,51 +172,41 @@ const AlgorithmTracePlayer = () => {
     );
   }
 
-  const badge = getStepTypeBadge(step?.type);
-  const StateComponent = getStateComponent(currentAlgorithm);
-
-  const mainVisualizationProps = {
-    step: step,
-    config: visualizationConfig,
-  };
-
-  if (currentAlgorithm === "interval-coverage") {
-    mainVisualizationProps.highlightedIntervalId = highlight.effectiveHighlight;
-    mainVisualizationProps.onIntervalHover = highlight.handleIntervalHover;
-  }
-
   return (
-    <div id="app-root" className="w-full h-screen bg-slate-900 flex flex-col overflow-hidden">
-      <div id="app-header" className="bg-slate-800 border-b border-slate-700 px-4 py-3">
+    <div
+      id="app-root"
+      className="w-full h-screen bg-slate-900 flex flex-col overflow-hidden"
+    >
+      <div
+        id="app-header"
+        className="bg-slate-800 border-b border-slate-700 px-4 py-3"
+      >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div>
-              <h1 className="text-xl font-bold text-white">{trace?.metadata?.display_name || currentAlgorithm}</h1>
-              <p id="step-current" className="text-slate-400 text-xs">Step {currentStep + 1} / {totalSteps || 0}</p>
+              <h1 className="text-xl font-bold text-white">
+                {trace?.metadata?.display_name || currentAlgorithm}
+              </h1>
+              <p id="step-current" className="text-slate-400 text-xs">
+                Step {currentStep + 1} / {totalSteps || 0}
+              </p>
             </div>
             <div className="pl-4 border-l border-slate-600">
-              <AlgorithmSwitcher
-                currentAlgorithm={currentAlgorithm}
-                availableAlgorithms={availableAlgorithms}
-                onAlgorithmSwitch={switchAlgorithm}
-                loading={loading}
-              />
+              <AlgorithmSwitcher />
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={prediction.togglePredictionMode}
+              onClick={togglePredictionMode}
               className={`px-3 py-1.5 rounded text-sm flex items-center gap-2 transition-colors font-semibold ${
-                prediction.predictionMode
+                predictionMode
                   ? "bg-blue-600 hover:bg-blue-500 text-white"
                   : "bg-slate-700 hover:bg-slate-600 text-slate-300"
               }`}
             >
-              {prediction.predictionMode ? "⏳ Predict" : "⚡ Watch"}
+              {predictionMode ? "⏳ Predict" : "⚡ Watch"}
             </button>
             <ControlBar
-              currentStep={currentStep}
-              totalSteps={totalSteps || 0}
               onPrev={prevStep}
               onNext={nextStep}
               onReset={resetTrace}
@@ -255,84 +216,20 @@ const AlgorithmTracePlayer = () => {
       </div>
 
       <div className="flex-1 flex items-center justify-center p-4 overflow-hidden">
-        {prediction.showPrediction && prediction.activePrediction && (
-          <PredictionModal
-            predictionData={prediction.activePrediction}
-            onAnswer={handlePredictionAnswer}
-            onSkip={handlePredictionSkip}
-          />
-        )}
+        {showPrediction && activePrediction && <PredictionModal />}
         <CompletionModal
           isOpen={showCompletionModal}
-          trace={trace}
           step={step}
           onReset={resetTrace}
           onClose={closeCompletionModal}
-          predictionStats={prediction.predictionStats}
+          predictionStats={predictionStats}
         />
         <KeyboardHints />
         <div className="w-full h-full max-w-7xl flex gap-4 overflow-hidden">
-          <div id="panel-visualization" className="flex-[3] bg-slate-800 rounded-xl shadow-2xl flex flex-col overflow-hidden select-none">
-            <div className="px-4 py-3 border-b border-slate-700 flex items-center justify-between flex-shrink-0">
-              <h2 className="text-lg font-semibold text-white">
-                {visualizationType.charAt(0).toUpperCase() + visualizationType.slice(1)} Visualization
-              </h2>
-              <button
-                id="algorithm-info-trigger"
-                onClick={() => setShowAlgorithmInfo(true)}
-                className="p-2 bg-slate-700 hover:bg-slate-600 rounded-full transition-colors group"
-                title="Algorithm Details"
-              >
-                <svg className="w-5 h-5 text-blue-400 group-hover:text-blue-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="8" />
-                </svg>
-              </button>
-            </div>
-            <div className="flex-1 flex flex-col items-start overflow-auto p-6">
-              <div className="mx-auto h-full w-full">
-                <ErrorBoundary>
-                  <MainVisualizationComponent {...mainVisualizationProps} />
-                </ErrorBoundary>
-              </div>
-            </div>
-          </div>
-          <div id="panel-steps" className="w-96 bg-slate-800 rounded-xl shadow-2xl flex flex-col overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-700">
-              <h2 className="text-white font-bold">Algorithm State</h2>
-            </div>
-            <div id="panel-steps-list" className="flex-1 overflow-y-auto px-6 py-4">
-              <ErrorBoundary>
-                <StateComponent 
-                  step={step} 
-                  trace={trace} 
-                  currentStep={currentStep}
-                  onIntervalHover={highlight.handleIntervalHover}
-                />
-              </ErrorBoundary>
-            </div>
-            <div id="panel-step-description" className="border-t border-slate-700 p-4 bg-slate-800">
-              <div className="p-4 bg-gradient-to-br from-slate-700/60 to-slate-800/60 rounded-lg border border-slate-600/50 shadow-lg">
-                <div className="mb-3">
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold ${badge.color}`}>
-                    {badge.label}
-                  </span>
-                </div>
-                <p className="text-white text-base font-medium leading-relaxed">
-                  {step?.description || "No description available"}
-                </p>
-              </div>
-            </div>
-          </div>
+          <VisualizationPanel />
+          <StatePanel />
         </div>
       </div>
-      <AlgorithmInfoModal
-        isOpen={showAlgorithmInfo}
-        onClose={() => setShowAlgorithmInfo(false)}
-        title={trace?.metadata?.display_name || "Algorithm Details"}
-        isLoading={algorithmInfo.loading}
-      >
-        {algorithmInfo.content}
-      </AlgorithmInfoModal>
     </div>
   );
 };

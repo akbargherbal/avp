@@ -1,97 +1,10 @@
-import { useState, useCallback } from "react";
+import { usePrediction } from "../contexts/PredictionContext";
 
-export const usePredictionMode = (trace, setCurrentStep) => {
-  const [predictionMode, setPredictionMode] = useState(true);
-  const [showPrediction, setShowPrediction] = useState(false);
-  const [activePrediction, setActivePrediction] = useState(null);
-  const [predictionStats, setPredictionStats] = useState({
-    total: 0,
-    correct: 0,
-  });
-
-  const predictionPoints = trace?.metadata?.prediction_points || [];
-
-  const activatePredictionForStep = useCallback((stepIndex) => {
-    if (!predictionMode || !predictionPoints.length) {
-      return false;
-    }
-    const matchingPrediction = predictionPoints.find(
-      (p) => p.step_index === stepIndex
-    );
-    if (matchingPrediction) {
-      setActivePrediction(matchingPrediction);
-      setShowPrediction(true);
-      return true;
-    }
-    return false;
-  }, [predictionPoints, predictionMode]);
-
-  const handlePredictionAnswer = useCallback((userAnswer) => {
-    if (!activePrediction) return;
-
-    // BUG FIX: Add defensive check for step_index to prevent NaN error.
-    if (typeof activePrediction.step_index !== 'number') {
-      console.error(
-        "Prediction point is missing a valid 'step_index'. Cannot advance step.",
-        activePrediction
-      );
-      // Close the modal to prevent getting stuck, but do not advance.
-      setShowPrediction(false);
-      setActivePrediction(null);
-      return;
-    }
-
-    const isCorrect = userAnswer === activePrediction.correct_answer;
-    const targetStep = activePrediction.step_index;
-    setPredictionStats((prev) => ({
-      total: prev.total + 1,
-      correct: prev.correct + (isCorrect ? 1 : 0),
-    }));
-    setShowPrediction(false);
-    setActivePrediction(null);
-    setCurrentStep(targetStep);
-  }, [activePrediction, setCurrentStep]);
-
-  const handlePredictionSkip = useCallback(() => {
-    if (!activePrediction) return;
-
-    // BUG FIX: Add defensive check for step_index to prevent NaN error.
-    if (typeof activePrediction.step_index !== 'number') {
-      console.error(
-        "Prediction point is missing a valid 'step_index'. Cannot skip step.",
-        activePrediction
-      );
-      // Close the modal to prevent getting stuck, but do not advance.
-      setShowPrediction(false);
-      setActivePrediction(null);
-      return;
-    }
-
-    const targetStep = activePrediction.step_index;
-    setShowPrediction(false);
-    setActivePrediction(null);
-    setCurrentStep(targetStep);
-  }, [activePrediction, setCurrentStep]);
-
-  const togglePredictionMode = useCallback(() => {
-    setPredictionMode((prev) => !prev);
-    setShowPrediction(false);
-    setActivePrediction(null);
-  }, []);
-
-  const resetPredictionStats = useCallback(() => {
-    setPredictionStats({ total: 0, correct: 0 });
-  }, []);
-
-  return {
-    predictionMode,
-    showPrediction,
-    activePrediction,
-    predictionStats,
-    togglePredictionMode,
-    handlePredictionAnswer,
-    handlePredictionSkip,
-    resetPredictionStats,
-    activatePredictionForStep,
-  };
+/**
+ * @deprecated Use usePrediction() from PredictionContext instead.
+ * Kept for backward compatibility during refactor.
+ */
+export const usePredictionMode = () => {
+  return usePrediction();
 };
+

@@ -2,6 +2,7 @@ import React from "react";
 import { RotateCcw } from "lucide-react";
 import { getAccuracyFeedback } from "../utils/predictionUtils";
 import { getIntervalColor } from "../constants/intervalColors";
+import { useTrace } from "../contexts/TraceContext";
 
 /**
  * Get outcome-driven modal theme based on algorithm result
@@ -41,10 +42,11 @@ const getOutcomeTheme = (trace) => {
   };
 };
 
-const CompletionModal = ({ isOpen, trace, step, onReset, onClose, predictionStats }) => {
+const CompletionModal = ({ isOpen, step, onReset, onClose, predictionStats }) => {
+  const { trace } = useTrace();
+  
   console.log("CompletionModal re-rendered", { isOpen });
-  // All internal state and effects for visibility are removed.
-  // The component is now controlled entirely by the `isOpen` prop.
+  
   if (!isOpen) {
     return null;
   }
@@ -195,3 +197,4 @@ const CompletionModal = ({ isOpen, trace, step, onReset, onClose, predictionStat
 };
 
 export default CompletionModal;
+

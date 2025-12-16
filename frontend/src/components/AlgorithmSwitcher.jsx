@@ -1,26 +1,16 @@
+// frontend/src/components/AlgorithmSwitcher.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { Search, ChevronDown } from "lucide-react";
+import { useTrace } from "../contexts/TraceContext";
 
-/**
- * AlgorithmSwitcher - Dropdown menu for selecting algorithms
- * 
- * Follows the design pattern from algorithm_page_mockup.html
- * - Compact button showing current algorithm
- * - Dropdown menu listing all available algorithms
- * - Click-away behavior to close
- * - Visual indication of current selection
- * 
- * @param {string} currentAlgorithm - Currently active algorithm name
- * @param {Array} availableAlgorithms - List of algorithm objects from registry
- * @param {Function} onAlgorithmSwitch - Callback when user selects an algorithm
- * @param {boolean} loading - Whether a trace is currently loading
- */
-const AlgorithmSwitcher = ({
-  currentAlgorithm,
-  availableAlgorithms,
-  onAlgorithmSwitch,
-  loading = false,
-}) => {
+const AlgorithmSwitcher = () => {
+  const { 
+    currentAlgorithm, 
+    availableAlgorithms, 
+    switchAlgorithm: onAlgorithmSwitch, 
+    loading 
+  } = useTrace();
+
   console.log("AlgorithmSwitcher re-rendered", { currentAlgorithm, loading });
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
