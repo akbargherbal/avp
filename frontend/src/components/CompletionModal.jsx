@@ -42,6 +42,7 @@ const getOutcomeTheme = (trace) => {
 };
 
 const CompletionModal = ({ isOpen, trace, step, onReset, onClose, predictionStats }) => {
+  console.log("CompletionModal re-rendered", { isOpen });
   // All internal state and effects for visibility are removed.
   // The component is now controlled entirely by the `isOpen` prop.
   if (!isOpen) {

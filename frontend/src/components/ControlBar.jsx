@@ -8,6 +8,7 @@ const ControlBar = ({
   onNext,
   onReset,
 }) => {
+  console.log("ControlBar re-rendered", { currentStep, totalSteps });
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep >= totalSteps - 1;
 

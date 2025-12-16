@@ -6,6 +6,7 @@ import { Loader, X, Info } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 const AlgorithmInfoModal = ({ isOpen, onClose, title, children, isLoading }) => {
+    console.log("AlgorithmInfoModal re-rendered", { isOpen, isLoading });
     if (!isOpen) return null;
 
     return (

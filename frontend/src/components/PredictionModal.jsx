@@ -10,6 +10,7 @@ const PredictionModal = ({
     onSkip,
     isOpen = true
 }) => {
+    console.log("PredictionModal re-rendered", { isOpen });
     const [selectedChoiceId, setSelectedChoiceId] = useState(null);
     const [feedbackState, setFeedbackState] = useState('idle'); // 'idle' | 'correct' | 'incorrect'
 

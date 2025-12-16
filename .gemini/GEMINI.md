@@ -46,6 +46,73 @@ Execute systematic code investigations as outlined in `frontend/AUDIT_REQUEST.md
 - **Performance Profiling**: If available, use profiling tools to measure render counts, memory usage
 - **Documentation**: Create clear, evidence-based reports with specific file references and line numbers
 
+## Development Server Management
+
+### Starting the React Application
+
+When investigation requires the running application:
+
+**Method 1: Background Process (Preferred)**
+```bash
+# Start server in background (non-blocking)
+pnpm start > /dev/null 2>&1 &
+
+# Capture process ID
+DEV_SERVER_PID=$!
+
+# Wait for server initialization
+echo "Waiting for dev server to start..."
+sleep 15
+
+# Verify server is responding
+curl -s http://localhost:3000 > /dev/null && echo "Server ready" || echo "Server not responding"
+```
+
+**Method 2: Request Human Assistance**
+If background process fails:
+```
+NOTICE: Investigation INV-X requires running dev server for [specific reason].
+
+ACTION REQUIRED:
+1. Open a separate terminal
+2. Run: cd frontend && pnpm start
+3. Wait for "Compiled successfully" message
+4. Type 'ready' here to continue
+
+I will pause investigation until server is available.
+```
+
+### Cleaning Up After Investigation
+
+Always terminate the dev server when investigation is complete:
+```bash
+# Method 1: Using PID (if captured)
+kill $DEV_SERVER_PID
+
+# Method 2: Find and kill process
+pkill -f "react-scripts start"
+
+# Method 3: Kill by port
+lsof -ti:3000 | xargs kill -9
+
+# Verify termination
+lsof -ti:3000 || echo "Server stopped"
+```
+
+### When Server Is NOT Needed
+
+Many investigations can be completed without running the dev server:
+- Static code analysis (file reading, pattern matching)
+- Counting hooks, props, responsibilities
+- Measuring file sizes, line counts
+- Dependency mapping
+
+Only start server when you need to:
+- Test actual behavior (re-renders, event handlers)
+- Use React DevTools Profiler
+- Verify responsive design
+- Test keyboard shortcuts in browser
+
 ## Investigation Workflow
 
 ### Session Initialization

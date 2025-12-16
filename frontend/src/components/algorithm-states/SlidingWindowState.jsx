@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
  * - Window metrics (current_sum, max_sum, etc.)
  */
 const SlidingWindowState = ({ step, trace }) => {
+  console.log("SlidingWindowState re-rendered", { step: step?.id });
   // Early return if no step data
   if (!step?.data?.visualization) {
     return (

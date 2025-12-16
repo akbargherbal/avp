@@ -12,6 +12,7 @@ import PropTypes from "prop-types";
  * @param {Object} trace - Full trace data (for metadata like input_size)
  */
 const BinarySearchState = ({ step, trace }) => {
+  console.log("BinarySearchState re-rendered", { step: step?.id });
   // Early return if no step data
   if (!step?.data?.visualization) {
     return (

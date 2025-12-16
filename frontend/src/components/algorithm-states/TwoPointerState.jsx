@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
  * - Unique count metric
  */
 const TwoPointerState = ({ step, trace }) => {
+  console.log("TwoPointerState re-rendered", { step: step?.id });
   // Action handler (kept from original)
   const handlePointerAction = () => {
     console.log("Pointer action triggered!");

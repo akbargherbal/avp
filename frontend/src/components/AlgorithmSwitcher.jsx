@@ -21,6 +21,7 @@ const AlgorithmSwitcher = ({
   onAlgorithmSwitch,
   loading = false,
 }) => {
+  console.log("AlgorithmSwitcher re-rendered", { currentAlgorithm, loading });
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
