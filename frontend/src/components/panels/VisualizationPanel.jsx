@@ -67,10 +67,12 @@ const VisualizationPanel = () => {
           </ErrorBoundary>
         </div>
       </div>
-      <AlgorithmInfoModal
-        isOpen={showAlgorithmInfo}
-        onClose={() => setShowAlgorithmInfo(false)}
-      />
+      <ErrorBoundary>
+        <AlgorithmInfoModal
+          isOpen={showAlgorithmInfo}
+          onClose={() => setShowAlgorithmInfo(false)}
+        />
+      </ErrorBoundary>
     </div>
   );
 };

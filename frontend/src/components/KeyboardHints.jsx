@@ -1,7 +1,6 @@
-// src/components/KeyboardHints.jsx
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Keyboard, X } from "lucide-react";
+import { useKeyboardHandler } from "../contexts/KeyboardContext";
 
 const KeyboardHints = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,17 +13,14 @@ const KeyboardHints = () => {
     { keys: ["Esc"], action: "Close modal" },
   ];
 
-  // Handle Escape key to close hints
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (isOpen && event.key === "Escape") {
-        setIsOpen(false);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen]);
+  // Handle Escape key to close hints (Priority 5)
+  useKeyboardHandler((event) => {
+    if (isOpen && event.key === "Escape") {
+      setIsOpen(false);
+      return true; // Consume event
+    }
+    return false;
+  }, 5);
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
@@ -50,10 +46,13 @@ const KeyboardHints = () => {
               <X size={18} />
             </button>
           </div>
-          
+
           <div className="space-y-2">
             {shortcuts.map((shortcut, idx) => (
-              <div key={idx} className="flex items-center justify-between text-sm">
+              <div
+                key={idx}
+                className="flex items-center justify-between text-sm"
+              >
                 <div className="flex gap-1">
                   {shortcut.keys.map((key, keyIdx) => (
                     <React.Fragment key={keyIdx}>
@@ -66,7 +65,9 @@ const KeyboardHints = () => {
                     </React.Fragment>
                   ))}
                 </div>
-                <span className="text-slate-400 text-xs">{shortcut.action}</span>
+                <span className="text-slate-400 text-xs">
+                  {shortcut.action}
+                </span>
               </div>
             ))}
           </div>

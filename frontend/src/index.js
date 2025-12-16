@@ -6,6 +6,7 @@ import { TraceProvider } from "./contexts/TraceContext";
 import { NavigationProvider } from "./contexts/NavigationContext";
 import { PredictionProvider } from "./contexts/PredictionContext";
 import { HighlightProvider } from "./contexts/HighlightContext";
+import { KeyboardProvider } from "./contexts/KeyboardContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -14,7 +15,9 @@ root.render(
       <NavigationProvider>
         <PredictionProvider>
           <HighlightProvider>
-            <App />
+            <KeyboardProvider>
+              <App />
+            </KeyboardProvider>
           </HighlightProvider>
         </PredictionProvider>
       </NavigationProvider>

@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Loader, X, Info } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useTrace } from "../contexts/TraceContext";
+import { useKeyboardHandler } from "../contexts/KeyboardContext";
 
 const AlgorithmInfoModal = ({ isOpen, onClose }) => {
   const { currentAlgorithm, trace } = useTrace();
@@ -28,7 +29,15 @@ const AlgorithmInfoModal = ({ isOpen, onClose }) => {
     }
   }, [isOpen, currentAlgorithm]);
 
-  console.log("AlgorithmInfoModal re-rendered", { isOpen, isLoading });
+  // Close on Escape (Priority 10)
+  useKeyboardHandler((event) => {
+    if (isOpen && event.key === "Escape") {
+      onClose();
+      return true;
+    }
+    return false;
+  }, 10);
+
   if (!isOpen) return null;
 
   return (

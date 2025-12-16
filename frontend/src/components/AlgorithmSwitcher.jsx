@@ -1,17 +1,16 @@
-// frontend/src/components/AlgorithmSwitcher.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { Search, ChevronDown } from "lucide-react";
 import { useTrace } from "../contexts/TraceContext";
+import { useKeyboardHandler } from "../contexts/KeyboardContext";
 
 const AlgorithmSwitcher = () => {
-  const { 
-    currentAlgorithm, 
-    availableAlgorithms, 
-    switchAlgorithm: onAlgorithmSwitch, 
-    loading 
+  const {
+    currentAlgorithm,
+    availableAlgorithms,
+    switchAlgorithm: onAlgorithmSwitch,
+    loading,
   } = useTrace();
 
-  console.log("AlgorithmSwitcher re-rendered", { currentAlgorithm, loading });
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -37,22 +36,14 @@ const AlgorithmSwitcher = () => {
     };
   }, [isOpen]);
 
-  // Close dropdown on Escape key
-  useEffect(() => {
-    const handleEscape = (event) => {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
+  // Close dropdown on Escape key (Priority 5)
+  useKeyboardHandler((event) => {
+    if (isOpen && event.key === "Escape") {
+      setIsOpen(false);
+      return true; // Consume event
     }
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [isOpen]);
+    return false;
+  }, 5);
 
   const handleAlgorithmSelect = (algorithmName) => {
     if (algorithmName !== currentAlgorithm && !loading) {
@@ -123,7 +114,9 @@ const AlgorithmSwitcher = () => {
                       <div className="flex items-center gap-2">
                         <Search className="w-4 h-4 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <div className="truncate">{algorithm.display_name}</div>
+                          <div className="truncate">
+                            {algorithm.display_name}
+                          </div>
                           {algorithm.description && (
                             <div className="text-xs text-slate-400 truncate mt-0.5">
                               {algorithm.description}

@@ -11,6 +11,7 @@ import KeyboardHints from "./components/KeyboardHints";
 import PredictionModal from "./components/PredictionModal";
 import VisualizationPanel from "./components/panels/VisualizationPanel";
 import StatePanel from "./components/panels/StatePanel";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 // Import hooks (now wrappers around context)
 import { useTraceLoader } from "./hooks/useTraceLoader";
@@ -72,11 +73,6 @@ const AlgorithmTracePlayer = () => {
 
   // Unified Modal Close Handler for Keyboard Shortcuts
   const handleCloseModals = useCallback(() => {
-    // Note: AlgorithmInfoModal state is now local to VisualizationPanel,
-    // so we can't close it from here via keyboard shortcut easily without
-    // lifting state back up or using a global modal context.
-    // For now, we focus on the critical modals managed here.
-
     if (showPrediction) {
       handlePredictionSkip();
       return;
@@ -216,14 +212,18 @@ const AlgorithmTracePlayer = () => {
       </div>
 
       <div className="flex-1 flex items-center justify-center p-4 overflow-hidden">
-        {showPrediction && activePrediction && <PredictionModal />}
-        <CompletionModal
-          isOpen={showCompletionModal}
-          step={step}
-          onReset={resetTrace}
-          onClose={closeCompletionModal}
-          predictionStats={predictionStats}
-        />
+        <ErrorBoundary>
+          {showPrediction && activePrediction && <PredictionModal />}
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <CompletionModal
+            isOpen={showCompletionModal}
+            step={step}
+            onReset={resetTrace}
+            onClose={closeCompletionModal}
+            predictionStats={predictionStats}
+          />
+        </ErrorBoundary>
         <KeyboardHints />
         <div className="w-full h-full max-w-7xl flex gap-4 overflow-hidden">
           <VisualizationPanel />
