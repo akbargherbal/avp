@@ -27,7 +27,7 @@
 
 ### Goal
 
-**Eliminate App.jsx's data monopoly by migrating state management to Context API, reducing App.jsx from 340 lines to <100 lines.**
+**Eliminate App.jsx's data monopoly by migrating state management to Context API, reducing App.jsx from 340 lines to ~100 lines.**
 
 ### Success Criteria
 
@@ -110,7 +110,7 @@ export const useNavigation = () => useContext(NavigationContext);
 ### Deliverables
 
 - [ ] 4 new Context providers in `src/contexts/`
-- [ ] App.jsx reduced to <100 lines
+- [ ] App.jsx reduced to ~100 lines
 - [ ] All components migrated to consume contexts
 - [ ] Manual test suite passes (all 14 QA tests)
 - [ ] Git commit: "Phase 1: Migrate to Context API architecture"
@@ -469,7 +469,7 @@ PHASE 4: Documentation (1-2 days)
 
 ### Minimum Viable Success (11-16 days)
 
-- ✅ App.jsx <100 lines (from 340)
+- ✅ App.jsx ~100 lines (from 340)
 - ✅ Zero prop drilling through App.jsx
 - ✅ Single Escape keypress closes only one element
 - ✅ Modal errors don't crash app

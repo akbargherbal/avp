@@ -1,0 +1,15 @@
+Session 45
+My objective for this session is to kick-start the refactoring plan of the frontend; as outlined in the `Frontend Refactor Implementation Plan`.
+See the attachments for:
+1- `README.md`
+2- `terminal.txt` [Project Structure]
+3- `docs/compliance/FRONTEND_CHECKLIST.md` [Frontend Checklist: UI/UX Compliance Checklist]
+4- `FE_REFACTOR_PHASED_PLAN.md` [Frontend Refactor Implementation Plan]
+---
+**IMPORTANT NOTES**:
+Since I cannot share the entire codebase all at once, I rely on you to explicitly ask for the specific files you need to make an informed decision; do not make guesses or assumptions.
+Provide `cat` commands that I can copy and paste into my terminal to share file contents with you. For example:
+`cat absolute/path/to/file`
+For large JSON files, use `jq` with appropriate flags to specify the data you want me to provide.
+Use `pnpm` instead of `npm`, unless there is a specific need to use `npm`.
+---
