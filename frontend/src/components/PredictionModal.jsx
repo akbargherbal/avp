@@ -153,10 +153,10 @@ const PredictionModal = ({
   return (
     <div
       id="prediction-modal"
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4"
     >
       {/* LOCKED: max-w-lg (512px), p-6, NO height constraint */}
-      <div className="bg-slate-800 border-2 border-slate-600 rounded-2xl shadow-2xl max-w-lg w-full p-6 text-white select-none">
+      <div className="bg-slate-800 border-2 border-blue-500 rounded-2xl shadow-2xl max-w-lg w-full p-6 text-white select-none">
         {/* Header Section */}
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-white mb-2 leading-tight">
@@ -214,7 +214,7 @@ const PredictionModal = ({
         <div
           className={`grid ${
             mappedChoices.length > 2 ? "grid-cols-3" : "grid-cols-2"
-          } gap-3 mb-6`}
+          } gap-5 mb-6`}
         >
           {mappedChoices.map((choice) => {
             const isSelected = selectedChoiceId === choice.id;
@@ -281,23 +281,23 @@ const PredictionModal = ({
                 }
                 disabled={feedbackState !== "idle"}
                 className={`
-                                    py-4 px-3 rounded-lg text-white font-semibold transition-all duration-200
-                                    flex flex-col items-center justify-center text-center
-                                    focus:outline-none
-                                    ${stateClasses}
-                                    ${ringClass}
-                                    ${scaleClass}
-                                    ${opacityClass}
-                                    ${
-                                      feedbackState !== "idle"
-                                        ? "cursor-default"
-                                        : "cursor-pointer shadow-lg"
-                                    }
-                                `}
+                  py-4 ${mappedChoices.length > 2 ? 'px-3' : 'px-4'} rounded-lg text-white font-semibold transition-all duration-200
+                  flex flex-col items-center justify-center text-center
+                  focus:outline-none
+                  ${stateClasses}
+                  ${ringClass}
+                  ${scaleClass}
+                  ${opacityClass}
+                  ${
+                    feedbackState !== "idle"
+                      ? "cursor-default"
+                      : "cursor-pointer shadow-lg"
+                  }
+                `}
               >
-                <div className="text-sm mb-1">{choice.label}</div>
+                <div className={`${mappedChoices.length > 2 ? 'text-sm' : 'text-base'} mb-1`}>{choice.label}</div>
                 {feedbackState === "idle" && (
-                  <div className="text-xs opacity-75 uppercase font-mono">
+                  <div className="text-xs opacity-75">
                     Press {choice.shortcut}
                   </div>
                 )}
@@ -326,13 +326,13 @@ const PredictionModal = ({
                 onClick={handleSubmit}
                 disabled={!selectedChoiceId}
                 className={`
-                                    px-6 py-2 rounded-lg font-semibold transition-all shadow-lg
-                                    ${
-                                      selectedChoiceId
-                                        ? "bg-blue-600 hover:bg-blue-500 text-white animate-pulse hover:scale-105"
-                                        : "bg-blue-600 text-white opacity-50 cursor-not-allowed"
-                                    }
-                                `}
+                  px-6 py-2 rounded-lg font-semibold transition-all shadow-lg
+                  ${
+                    selectedChoiceId
+                      ? "bg-blue-600 hover:bg-blue-500 text-white animate-pulse hover:scale-105"
+                      : "bg-blue-600 text-white opacity-50 cursor-not-allowed"
+                  }
+                `}
               >
                 Submit (Enter)
               </button>

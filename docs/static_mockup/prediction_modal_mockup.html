@@ -1,3 +1,5 @@
+--- START OF FILE prediction_modal_mockup.html ---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,8 +61,8 @@
                             </p>
                         </div>
 
-                        <!-- 2 Choices - Grid -->
-                        <div class="grid grid-cols-2 gap-3 mb-6">
+                        <!-- 2 Choices - Grid (Gap increased to gap-5) -->
+                        <div class="grid grid-cols-2 gap-5 mb-6">
                             <button class="bg-emerald-600 hover:bg-emerald-500 text-white py-4 px-4 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg">
                                 <div class="text-base mb-1">Keep this interval</div>
                                 <div class="text-xs opacity-75">Press K or 1</div>
@@ -107,13 +109,13 @@
                             </p>
                         </div>
 
-                        <!-- 3 Choices - Grid -->
-                        <div class="grid grid-cols-3 gap-3 mb-6">
+                        <!-- 3 Choices - Grid (Gap increased to gap-5, Blue changed to Amber) -->
+                        <div class="grid grid-cols-3 gap-5 mb-6">
                             <button class="bg-emerald-600 hover:bg-emerald-500 text-white py-4 px-3 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg">
                                 <div class="text-sm mb-1">Found!</div>
                                 <div class="text-xs opacity-75">Press F or 1</div>
                             </button>
-                            <button class="bg-blue-600 hover:bg-blue-500 text-white py-4 px-3 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg">
+                            <button class="bg-amber-600 hover:bg-amber-500 text-white py-4 px-3 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg">
                                 <div class="text-sm mb-1">Search Left</div>
                                 <div class="text-xs opacity-75">Press L or 2</div>
                             </button>
@@ -159,13 +161,13 @@
                             </p>
                         </div>
 
-                        <!-- 3 Choices - Grid (with selection) -->
-                        <div class="grid grid-cols-3 gap-3 mb-6">
+                        <!-- 3 Choices - Grid (Gap increased to gap-5, Blue changed to Amber) -->
+                        <div class="grid grid-cols-3 gap-5 mb-6">
                             <button class="bg-emerald-600 text-white py-4 px-3 rounded-lg font-semibold transition-all scale-105 ring-2 ring-emerald-400 shadow-xl">
                                 <div class="text-sm mb-1">Found! ✓</div>
                                 <div class="text-xs opacity-75">Press F or 1</div>
                             </button>
-                            <button class="bg-blue-600/50 text-white py-4 px-3 rounded-lg font-semibold opacity-60">
+                            <button class="bg-amber-600/50 text-white py-4 px-3 rounded-lg font-semibold opacity-60">
                                 <div class="text-sm mb-1">Search Left</div>
                                 <div class="text-xs opacity-75">Press L or 2</div>
                             </button>
@@ -204,8 +206,8 @@
                             <p class="text-slate-400 text-sm">Step 7 of 15 - Depth-First Search</p>
                         </div>
 
-                        <!-- 4 Choices - Breaks Layout -->
-                        <div class="grid grid-cols-2 gap-2 mb-6">
+                        <!-- 4 Choices - Breaks Layout (Gap increased to gap-5) -->
+                        <div class="grid grid-cols-2 gap-5 mb-6">
                             <button class="bg-slate-700 text-white py-3 px-3 rounded-lg font-semibold text-sm opacity-50">
                                 <div class="mb-1">Node A</div>
                                 <div class="text-xs opacity-75">Press A or 1</div>
@@ -286,14 +288,14 @@
                     </div>
                 </div>
 
-                <!-- Directional Actions (Left) -->
+                <!-- Directional Actions (Left) - Changed to Amber -->
                 <div class="bg-slate-900/50 rounded-xl p-6 border border-slate-700">
-                    <h4 class="text-lg font-bold text-blue-400 mb-4">← Left/Previous Direction</h4>
+                    <h4 class="text-lg font-bold text-amber-400 mb-4">← Left/Previous Direction</h4>
                     <div class="space-y-3">
-                        <button class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 px-4 rounded-lg font-semibold transition-all">
+                        <button class="w-full bg-amber-600 hover:bg-amber-500 text-white py-3 px-4 rounded-lg font-semibold transition-all">
                             Search Left / Go Back / Previous
                         </button>
-                        <p class="text-slate-400 text-sm">Use: bg-blue-600 hover:bg-blue-500</p>
+                        <p class="text-slate-400 text-sm">Use: bg-amber-600 hover:bg-amber-500</p>
                     </div>
                 </div>
 
@@ -344,9 +346,10 @@
                 <div>
                     <p class="font-semibold text-white mb-2">Grid Layout for Choices:</p>
                     <code class="bg-slate-900 px-3 py-1 rounded text-sm text-blue-300">
-                        2 choices: grid-cols-2<br>
-                        3 choices: grid-cols-3
+                        2 choices: grid-cols-2 gap-5<br>
+                        3 choices: grid-cols-3 gap-5
                     </code>
+                    <p class="text-slate-400 text-xs mt-2">Gap increased to 5 to prevent button overlap on hover/selection scale (scale-105).</p>
                 </div>
                 <div>
                     <p class="font-semibold text-white mb-2">Button States:</p>
@@ -364,7 +367,8 @@
                     <ul class="list-disc list-inside space-y-1 text-sm">
                         <li><strong>Emerald:</strong> Success/positive outcomes (found, keep, yes)</li>
                         <li><strong>Orange:</strong> Discard/negative outcomes (covered, no, stop)</li>
-                        <li><strong>Blue:</strong> Left/backward navigation + Submit button (universal convention)</li>
+                        <li><strong>Amber:</strong> Left/backward navigation (distinguished from Submit)</li>
+                        <li><strong>Blue:</strong> Submit button (Primary Action)</li>
                         <li><strong>Red:</strong> Right/forward navigation (universal convention)</li>
                         <li><strong>All have sufficient contrast</strong> with dark background (WCAG AAA)</li>
                     </ul>

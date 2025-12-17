@@ -30,7 +30,7 @@ class YourAlgorithmTracer(AlgorithmTracer):
         return [...]
 
     def generate_narrative(self, trace_result):
-        # Convert trace to human-readable markdown (REQUIRED v2.0+)
+        # Convert trace to human-readable markdown
         return "# Algorithm Execution\n\n..."
 
 # backend/algorithms/registry.py
@@ -179,9 +179,9 @@ interval-viz-poc/
 │   ├── compliance/                      # ⭐ Compliance checklists & workflow
 │   │   ├── WORKFLOW.md                  # ⭐ Single source of truth
 │   │   ├── BACKEND_CHECKLIST.md
-│   │   ├── FAA_PERSONA.md               # ⭐ Arithmetic audit guide (v2.1)
+│   │   ├── FAA_PERSONA.md               # ⭐ Arithmetic audit guide
 │   │   ├── FRONTEND_CHECKLIST.md
-│   │   └── QA_INTEGRATION_CHECKLIST.md
+│   │   └── PE_INTEGRATION_CHECKLIST.md
 │   └── ADR/                             # Architecture decision records
 │       ├── ADR-001-registry-based-architecture.md
 │       └── ADR-002-component-organization-principles.md
@@ -207,7 +207,7 @@ This platform follows a **three-tier requirement system** that defines what can 
 - **API Contracts**: Trace structure, metadata fields
 - **Modal Behavior**: HTML IDs (`#prediction-modal`, `#completion-modal`), keyboard shortcuts, auto-scroll
 - **Panel Layout**: Overflow pattern (MUST use `items-start` + `mx-auto`, NOT `items-center`)
-- **Narrative Generation**: All algorithms MUST implement `generate_narrative()` (v2.0+)
+- **Narrative Generation**: All algorithms MUST implement `generate_narrative()`
 
 #### 2. CONSTRAINED Requirements ⚠️
 
@@ -240,7 +240,7 @@ All new algorithms MUST pass these stages:
 - ✅ Visualization data contracts (use `state` string, not `visual_state` dict)
 - ✅ Prediction points format (≤3 choices)
 - ✅ Base class compliance (`AlgorithmTracer` inheritance)
-- ✅ **Narrative generation implemented** (v2.0+)
+- ✅ **Narrative generation implemented**
 
 **Critical Anti-Patterns:**
 
@@ -252,7 +252,7 @@ All new algorithms MUST pass these stages:
 
 ---
 
-#### Stage 1.5: FAA Audit (`docs/compliance/FAA_PERSONA.md`) - NEW in v2.1
+#### Stage 1.5: FAA Audit (`docs/compliance/FAA_PERSONA.md`)
 
 **Validates:**
 
@@ -261,13 +261,13 @@ All new algorithms MUST pass these stages:
 - ✅ Visualization-text alignment (counts match what's shown)
 - ✅ No copy-paste errors or stale state propagation
 
-**Critical:** This is a **BLOCKING gate**. Narratives with arithmetic errors cannot proceed to QA review. Catches math bugs in 10-15 minutes vs. 2 days of integration debugging.
+**Critical:** This is a **BLOCKING gate**. Narratives with arithmetic errors cannot proceed to PE review. Catches math bugs in 10-15 minutes vs. 2 days of integration debugging.
 
 **FAA ONLY validates mathematics, NOT:**
 
-- ❌ Pedagogical quality (QA handles this in Stage 2)
-- ❌ Narrative completeness (QA handles this in Stage 2)
-- ❌ Writing style or clarity (QA handles this in Stage 2)
+- ❌ Pedagogical quality (PE handles this in Stage 2)
+- ❌ Narrative completeness (PE handles this in Stage 2)
+- ❌ Writing style or clarity (PE handles this in Stage 2)
 
 **Common errors caught:**
 
@@ -278,7 +278,7 @@ All new algorithms MUST pass these stages:
 
 ---
 
-#### Stage 2: QA Narrative Review
+#### Stage 2: PE (Pedagogical Experience) Narrative Review
 
 **Validates:**
 
@@ -287,7 +287,7 @@ All new algorithms MUST pass these stages:
 - ✅ Decision transparency (all comparison data visible)
 - ⚠️ **Assumes arithmetic already verified by FAA**
 
-**QA does NOT validate:**
+**PE does NOT validate:**
 
 - ❌ Arithmetic correctness (FAA already handled)
 - ❌ Whether JSON structure is correct (Backend Checklist)
@@ -323,21 +323,6 @@ All new algorithms MUST pass these stages:
 
 ---
 
-#### Stage 4: Integration Testing (`docs/compliance/QA_INTEGRATION_CHECKLIST.md`)
-
-**14 Test Suites:**
-
-- Suite 1-6: LOCKED requirements (modals, IDs, keyboard, auto-scroll, overflow)
-- Suite 7-10: CONSTRAINED requirements (backend contract, predictions)
-- Suite 11-14: Integration tests (cross-algorithm, responsive, performance, regression)
-
-**Expected Outcome (v2.1):**
-
-- Zero "missing data" bugs (narrative review caught them)
-- Zero "arithmetic error" bugs (FAA caught them)
-
----
-
 **Complete Workflow:**
 
 ```
@@ -345,11 +330,11 @@ Backend Implementation
     ↓
 Generate Narratives
     ↓
-FAA Arithmetic Audit (BLOCKING) ← NEW in v2.1
+FAA Arithmetic Audit (BLOCKING)
     ↓
 Backend Checklist
     ↓
-QA Narrative Review (assumes math verified)
+PE Narrative Review (assumes math verified)
     ↓
 Frontend Integration
     ↓
@@ -437,7 +422,7 @@ class AlgorithmTracer(ABC):
         """
         Convert trace JSON to human-readable markdown narrative.
 
-        REQUIRED since v2.0 (WORKFLOW.md). This narrative is reviewed by QA
+        This narrative is reviewed by PE
         BEFORE frontend integration to catch missing data early.
 
         CRITICAL REQUIREMENTS:
@@ -688,7 +673,7 @@ class MergeSortTracer(AlgorithmTracer):
         return predictions
 
     def generate_narrative(self, trace_result: dict) -> str:
-        """Generate human-readable markdown narrative (REQUIRED v2.0+)"""
+        """Generate human-readable markdown narrative"""
         narrative = "# Merge Sort Execution\n\n"
 
         # Input summary
@@ -773,7 +758,7 @@ This creates files in `docs/narratives/merge-sort/`:
 
 ---
 
-### Step 3.5: FAA Audit (10-15 min) - NEW in v2.1
+### Step 3.5: FAA Audit (10-15 min)
 
 Run Forensic Arithmetic Audit on generated narratives:
 
@@ -813,16 +798,16 @@ Complete `docs/compliance/BACKEND_CHECKLIST.md`:
 - [ ] Prediction points have ≤3 choices
 - [ ] Inherits from `AlgorithmTracer`
 - [ ] Uses `_add_step()` and `_build_trace_result()`
-- [ ] **Implements `generate_narrative()` method** (v2.0+)
-- [ ] **Narratives pass FAA arithmetic audit** (v2.1)
+- [ ] **Implements `generate_narrative()` method**
+- [ ] **Narratives pass FAA arithmetic audit**
 
 **Rule:** If >3 items fail, stop and fix before proceeding.
 
 ---
 
-### Step 5: QA Narrative Review (15 min)
+### Step 5: PE Narrative Review (15 min)
 
-QA reviews FAA-approved narratives for:
+PE reviews FAA-approved narratives for:
 
 - Logical completeness
 - Temporal coherence
@@ -871,59 +856,6 @@ const VISUALIZATION_REGISTRY = {
   graph: GraphView, // ← Add new component
 };
 ```
-
----
-
-### Step 8: Frontend & QA Checklists (15 min)
-
-**Frontend Checklist (`docs/compliance/FRONTEND_CHECKLIST.md`):**
-
-- [ ] Overflow pattern: `items-start` + `mx-auto` (NOT `items-center`)
-- [ ] Modal IDs: `#prediction-modal`, `#completion-modal`
-- [ ] Keyboard shortcuts work
-- [ ] Component receives `step` and `config` props
-
-**QA Checklist (`docs/compliance/QA_INTEGRATION_CHECKLIST.md`):**
-
-- [ ] All 14 test suites pass
-- [ ] No regressions in existing algorithms
-- [ ] Overflow testing with 20+ elements
-
----
-
-## Component Architecture
-
-### State Management (Context API)
-
-The application uses React Context to manage state, avoiding prop drilling and "God Object" patterns.
-
-- **`TraceContext`** - Raw trace data and metadata loading
-- **`NavigationContext`** - Current step index and derived step data
-- **`PredictionContext`** - Active learning mode and scoring logic
-- **`HighlightContext`** - Visual cross-referencing (hovering intervals/elements)
-- **`KeyboardContext`** - Centralized event handling with priority system
-
-### Context Consumers (Hooks)
-
-Custom hooks now serve as convenient wrappers around Contexts:
-
-- **`useTraceLoader`** - Consumes `TraceContext`
-- **`useTraceNavigation`** - Consumes `NavigationContext`
-- **`usePredictionMode`** - Consumes `PredictionContext`
-- **`useVisualHighlight`** - Consumes `HighlightContext`
-- **`useKeyboardShortcuts`** - Consumes `KeyboardContext`
-
-### UI Components
-
-- **`AlgorithmSwitcher`** - Algorithm dropdown selector
-- **`ControlBar`** - Navigation buttons
-- **`PredictionModal`** - Interactive prediction prompts (ID: `#prediction-modal`)
-- **`CompletionModal`** - Success screen with stats (ID: `#completion-modal`)
-- **`KeyboardHints`** - Shortcut guide
-- **Visualizations** (LEFT panel): `ArrayView`, `TimelineView`
-- **Algorithm States** (RIGHT panel): `BinarySearchState`, `IntervalCoverageState`
-
----
 
 ## Prediction Mode (Active Learning)
 
@@ -1112,7 +1044,7 @@ pnpm run build  # Output: ./build/
 - **GitHub Issues:** Open with [Bug], [Feature], or [Question] tag
 - **Documentation:**
   - `docs/compliance/WORKFLOW.md` - Single source of truth for workflow & architecture
-  - `docs/compliance/` - Compliance checklists (Backend, FAA, Frontend, QA)
+  - `docs/compliance/` - Compliance checklists (Backend, FAA, Frontend, PE)
   - `docs/ADR/` - Architecture Decision Records
 
 ---

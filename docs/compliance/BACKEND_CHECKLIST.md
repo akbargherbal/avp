@@ -4,18 +4,6 @@
 **Authority:** WORKFLOW.md v2.1 - Backend Requirements  
 **Purpose:** Verify new algorithm tracers comply with platform requirements
 
-**Changes from v2.0:**
-- Added FAA (Forensic Arithmetic Audit) as mandatory gate
-- Updated workflow integration to include FAA audit steps
-- Added FAA audit requirement to narrative generation section
-- Updated authority reference to WORKFLOW.md v2.1
-
-**Changes from v1.0:**
-- Added narrative generation as LOCKED requirement
-- Updated authority reference from TENANT_GUIDE.md to WORKFLOW.md
-- Added narrative validation to testing checklist
-- Added narrative anti-patterns
-
 ---
 
 ## LOCKED REQUIREMENTS (Mandatory)
@@ -60,7 +48,7 @@
   - No missing field references
   - Fails loudly if data incomplete (this is good - catches bugs!)
 
-- [ ] **Narrative passes FAA arithmetic audit (NEW in v2.1)**
+- [ ] **Narrative passes FAA arithmetic audit**
   - Submit narratives to FAA review using `FAA_PERSONA.md`
   - Address all arithmetic errors flagged by FAA
   - Resubmit until FAA approves (blocking requirement)
@@ -178,7 +166,7 @@ If implementing prediction mode:
   - Narrative must be self-contained
   - All data referenced must be visible in narrative
 
-- [ ] ✅ **NOT including arithmetic errors in narratives (NEW in v2.1)**
+- [ ] ✅ **NOT including arithmetic errors in narratives**
   - Example ❌: "20 - 10 = 20 elements remain"
   - Example ✅: "20 - 10 = 10 elements remain"
   - FAA will catch these before QA review
@@ -215,7 +203,7 @@ If implementing prediction mode:
 - [ ] **Narratives are logically complete** - QA can follow algorithm logic
 - [ ] **Narratives demonstrate temporal coherence** - Step flow makes sense
 
-### FAA Audit (NEW in v2.1)
+### FAA Audit
 
 - [ ] **Narratives pass arithmetic verification** - All quantitative claims verified correct
 - [ ] **FAA approval obtained** - No arithmetic errors detected
@@ -262,7 +250,7 @@ def validate_binary_search_trace():
     assert len(narrative) > 0, "Narrative cannot be empty"
     assert "Step 0" in narrative, "Narrative must include step information"
     
-    # Save narrative for FAA audit (NEW in v2.1)
+    # Save narrative for FAA audit
     output_path = f"docs/narratives/binary-search/basic_example.md"
     with open(output_path, 'w') as f:
         f.write(narrative)
@@ -336,7 +324,7 @@ class BinarySearchTracer(AlgorithmTracer):
 3. Explain outcomes clearly
 4. Use code blocks for complex state
 5. Fail loudly (KeyError) if data missing
-6. **Ensure all arithmetic is correct (FAA will verify) ← NEW in v2.1**
+6. **Ensure all arithmetic is correct (FAA will verify)**
 
 ---
 
@@ -357,7 +345,7 @@ class BinarySearchTracer(AlgorithmTracer):
 ⚠️ **MINOR ISSUES** - Free choices questionable but acceptable  
 ❌ **FAIL** - LOCKED requirements violated, return to development
 
-**NEW in v2.1:** Narratives must pass FAA arithmetic audit before QA review.
+**CRITICAL** Narratives must pass FAA arithmetic audit before QA review.
 
 ---
 
@@ -381,7 +369,7 @@ class BinarySearchTracer(AlgorithmTracer):
 
 ---
 
-## FAA Audit Process (NEW in v2.1)
+## FAA (Forensic Arithmetic Audit) Process 
 
 **When:** After generating narratives, before QA submission  
 **Reference:** `docs/compliance/FAA_PERSONA.md`  
