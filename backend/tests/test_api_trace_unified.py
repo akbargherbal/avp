@@ -1,4 +1,5 @@
 # backend/tests/test_api_trace_unified.py
+
 """
 Unified Trace Endpoint Tests.
 
@@ -19,7 +20,7 @@ class TestUnifiedTraceEndpoint:
         # Flask raises UnsupportedMediaType when no content-type, caught by generic handler
         response = client.post('/api/trace/unified')
         assert response.status_code == 500
-        
+
         data = response.get_json()
         assert 'error' in data
 
@@ -29,7 +30,7 @@ class TestUnifiedTraceEndpoint:
             'input': {'array': [1, 2, 3], 'target': 2}
         })
         assert response.status_code == 400
-        
+
         data = response.get_json()
         assert 'error' in data
         assert 'algorithm' in data['error']
@@ -41,7 +42,7 @@ class TestUnifiedTraceEndpoint:
             'algorithm': 'binary-search'
         })
         assert response.status_code == 400
-        
+
         data = response.get_json()
         assert 'error' in data
         assert 'input' in data['error']
@@ -53,7 +54,7 @@ class TestUnifiedTraceEndpoint:
             'input': {}
         })
         assert response.status_code == 404
-        
+
         data = response.get_json()
         assert 'error' in data
         assert 'nonexistent-algorithm' in data['error']
@@ -69,7 +70,7 @@ class TestUnifiedTraceEndpoint:
             }
         })
         assert response.status_code == 200
-        
+
         data = response.get_json()
         assert 'trace' in data
         assert 'result' in data
@@ -84,18 +85,18 @@ class TestUnifiedTraceEndpoint:
                 'target': 5
             }
         })
-        
+
         data = response.get_json()
-        
+
         # Check trace structure
         assert 'steps' in data['trace']
         assert 'total_steps' in data['trace']
         assert 'duration' in data['trace']
-        
+
         # Check result structure
         assert 'found' in data['result']
         assert 'index' in data['result']
-        
+
         # Check metadata structure
         assert data['metadata']['algorithm'] == 'binary-search'
         assert data['metadata']['display_name'] == 'Binary Search'
@@ -111,7 +112,7 @@ class TestUnifiedTraceEndpoint:
             }
         })
         assert response.status_code == 400
-        
+
         data = response.get_json()
         assert 'error' in data
 
@@ -125,7 +126,7 @@ class TestUnifiedTraceEndpoint:
             }
         })
         assert response.status_code == 400
-        
+
         data = response.get_json()
         assert 'error' in data
 
@@ -141,7 +142,7 @@ class TestUnifiedTraceEndpoint:
             }
         })
         assert response.status_code == 200
-        
+
         data = response.get_json()
         assert 'trace' in data
         assert 'result' in data
@@ -157,17 +158,17 @@ class TestUnifiedTraceEndpoint:
                 ]
             }
         })
-        
+
         data = response.get_json()
-        
+
         # Check trace structure
         assert 'steps' in data['trace']
         assert 'total_steps' in data['trace']
         assert 'duration' in data['trace']
-        
+
         # Check result is list of intervals
         assert isinstance(data['result'], list)
-        
+
         # Check metadata structure
         assert data['metadata']['algorithm'] == 'interval-coverage'
         assert data['metadata']['display_name'] == 'Interval Coverage'
@@ -180,13 +181,13 @@ class TestUnifiedTraceEndpoint:
             {'id': i, 'start': i * 10, 'end': i * 10 + 5, 'color': 'blue'}
             for i in range(101)
         ]
-        
+
         response = client.post('/api/trace/unified', json={
             'algorithm': 'interval-coverage',
             'input': {'intervals': intervals}
         })
         assert response.status_code == 400
-        
+
         data = response.get_json()
         assert 'error' in data
         assert 'Too many intervals' in data['error']
@@ -200,7 +201,7 @@ class TestUnifiedTraceEndpoint:
                 'target': 5
             }
         })
-        
+
         data = response.get_json()
         assert 'prediction_points' in data['metadata']
         assert isinstance(data['metadata']['prediction_points'], list)
@@ -214,10 +215,10 @@ class TestUnifiedTraceEndpoint:
                 'target': 3
             }
         })
-        
+
         data = response.get_json()
         steps = data['trace']['steps']
-        
+
         for step in steps:
             assert 'data' in step
             assert 'visualization' in step['data']
@@ -231,7 +232,7 @@ class TestUnifiedTraceEndpoint:
                 'target': 3
             }
         })
-        
+
         assert response.content_type == 'application/json'
 
     def test_empty_intervals_list_works(self, client):
@@ -240,9 +241,9 @@ class TestUnifiedTraceEndpoint:
             'algorithm': 'interval-coverage',
             'input': {'intervals': []}
         })
-        
+
         assert response.status_code == 200
-        
+
         data = response.get_json()
         assert len(data['result']) == 0
 
@@ -255,9 +256,9 @@ class TestUnifiedTraceEndpoint:
                 'target': 42
             }
         })
-        
+
         assert response.status_code == 200
-        
+
         data = response.get_json()
         assert data['result']['found'] is True
         assert data['result']['index'] == 0
@@ -271,10 +272,10 @@ class TestUnifiedTraceEndpoint:
                 'target': 3
             }
         })
-        
+
         data = response.get_json()
         steps = data['trace']['steps']
-        
+
         for step in steps:
             assert 'step' in step
             assert 'type' in step
@@ -286,7 +287,7 @@ class TestUnifiedTraceEndpoint:
         """Multiple concurrent requests should work."""
         # Simulate concurrent requests
         responses = []
-        
+
         for i in range(5):
             response = client.post('/api/trace/unified', json={
                 'algorithm': 'binary-search',
@@ -296,7 +297,7 @@ class TestUnifiedTraceEndpoint:
                 }
             })
             responses.append(response)
-        
+
         # All should succeed
         for response in responses:
             assert response.status_code == 200
@@ -340,7 +341,44 @@ class TestUnifiedTraceErrorHandling:
         response = client.post('/api/trace/unified', json={
             'algorithm': 'unknown'
         })
-        
+
         data = response.get_json()
         assert 'error' in data
         assert isinstance(data['error'], str)
+
+    def test_unified_trace_runtime_error_handling(self, client, monkeypatch):
+        """Test RuntimeError handling in unified trace endpoint."""
+        from algorithms.binary_search import BinarySearchTracer
+
+        def mock_execute_runtime_error(self, input_data):
+            raise RuntimeError("Max steps exceeded")
+
+        monkeypatch.setattr(BinarySearchTracer, 'execute', mock_execute_runtime_error)
+
+        response = client.post('/api/trace/unified', json={
+            'algorithm': 'binary-search',
+            'input': {'array': [1, 3, 5], 'target': 3}
+        })
+
+        assert response.status_code == 400
+        data = response.get_json()
+        assert 'error' in data
+
+    def test_unified_trace_generic_exception_handling(self, client, monkeypatch):
+        """Test generic exception handling in unified trace endpoint."""
+        from algorithms.binary_search import BinarySearchTracer
+
+        def mock_execute_generic_error(self, input_data):
+            raise TypeError("Simulated type error")
+
+        monkeypatch.setattr(BinarySearchTracer, 'execute', mock_execute_generic_error)
+
+        response = client.post('/api/trace/unified', json={
+            'algorithm': 'binary-search',
+            'input': {'array': [1, 3, 5], 'target': 3}
+        })
+
+        assert response.status_code == 500
+        data = response.get_json()
+        assert 'error' in data
+        assert 'unexpected server error' in data['error'].lower()
