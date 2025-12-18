@@ -1,7 +1,6 @@
-# Backend Checklist: Algorithm Tracer Compliance Checklist
+# Backend Checklist: Algorithm Tracer Compliance v2.2
 
-**Version:** 2.1  
-**Authority:** WORKFLOW.md v2.1 - Backend Requirements  
+**Authority:** WORKFLOW.md v2.3 - Backend Requirements  
 **Purpose:** Verify new algorithm tracers comply with platform requirements
 
 ---
@@ -31,30 +30,35 @@
 - [ ] **Implements `execute(input_data)`** - Main algorithm logic, returns trace dict
 - [ ] **No modifications to `base_tracer.py`** - All customization via subclass methods
 
-### Narrative Generation (NEW in v2.0)
+### Narrative Generation
 
 - [ ] **Implements `generate_narrative(trace_result: dict) -> str`**
+
   - Abstract method from `AlgorithmTracer` base class
   - Converts own trace JSON to human-readable markdown
   - Must be implemented (will raise NotImplementedError if not)
 
 - [ ] **Narrative generated for ALL registered examples**
+
   - Every example in `registry.py` has corresponding narrative
   - Files saved to `docs/narratives/[algorithm-name]/[example-name].md`
   - Naming convention: `example_1_basic.md`, `example_2_edge_case.md`, etc.
 
 - [ ] **Narrative generation does NOT fail**
+
   - No `KeyError` exceptions when accessing visualization data
   - No missing field references
   - Fails loudly if data incomplete (this is good - catches bugs!)
 
 - [ ] **Narrative passes FAA arithmetic audit**
+
   - Submit narratives to FAA review using `FAA_PERSONA.md`
   - Address all arithmetic errors flagged by FAA
   - Resubmit until FAA approves (blocking requirement)
   - See Stage 1.5 in WORKFLOW.md for details
 
 - [ ] **Algorithm info markdown file exists**
+
   - File location: `docs/algorithm-info/[algorithm-name].md`
   - Naming convention: Match algorithm name exactly (e.g., `binary-search.md`, `interval-coverage.md`)
   - Content: Educational overview (what, why, where used, complexity, applications)
@@ -63,6 +67,7 @@
   - Verify 150-250 words limit.
 
 - [ ] **Registry provides `get_info()` method**
+
   - `registry.get_info('algorithm-name')` returns markdown string
   - Method handles missing files gracefully (raises ValueError with helpful message)
   - Path resolution works from registry location
@@ -73,6 +78,64 @@
   - [ ] Does temporal flow make sense (step N → step N+1)?
   - [ ] Can I mentally visualize this without code/JSON?
   - [ ] Are all arithmetic claims correct? (FAA will verify)
+
+### Narrative Completeness - Result Traceability
+
+- [ ] **Every output field has narrative trail**
+  - Scan final `result` object for all fields (indices, counts, positions, etc.)
+  - Verify each field mentioned/derived during narrative execution
+  - No "phantom" data appears only in conclusion
+
+**Self-Check Method:**
+
+1. List all fields in your `result` object
+2. Search narrative for each field name or concept
+3. Ensure introduction before usage in final summary
+
+- [ ] **Hidden state updates made visible**
+  - If algorithm tracks data beyond current visualization, explain the tracking decision
+  - Show WHY secondary tracking matters before showing updates
+  - Make "bookkeeping" operations pedagogically clear
+
+**Pattern to Follow:**
+
+1. **Purpose:** "We track [X] because we need it for [final goal]"
+2. **Update:** "Current [X] becomes [value] due to [reason]"
+3. **Application:** "Final result uses tracked [X]: [value]"
+
+- [ ] **Reader reconstruction test passed**
+  - Cover your result JSON, read only the narrative
+  - Verify: Can you predict the complete result structure?
+  - If any result fields would be surprising, add narrative context
+
+### Frontend Visualization Guidance
+
+- [ ] **Visualization hints section included in narrative**
+  - Add standardized "🎨 Frontend Visualization Hints" section at end of narrative
+  - Provide backend insights to guide frontend visualization decisions
+  - Include primary metrics, visualization priorities, and key JSON paths
+
+**Required Hint Categories:**
+
+```markdown
+## 🎨 Frontend Visualization Hints
+
+### Primary Metrics to Emphasize
+
+[List 2-3 most important data points for user understanding]
+
+### Visualization Priorities
+
+[Suggest visual emphasis - what to highlight, when to animate]
+
+### Key JSON Paths
+
+[Provide exact paths to critical data for frontend access]
+
+### Algorithm-Specific Guidance
+
+[Custom insights about this algorithm's visualization needs]
+```
 
 ---
 
@@ -148,21 +211,25 @@ If implementing prediction mode:
 - [ ] ✅ **NOT hardcoding step types in base class**
 - [ ] ✅ **NOT bypassing `_add_step()` method**
 
-### Narrative Anti-Patterns (NEW in v2.0)
+### Narrative Anti-Patterns
 
 - [ ] ✅ **NOT referencing undefined variables in narrative**
+
   - Example ❌: "Compare with max_end" (but max_end value not shown)
   - Example ✅: "Compare 720 with max_end (660)"
 
 - [ ] ✅ **NOT skipping decision outcomes**
+
   - Example ❌: "Examining interval... [next step unrelated]"
   - Example ✅: "Examining interval [900, 960] → KEPT (extends coverage)"
 
 - [ ] ✅ **NOT using centralized narrative generator**
+
   - Each algorithm narrates ITSELF
   - No shared generator with if/elif chains
 
 - [ ] ✅ **NOT creating narratives that require code to understand**
+
   - Narrative must be self-contained
   - All data referenced must be visible in narrative
 
@@ -170,6 +237,22 @@ If implementing prediction mode:
   - Example ❌: "20 - 10 = 20 elements remain"
   - Example ✅: "20 - 10 = 10 elements remain"
   - FAA will catch these before QA review
+
+### Narrative Gap Anti-Patterns
+
+- [ ] ✅ **NOT introducing surprise result fields**
+
+  - Example ❌: Result contains `{"winning_position": 6}` but narrative never explains position tracking
+  - Example ✅: Narrative shows "We remember this position (6) since it achieved our best result so far"
+
+- [ ] ✅ **NOT performing silent bookkeeping**
+
+  - Example ❌: Algorithm tracks data but treats it as "implementation detail"
+  - Example ✅: Explain why tracking matters: "We track X because final answer needs Y"
+
+- [ ] ✅ **NOT omitting visualization guidance**
+  - Example ❌: Narrative ends without helping frontend understand data priorities
+  - Example ✅: Include standardized visualization hints section with backend insights
 
 ---
 
@@ -183,6 +266,7 @@ If implementing prediction mode:
 - [ ] **Visualization config** - Extend with algorithm-specific settings
 - [ ] **Execution stats** - Add to `metadata.execution_stats`
 - [ ] **Narrative formatting** - Markdown style choices (headers, emphasis, lists)
+- [ ] **Visualization hint depth** - Provide detailed or minimal frontend guidance
 
 ---
 
@@ -196,12 +280,14 @@ If implementing prediction mode:
 - [ ] **Prediction points valid** - If implemented, ≤3 choices each
 - [ ] **Handles edge cases** - Empty input, single element, etc.
 
-### Narrative Tests (NEW in v2.0)
+### Narrative Tests
 
 - [ ] **All examples generate narratives** - No exceptions raised
 - [ ] **Narratives reveal missing data** - Method fails loudly on incomplete visualization data
 - [ ] **Narratives are logically complete** - QA can follow algorithm logic
 - [ ] **Narratives demonstrate temporal coherence** - Step flow makes sense
+- [ ] **Result field traceability verified** - All output fields have narrative trail
+- [ ] **Visualization hints included** - Frontend guidance section present
 
 ### FAA Audit
 
@@ -218,190 +304,61 @@ If implementing prediction mode:
 
 ---
 
-## Example: Binary Search Validation
+## Example: Enhanced Validation Pattern
 
 ```python
-# Quick validation script
-def validate_binary_search_trace():
-    tracer = BinarySearchTracer()
-    result = tracer.execute({'array': [1,3,5,7,9], 'target': 5})
+def validate_enhanced_tracer():
+    tracer = MyAlgorithmTracer()
+    result = tracer.execute({'input': 'test_data'})
 
     # LOCKED requirements
-    assert result['metadata']['algorithm'] == 'binary-search'
-    assert result['metadata']['display_name'] == 'Binary Search'
-    assert result['metadata']['visualization_type'] == 'array'
-    assert result['metadata']['input_size'] == 5
+    assert result['metadata']['algorithm'] == 'my-algorithm'
+    assert result['metadata']['display_name'] == 'My Algorithm'
 
-    # CONSTRAINED requirements
-    step = result['trace']['steps'][0]
-    assert 'visualization' in step['data']
-    assert 'array' in step['data']['visualization']
-    assert len(step['data']['visualization']['array']) == 5
-    assert 'pointers' in step['data']['visualization']
-
-    # Prediction constraints
-    if 'prediction_points' in result['metadata']:
-        for pred in result['metadata']['prediction_points']:
-            assert len(pred['choices']) <= 3, "HARD LIMIT VIOLATED"
-
-    # NEW: Narrative validation
+    # Generate and validate narrative
     narrative = tracer.generate_narrative(result)
-    assert isinstance(narrative, str), "Narrative must be string"
-    assert len(narrative) > 0, "Narrative cannot be empty"
-    assert "Step 0" in narrative, "Narrative must include step information"
-    
-    # Save narrative for FAA audit
-    output_path = f"docs/narratives/binary-search/basic_example.md"
-    with open(output_path, 'w') as f:
-        f.write(narrative)
 
-    print("✅ Binary Search trace is compliant")
-    print(f"✅ Narrative saved to {output_path}")
-    print("⏳ Next: Submit to FAA audit using FAA_PERSONA.md")
+    # Result field traceability check
+    result_fields = list(result['result'].keys())
+    for field in result_fields:
+        assert field in narrative or field.replace('_', ' ') in narrative, \
+            f"Result field '{field}' missing from narrative"
+
+    # Visualization hints check
+    assert "🎨 Frontend Visualization Hints" in narrative, \
+        "Missing visualization guidance section"
+    assert "### Primary Metrics to Emphasize" in narrative, \
+        "Missing primary metrics guidance"
+    assert "### Key JSON Paths" in narrative, \
+        "Missing JSON path guidance"
+
+    print("✅ Enhanced tracer validation passed")
 ```
 
 ---
 
-## Narrative Generation Pattern Example
-
-```python
-class BinarySearchTracer(AlgorithmTracer):
-    def generate_narrative(self, trace_result: dict) -> str:
-        """
-        Convert trace JSON to human-readable markdown narrative.
-        
-        CRITICAL: This method must show ALL decision data.
-        If you reference a variable, SHOW its value.
-        All arithmetic must be correct (FAA will verify).
-        """
-        narrative = "# Binary Search Execution Narrative\n\n"
-        narrative += f"**Input:** Array of {trace_result['metadata']['input_size']} elements\n"
-        narrative += f"**Target:** {self.target}\n\n"
-        
-        for step in trace_result['trace']['steps']:
-            step_num = step['step']
-            step_type = step['type']
-            description = step['description']
-            viz = step['data']['visualization']
-            
-            narrative += f"## Step {step_num}: {description}\n\n"
-            
-            # Show visualization state with ALL relevant data
-            array = viz['array']
-            pointers = viz['pointers']
-            
-            narrative += f"**Array State:**\n"
-            narrative += f"```\n"
-            for elem in array:
-                marker = ""
-                if elem['index'] == pointers['left']:
-                    marker += "L"
-                if elem['index'] == pointers['mid']:
-                    marker += "M"
-                if elem['index'] == pointers['right']:
-                    marker += "R"
-                narrative += f"[{elem['index']}]: {elem['value']} ({elem['state']}) {marker}\n"
-            narrative += f"```\n\n"
-            
-            # Show decision with VISIBLE data
-            if step_type == 'COMPARE':
-                mid_value = array[pointers['mid']]['value']
-                narrative += f"**Decision:** Compare target ({self.target}) with mid value ({mid_value})\n"
-                
-                if self.target == mid_value:
-                    narrative += f"**Result:** {self.target} == {mid_value} → FOUND at index {pointers['mid']}\n\n"
-                elif self.target < mid_value:
-                    narrative += f"**Result:** {self.target} < {mid_value} → Search LEFT half\n\n"
-                else:
-                    narrative += f"**Result:** {self.target} > {mid_value} → Search RIGHT half\n\n"
-        
-        return narrative
-```
-
-**Key Principles:**
-1. Show ALL data referenced in decisions
-2. Make comparisons explicit with actual values
-3. Explain outcomes clearly
-4. Use code blocks for complex state
-5. Fail loudly (KeyError) if data missing
-6. **Ensure all arithmetic is correct (FAA will verify)**
-
----
-
-## Quick Reference: Visualization Types
-
-| Type       | When to Use                      | Required Fields                     |
-| ---------- | -------------------------------- | ----------------------------------- |
-| `array`    | Sorting, searching arrays        | `array`, `pointers` (optional)      |
-| `timeline` | Intervals, time-based algorithms | `all_intervals`, `call_stack_state` |
-| `graph`    | DFS, BFS, Dijkstra, etc.         | `graph.nodes`, `graph.edges`        |
-| `tree`     | Tree traversals, heaps           | TBD (future)                        |
-
----
-
-## Approval Criteria
-
-✅ **PASS** - All LOCKED requirements met, CONSTRAINED contract followed, narratives generated, FAA approved  
-⚠️ **MINOR ISSUES** - Free choices questionable but acceptable  
-❌ **FAIL** - LOCKED requirements violated, return to development
-
-**CRITICAL** Narratives must pass FAA arithmetic audit before QA review.
-
----
-
-## Workflow Integration (v2.1)
+## Workflow Integration
 
 **Stage 1: Backend Implementation**
 
 1. ✅ Implement tracer class
-2. ✅ Implement `generate_narrative()` method
+2. ✅ Implement `generate_narrative()` method with visualization hints
 3. ✅ Run unit tests
 4. ✅ Generate narratives for ALL registered examples
-5. ✅ **Submit narratives to FAA audit (using `FAA_PERSONA.md`)**
-6. ✅ **Fix arithmetic errors, regenerate until FAA passes**
-7. ✅ Self-review narratives (use checklist above)
-8. ✅ Complete this checklist
-9. ✅ Submit PR with code + FAA-approved narratives + checklist
+5. ✅ **Verify result field traceability**
+6. ✅ **Submit narratives to FAA audit** (using `FAA_PERSONA.md`)
+7. ✅ **Fix arithmetic errors, regenerate until FAA passes**
+8. ✅ Self-review narratives (use expanded checklist above)
+9. ✅ Complete this checklist
+10. ✅ Submit PR with code + FAA-approved narratives + checklist
 
-**Next Stage:** QA Narrative Review (see QA_INTEGRATION_CHECKLIST.md)
-
-**Note:** QA assumes arithmetic has been verified by FAA. QA focuses on logical completeness and pedagogical quality.
-
----
-
-## FAA (Forensic Arithmetic Audit) Process 
-
-**When:** After generating narratives, before QA submission  
-**Reference:** `docs/compliance/FAA_PERSONA.md`  
-**Expected Time:** 10-15 minutes initial audit, 5 minutes re-audit
-
-**Process:**
-1. Submit all generated narratives to FAA review
-2. FAA verifies every quantitative claim with calculation
-3. If errors found: Fix and regenerate, resubmit to FAA
-4. If no errors: FAA approves, proceed to checklist completion
-5. Submit PR with FAA-approved narratives
-
-**What FAA Checks:**
-- ✅ Arithmetic correctness (20 - 10 = 10, not 20)
-- ✅ State transition math (variables update correctly)
-- ✅ Quantitative claims consistency
-- ✅ Visualization-text alignment
-
-**What FAA Does NOT Check:**
-- ❌ Pedagogical quality
-- ❌ Narrative completeness
-- ❌ Writing style
-
-**Cost-Benefit:** 2 hours of FAA back-and-forth beats 2 days of integration debugging.
+**Next Stage:** PE Narrative Review (see WORKFLOW.md Stage 2)
 
 ---
 
-**Remember:** 
+**Remember:**
+
 - If your tracer requires changes to `base_tracer.py`, you've misunderstood the architecture
 - If your narrative has undefined variable references, you've missed required visualization data
-- If your narrative has arithmetic errors, FAA will catch them (this is good!)
-- Narratives that fail to generate = bugs caught early (this is good!)
-
-**For detailed narrative implementation guidance, see:** WORKFLOW.md - Stage 1: Backend Implementation  
-**For FAA audit guidance, see:** WORKFLOW.md - Stage 1.5: Forensic Arithmetic Audit
+- If your result has surprise fields, you've missed narrative context requirements
+- If your narrative lacks visualization hints, you've missed frontend guidance opportunity
