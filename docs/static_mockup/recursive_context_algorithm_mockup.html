@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interval Coverage Algorithm Mockup</title>
+    <!-- 
+    NOTE TO COMPONENT DESIGNER: 
+    This mockup uses Tailwind CSS utility classes. 
+    Ensure your React components import or utilize these classes correctly.
+    AlpineJS directives (x-data, @click, etc.) have been removed and replaced 
+    with static values representing the current state (Step 12, Watch Mode).
+    -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      /* CRITICAL: Auto-scroll behavior target */
+      #step-current {
+        scroll-margin: 20px;
+      }
+
+      /* Custom scrollbar for steps panel */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #1e293b;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #475569;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+      }
+
+      /* Custom styles for keyboard keys */
+      .kbd {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2rem;
+        height: 1.75rem;
+        padding: 0 0.5rem;
+        background-color: #334155; /* slate-700 */
+        border: 1px solid #475569; /* slate-600 */
+        border-radius: 0.375rem; /* rounded-md */
+        font-family: monospace;
+        font-size: 0.875rem; /* text-sm */
+        font-weight: 600;
+        color: #e2e8f0; /* slate-200 */
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+      }
+      
+      /* NEW: Custom max height for modals (85vh) */
+      .max-h-85vh {
+        max-height: 85vh;
+      }
+
+      /* Timeline Visualization Constants */
+      :root {
+        --timeline-padding-x: 4%;
+        --timeline-row-gap: 0.5rem; /* gap-2 = 8px */
+      }
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <!-- 
+    ================================================================
+    TENANT GUIDE COMPLIANCE - LOCKED REQUIREMENTS
+    ================================================================
+    
+    [REQ] Section 1.3: HTML Landmark IDs (REQUIRED)
+       - #app-root: Top-level container
+       - #app-header: Main header bar
+       - #panel-visualization: Left panel (visualization area)
+       - #panel-steps: Right panel container
+       - #panel-steps-list: Scrollable steps/stack list
+       - #panel-step-description: Current step description
+       - #step-current: Currently executing step (auto-scroll target)
+    
+    [REQ] Section 1.2: Panel Layout Architecture
+       - Visualization panel: flex-[3] (66.67% width)
+       - Steps panel: w-96 (384px fixed width)
+    
+    [REQ] Section 1.6: Overflow Handling
+       - Visualization panel uses items-start + mx-auto pattern
+    
+    ================================================================
+    -->
+
+    <div
+      id="app-root"
+      class="w-full h-screen bg-slate-900 flex flex-col overflow-hidden"
+    >
+      <!-- ========================================
+             HEADER BAR (#app-header)
+             - Static state: Step 12/23, Watch Mode
+             ======================================== -->
+      <header
+        id="app-header"
+        class="bg-slate-800 border-b border-slate-700 px-4 py-3 flex-shrink-0"
+      >
+        <div
+          class="max-w-7xl mx-auto flex items-center justify-between gap-4"
+        >
+          <!-- LEFT: Algorithm Info + Switcher -->
+          <div class="flex items-center gap-4">
+            <div>
+              <h1 class="text-xl font-bold text-white">Interval Coverage</h1>
+              <p class="text-slate-400 text-xs">Step 12 / 23</p>
+            </div>
+
+            <!-- Algorithm Switcher (Dropdown Mockup) -->
+            <div class="pl-4 border-l border-slate-600">
+              <div class="relative">
+                <button
+                  class="flex items-center gap-2 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:cursor-not-allowed rounded-lg transition-colors group"
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                >
+                  <!-- Algorithm Icon -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="w-4 h-4 text-blue-400"
+                  >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                  </svg>
+                  <span class="text-white font-medium text-sm"
+                    >Interval Coverage</span
+                  >
+                  <!-- Dropdown Arrow (Static, not rotated) -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="w-4 h-4 text-slate-400 group-hover:text-white transition-all"
+                  >
+                    <path d="m6 9 6 6 6-6"></path>
+                  </svg>
+                </button>
+                <!-- Dropdown content omitted for static mockup simplicity -->
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Mode Toggle + Controls -->
+          <div class="flex items-center gap-2">
+            <!-- Mode Toggle (Watch Mode Active) -->
+            <button
+              class="px-3 py-1.5 rounded text-sm flex items-center gap-2 transition-colors font-semibold bg-slate-700 hover:bg-slate-600 text-slate-300"
+            >
+              ⚡ Watch
+            </button>
+
+            <!-- Reset -->
+            <button
+              class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+              title="Reset (R)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-rotate-ccw"
+              >
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+              Reset
+            </button>
+
+            <!-- Previous -->
+            <button
+              class="bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+              title="Previous (←)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-skip-back"
+              >
+                <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                <line x1="5" x2="5" y1="19" y2="5"></line>
+              </svg>
+              Previous
+            </button>
+
+            <!-- Next (Active) -->
+            <button
+              class="bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-600 disabled:cursor-not-allowed text-black px-6 py-2 rounded-lg flex items-center gap-2 transition-colors font-bold"
+              title="Next (→)"
+            >
+              Next Step
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-chevron-right"
+              >
+                <path d="m9 18 6-6-6-6"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- ========================================
+             MAIN CONTENT AREA
+             ======================================== -->
+      <main class="flex-1 flex items-center justify-center p-4 overflow-hidden">
+        <!-- Keyboard Shortcuts Button (Fixed position) -->
+        <div class="fixed bottom-4 right-4 z-50">
+          <button
+            class="bg-slate-700 hover:bg-slate-600 text-white p-3 rounded-full shadow-lg transition-all hover:scale-110"
+            title="Keyboard shortcuts"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-keyboard"
+            >
+              <rect width="20" height="16" x="2" y="4" rx="2" ry="2"></rect>
+              <path d="M6 8h.001"></path>
+              <path d="M10 8h.001"></path>
+              <path d="M14 8h.001"></path>
+              <path d="M18 8h.001"></path>
+              <path d="M8 12h.001"></path>
+              <path d="M12 12h.001"></path>
+              <path d="M16 12h.001"></path>
+              <path d="M7 16h10"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="w-full h-full max-w-7xl flex gap-4 overflow-hidden">
+          <!-- LEFT PANEL: VISUALIZATION 
+                 [REQ] LOCKED: flex-[3] ratio (66.67% width)
+                 [REQ] LOCKED: Must have #panel-visualization ID
+                 [REQ] LOCKED: Use items-start + mx-auto for overflow
+            -->
+          <div
+            id="panel-visualization"
+            class="flex-[3] bg-slate-800 rounded-xl shadow-2xl flex flex-col overflow-hidden select-none"
+          >
+            <!-- Visualization Header -->
+            <div
+              class="px-4 py-3 border-b border-slate-700 flex items-center justify-between flex-shrink-0"
+            >
+              <h2 class="text-lg font-semibold text-white">
+                Timeline Visualization
+              </h2>
+
+              <!-- Algorithm Info Trigger (Static) -->
+              <button
+                id="algorithm-info-trigger"
+                class="p-2 bg-slate-700 hover:bg-slate-600 rounded-full transition-colors group"
+                title="Algorithm Details"
+              >
+                <svg
+                  class="w-5 h-5 text-blue-400 group-hover:text-blue-300"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12" y2="8"></line>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Visualization Content (Timeline) -->
+            <div
+              class="flex-1 flex flex-col items-start overflow-auto p-6"
+            >
+              <div class="mx-auto h-full w-full">
+                <div class="relative h-full flex flex-col">
+                  <!-- Timeline Container -->
+                  <div
+                    class="relative flex-1 bg-slate-900/50 rounded-lg flex flex-col overflow-y-auto overflow-x-hidden"
+                    style="
+                      padding-left: var(--timeline-padding-x);
+                      padding-right: var(--timeline-padding-x);
+                      padding-top: 1rem;
+                      padding-bottom: 2rem;
+                    "
+                  >
+                    <!-- Timeline Axis (Static) -->
+                    <div
+                      class="absolute bottom-6 left-0 right-0 h-0.5 bg-slate-600 mx-[var(--timeline-padding-x)]"
+                    ></div>
+                    <div
+                      class="absolute bottom-1 left-[var(--timeline-padding-x)] text-slate-400 text-xs transform -translate-x-1/2"
+                    >
+                      500
+                    </div>
+                    <div
+                      class="absolute bottom-1 left-1/2 text-slate-400 text-xs transform -translate-x-1/2"
+                    >
+                      750
+                    </div>
+                    <div
+                      class="absolute bottom-1 right-[var(--timeline-padding-x)] text-slate-400 text-xs transform translate-x-1/2"
+                    >
+                      1000
+                    </div>
+
+                    <!-- Max End Marker (Current State: 720) -->
+                    <div
+                      class="absolute top-4 bottom-6 w-0.5 bg-cyan-400 z-10 transition-all duration-300"
+                      style="left: 44%"
+                    >
+                      <div
+                        class="absolute -top-3 -left-10 bg-teal-400 text-black text-xs px-2 py-1 rounded font-bold whitespace-nowrap drop-shadow-sm"
+                      >
+                        max_end: 720
+                      </div>
+                    </div>
+
+                    <!-- Interval Rows -->
+                    <div
+                      class="flex flex-col gap-[var(--timeline-row-gap)] w-full relative z-0"
+                    >
+                      <!-- Interval 1 (Covered/Skipped) -->
+                      <div class="relative h-10 w-full flex-shrink-0">
+                        <div
+                          class="absolute h-full bg-blue-600 rounded border-2 border-blue-500 flex items-center justify-center text-white text-sm font-bold transition-all duration-300 opacity-30 grayscale line-through bg-gray-800/50"
+                          style="left: 8%; width: 24%"
+                        >
+                          540-660
+                        </div>
+                      </div>
+
+                      <!-- Interval 2 (Examining/Current) -->
+                      <div class="relative h-10 w-full flex-shrink-0">
+                        <div
+                          class="absolute h-full bg-green-600 rounded border-2 border-green-500 flex items-center justify-center text-white text-sm font-bold transition-all duration-300 border-4 border-yellow-300 scale-105 shadow-[0_0_15px_5px_rgba(234,179,8,0.6)] z-20"
+                          style="left: 20%; width: 24%"
+                        >
+                          600-720
+                        </div>
+                      </div>
+
+                      <!-- Interval 3 (Kept/Part of Solution) -->
+                      <div class="relative h-10 w-full flex-shrink-0">
+                        <div
+                          class="absolute h-full bg-amber-500 rounded border-2 border-amber-400 flex items-center justify-center text-white text-sm font-bold transition-all duration-300"
+                          style="left: 8%; width: 36%"
+                        >
+                          540-720
+                        </div>
+                      </div>
+
+                      <!-- Interval 4 (Remaining/Future) -->
+                      <div class="relative h-10 w-full flex-shrink-0">
+                        <div
+                          class="absolute h-full bg-purple-600 rounded border-2 border-purple-500 flex items-center justify-center text-white text-sm font-bold transition-all duration-300"
+                          style="left: 80%; width: 12%"
+                        >
+                          900-960
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Legend -->
+                  <div class="mt-4 flex gap-4 text-xs flex-wrap">
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-3 bg-cyan-400 rounded"></div>
+                      <span class="text-slate-400">max_end line</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div
+                        class="w-8 h-3 bg-yellow-400 rounded ring-2 ring-yellow-400"
+                      ></div>
+                      <span class="text-slate-400">highlighted</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div
+                        class="w-8 h-3 bg-yellow-400 rounded border-2 border-yellow-300"
+                      ></div>
+                      <span class="text-slate-400">examining</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div
+                        class="w-8 h-3 bg-slate-500 opacity-30 rounded line-through grayscale"
+                      ></div>
+                      <span class="text-slate-400">covered (skipped)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT PANEL: STEPS & STATE 
+                 [REQ] LOCKED: w-96 (384px fixed width)
+                 [REQ] LOCKED: Must have #panel-steps ID
+            -->
+          <div
+            id="panel-steps"
+            class="w-96 bg-slate-800 rounded-xl shadow-2xl flex flex-col overflow-hidden"
+          >
+            <!-- Algorithm State Card -->
+            <div class="px-6 py-4 border-b border-slate-700 flex-shrink-0">
+              <h2 class="text-white font-bold">Algorithm State</h2>
+              <!-- State variables omitted for brevity, but typically placed here -->
+            </div>
+
+            <!-- Steps List 
+                     [REQ] CRITICAL: Must have #panel-steps-list ID
+                     [REQ] CRITICAL: #step-current must scroll into view on change
+                -->
+            <div
+              id="panel-steps-list"
+              class="flex-1 overflow-y-auto custom-scrollbar px-6 py-4"
+            >
+              <div class="space-y-2">
+                <!-- Step 1 (Depth 0) -->
+                <div
+                  class="p-3 rounded-lg border-2 transition-all border-slate-600 bg-slate-800/50"
+                  style="margin-left: 0px"
+                >
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="text-slate-400 text-xs font-mono">CALL #0</div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="text-slate-500"
+                    >
+                      <path d="m9 18 6-6-6-6"></path>
+                    </svg>
+                    <div class="text-white text-xs font-mono">
+                      depth=0, remaining=3
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="text-slate-400 text-xs">Examining:</div>
+                    <div
+                      class="px-2 py-1 rounded text-xs font-bold bg-amber-500 text-black"
+                    >
+                      (540, 720)
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="text-slate-400 text-xs">max_end_so_far:</div>
+                    <div class="text-cyan-400 text-xs font-mono font-bold">
+                      -∞
+                    </div>
+                  </div>
+                  <div
+                    class="flex items-center gap-2 p-2 rounded bg-emerald-900/30 border border-emerald-500"
+                  >
+                    <div class="text-xs font-bold">✅ KEEP</div>
+                    <div class="text-xs text-slate-300">720 > -∞</div>
+                  </div>
+                </div>
+
+                <!-- Step 2 (Depth 1) -->
+                <div
+                  class="p-3 rounded-lg border-2 transition-all border-slate-600 bg-slate-800/50"
+                  style="margin-left: 24px"
+                >
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="text-slate-400 text-xs font-mono">CALL #1</div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="text-slate-500"
+                    >
+                      <path d="m9 18 6-6-6-6"></path>
+                    </svg>
+                    <div class="text-white text-xs font-mono">
+                      depth=1, remaining=2
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="text-slate-400 text-xs">Examining:</div>
+                    <div
+                      class="px-2 py-1 rounded text-xs font-bold bg-blue-600 text-white"
+                    >
+                      (540, 660)
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="text-slate-400 text-xs">max_end_so_far:</div>
+                    <div class="text-cyan-400 text-xs font-mono font-bold">
+                      720
+                    </div>
+                  </div>
+                  <div
+                    class="flex items-center gap-2 p-2 rounded bg-red-900/30 border border-red-500"
+                  >
+                    <div class="text-xs font-bold">❌ COVERED</div>
+                    <div class="text-xs text-slate-300">660 ≤ 720</div>
+                  </div>
+                </div>
+
+                <!-- CURRENT STEP 
+                         [REQ] CRITICAL: Must have #step-current ID
+                         This element MUST be scrolled into view automatically
+                    -->
+                <div
+                  id="step-current"
+                  class="p-3 rounded-lg border-2 transition-all border-yellow-400 bg-yellow-900/20 shadow-lg"
+                  style="margin-left: 48px"
+                >
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="text-slate-400 text-xs font-mono">CALL #2</div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="text-slate-500"
+                    >
+                      <path d="m9 18 6-6-6-6"></path>
+                    </svg>
+                    <div class="text-white text-xs font-mono">
+                      depth=2, remaining=1
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="text-slate-400 text-xs">Examining:</div>
+                    <div
+                      class="px-2 py-1 rounded text-xs font-bold bg-green-600 text-white"
+                    >
+                      (600, 720)
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="text-slate-400 text-xs">max_end_so_far:</div>
+                    <div class="text-cyan-400 text-xs font-mono font-bold">
+                      720
+                    </div>
+                  </div>
+                  <!-- Result/Action area omitted as it's the current step -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Current Step Description 
+                     [REQ] CRITICAL: Must have #panel-step-description ID
+                -->
+            <div
+              id="panel-step-description"
+              class="border-t border-slate-700 p-4 bg-slate-800 flex-shrink-0"
+            >
+              <div
+                class="p-4 bg-gradient-to-br from-slate-700/60 to-slate-800/60 rounded-lg border border-slate-600/50 shadow-lg"
+              >
+                <div class="mb-3">
+                  <span
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold bg-yellow-500/20 text-yellow-300 border border-yellow-500/50"
+                    >🔍 EXAMINE</span
+                  >
+                </div>
+                <p class="text-white text-base font-medium leading-relaxed">
+                  Does interval (600, 720) extend beyond max_end=720? If yes, we
+                  KEEP it; if no, it's COVERED.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- 
+    ================================================================
+    MODALS (Omitted for brevity in static mockup, but structure should be noted)
+    ================================================================
+    
+    [MODAL] Keyboard Shortcuts Modal (Hidden)
+    [MODAL] Algorithm Info Modal (Hidden)
+    
+    -->
+  </body>
+</html>
