@@ -1,203 +1,658 @@
-# Frontend Checklist: UI/UX Compliance
+# Frontend Developer Checklist: Algorithm Integration Compliance v1.0
 
-**Version:** 3.0  
-**Authority:** WORKFLOW.md v2.1 - Frontend Requirements  
-**Visual Authority:** Static mockups (`docs/static_mockup/*.html`) - Single source of truth  
-**Purpose:** Verify UI components comply with platform standards
-
----
-
-## CRITICAL: Visual Standards Authority
-
-**When text differs from mockups, mockups win.**
-
-All visual decisions must reference static mockups:
-
-- `algorithm_page_mockup.html` - Panel layout, keyboard shortcuts, IDs
-- `prediction_modal_mockup.html` - Prediction modal standards  
-- `completion_modal_mockup.html` - Completion modal standards (Compact Redesign)
-
-**Implementer Responsibility:** Check relevant mockups before implementing or modifying any UI component.
+**Authority:** Derived from project workflow documentation  
+**Purpose:** Verify new algorithm frontend components comply with platform architecture and design standards  
+**Scope:** Frontend-specific requirements only - focus on this checklist and Frontend ADRs
 
 ---
 
-## Pre-Integration Validation
+## LOCKED REQUIREMENTS (Mandatory - Cannot Be Modified)
 
-**Before starting frontend work:**
+### Registry Registration
 
-- [ ] **QA narrative review PASSED** - Narratives approved for logical completeness
-- [ ] **FAA audit completed** - Arithmetic correctness verified  
-- [ ] **Backend JSON contract validated** - Narrative confirmed data completeness
-- [ ] **FAA-approved narratives available** - Located in `docs/narratives/[algorithm-name]/`
-- [ ] **Trust the JSON** - Frontend focuses on "how to render" not "what to render"
+- [ ] **State component registered in `stateRegistry.js`**
+  - Import statement added at top of file
+  - Entry added to `STATE_REGISTRY` object
+  - Key matches backend algorithm name exactly (e.g., "binary-search")
+  - Verify registration with: `isStateComponentRegistered('algorithm-name')`
 
----
+- [ ] **Visualization component registered in `visualizationRegistry.js`** (if new type needed)
+  - Import statement added at top of file
+  - Entry added to `VISUALIZATION_REGISTRY` object
+  - Key matches backend `visualization_type` metadata
+  - Most algorithms reuse existing: "array" → `ArrayView`, "timeline" → `TimelineView`
 
-## SECTION 1: LOCKED REQUIREMENTS (Zero Freedom)
+### Component Organization (ADR-002)
 
-### 1.1 Modal Visual Compliance
+- [ ] **State component in correct directory**
+  - File location: `frontend/src/components/algorithm-states/`
+  - Naming convention: `{AlgorithmName}State.jsx` (PascalCase + "State" suffix)
+  - Examples: `BinarySearchState.jsx`, `MergeSortState.jsx`, `DijkstraState.jsx`
+  - NOT in `visualizations/` directory (that's for reusable components)
 
-**Source:** `completion_modal_mockup.html` and `prediction_modal_mockup.html`
+- [ ] **Visualization component in correct directory** (if creating new reusable component)
+  - File location: `frontend/src/components/visualizations/`
+  - Naming convention: `{ConceptName}View.jsx` (PascalCase + "View" suffix)
+  - Examples: `ArrayView.jsx`, `TimelineView.jsx`, `GraphView.jsx`
+  - Only create if no existing visualization fits your needs
 
-- [ ] **Modal dimensions match mockups** - Width, padding, spacing exactly as shown
-- [ ] **Positioning matches mockups** - Fixed overlay, centering, z-index
-- [ ] **Typography matches mockups** - Font sizes, weights, colors exactly as shown  
-- [ ] **Layout patterns match mockups** - Horizontal vs vertical layouts as shown
-- [ ] **Theme colors match mockups** - Success/failure/neutral color schemes
-- [ ] **Spacing matches mockups** - Margins, padding, gaps exactly as shown
-- [ ] **Content fitting strategy matches mockups** - No scrolling, flex-wrap usage
+### Static Mockup Compliance
 
-**Verification:** Side-by-side comparison with static mockups must pass visual inspection.
+- [ ] **Visual design matches static mockups**
+  - Reference: `docs/static_mockup/algorithm_page_mockup.html`
+  - Verify theme consistency (slate-800 background, slate-700 panels)
+  - Verify color palette matches existing algorithms
+  - Verify font sizes and spacing match mockup
+  - Verify typography (font-mono for values, font-sans for labels)
 
-### 1.2 Panel Layout Architecture
+- [ ] **Prediction modal matches mockup**
+  - Reference: `docs/static_mockup/prediction_modal_mockup.html`
+  - Choice styling consistent (hover states, selection)
+  - Button placement and sizing correct
+  - Modal dimensions and positioning match
 
-**Source:** `algorithm_page_mockup.html`
+- [ ] **Completion modal matches mockup**
+  - Reference: `docs/static_mockup/completion_modal_mockup.html`
+  - Score display formatting matches
+  - Button styling consistent
+  - Success/partial success states match design
 
-- [ ] **Panel proportions match mockup** - 3:1.5 ratio visualization:steps
-- [ ] **Required HTML IDs present** - All 6 IDs as shown in mockup
-- [ ] **Keyboard shortcuts work as shown** - Arrow keys, Space, R, Home, Enter, S  
-- [ ] **Auto-scroll behavior matches** - `#step-current` scrolls into view
-- [ ] **Overflow pattern matches mockup** - `items-start` + `mx-auto` pattern (NOT `items-center`)
+### Modal Keyboard Shortcuts (LOCKED Elements - INV-3)
 
-**Verification:** Measure panel widths, test keyboard shortcuts, verify DOM IDs match mockup structure.
+- [ ] **Prediction modal shortcuts verified**
+  - `1`, `2`, `3` keys select choices (hardcoded in PredictionModal.jsx)
+  - `s` key skips current prediction (RESERVED - critical for learning flow)
+  - `Enter` submits selected answer
+  - `Escape` closes modal
+  - NO modifications to these shortcuts without full team approval
 
-### 1.3 Modal IDs (LOCKED)
+- [ ] **Completion modal shortcuts verified**
+  - `r` key restarts algorithm
+  - `Enter` restarts algorithm
+  - `Escape` closes modal
+  - NO modifications to these shortcuts without full team approval
 
-**Critical for automated testing:**
+- [ ] **Keyboard shortcut conflicts checked**
+  - Verify no component uses `s` key for other purposes (reserved for Skip in Prediction Modal)
+  - Verify no component uses `1`, `2`, `3` keys for other purposes (reserved for Prediction choices)
+  - Verify no component uses `r` key for other purposes (reserved for Restart in Completion Modal)
+  - Check KeyboardContext priority levels if implementing new shortcuts
+  - Document any new shortcuts to avoid future conflicts
 
-- [ ] **Prediction modal:** `id="prediction-modal"`
-- [ ] **Completion modal:** `id="completion-modal"`
+### Panel Ratio and Overflow Pattern (LOCKED Elements - INV-4)
 
----
+- [ ] **Panel ratio preserved: 60/40 (Left/Right)**
+  - Left panel (visualization): 60% width
+  - Right panel (state): 40% width
+  - Verify responsive behavior at different screen sizes
+  - NO modifications to ratio without full team approval
 
-## SECTION 2: CONSTRAINED REQUIREMENTS (Limited Flexibility)
+- [ ] **Overflow pattern implemented correctly**
+  - Panel content uses `overflow-y-auto` for vertical scrolling
+  - Horizontal overflow hidden (`overflow-x-hidden`)
+  - Content never forces horizontal scroll
+  - Scrollbars appear only when content exceeds panel height
 
-### 2.1 Component Architecture
+### Algorithm Info Markdown
 
-**Registry-Based Pattern (REQUIRED):**
+- [ ] **Algorithm info file exists**
+  - File location: `public/algorithm-info/{algorithm-name}.md`
+  - Naming convention: Match algorithm name exactly (e.g., `binary-search.md`)
+  - Accessible via: `GET /algorithm-info/{algorithm-name}.md`
 
-- [ ] **State component created** - In `algorithm-states/` directory
-- [ ] **State component registered** - Added to `stateRegistry.js` 
-- [ ] **Naming convention followed** - `{Algorithm}State.jsx` format
-- [ ] **Component interface correct** - Accepts `step` prop
-- [ ] **No hardcoded routing** - App.jsx uses registry pattern
-
-### 2.2 Prediction Questions
-
-**Hard Constraints:**
-
-- [ ] **Maximum 3 choices** - Strictly enforced limit
-- [ ] **Grid layout appropriate** - 2-col for 2 choices, 3-col for 3 choices
-- [ ] **Button states implemented** - Default, hover, selected, unselected
-
-### 2.3 Completion Modal Logic
-
-**Detection Strategy:**
-
-- [ ] **Last-step detection used** - Check `step === trace.trace.steps.length - 1`
-- [ ] **Algorithm-specific rendering** - Based on `trace?.metadata?.algorithm`
-- [ ] **Generic fallback provided** - For unknown algorithms
-- [ ] **Prediction accuracy calculated** - If `predictionStats.total > 0`
-
----
-
-## SECTION 3: FREE ZONES (Your Creative Freedom)
-
-### Implementation Choices
-
-- [ ] **Component architecture** - File organization, patterns (your choice)
-- [ ] **State management** - Built-in React state or external libraries  
-- [ ] **Performance optimizations** - Memoization, virtualization (as needed)
-- [ ] **Custom styling** - Within mockup constraints, visual enhancements welcome
-
----
-
-## Testing Verification
-
-### LOCKED Requirements Test
-
-- [ ] **Modal visual comparison** - Side-by-side with mockups passes
-- [ ] **Panel layout measurement** - Width ratio 3:1.5 verified  
-- [ ] **DOM ID inspection** - All 6 required IDs present
-- [ ] **Keyboard shortcut testing** - All keys work as specified
-- [ ] **Overflow pattern verification** - No left-edge cutoff on wide content
-- [ ] **Auto-scroll behavior** - Current step scrolls into view
-
-### CONSTRAINED Requirements Test
-
-- [ ] **Component registration** - Registry lookup succeeds
-- [ ] **Component location** - Correct directory placement  
-- [ ] **Prediction limit** - ≤3 choices enforced
-- [ ] **Completion detection** - Last-step logic works
-- [ ] **No hardcoded routing** - App.jsx uses registry
-
-### Integration Test
-
-- [ ] **No regressions** - Existing algorithms still work
-- [ ] **Algorithm switching** - State components update correctly
-- [ ] **Visual consistency** - Matches established patterns
-- [ ] **User experience quality** - Clear, intuitive, responsive
+- [ ] **Info content follows standard structure**
+  - Educational overview (what, why, where used)
+  - Complexity analysis (time/space)
+  - Real-world applications
+  - No code-heavy content (conceptual focus)
+  - 150-250 words recommended length
 
 ---
 
-## Quick Reference: Required DOM Structure
+## CONSTRAINED REQUIREMENTS (Follow Architecture Patterns)
+
+### Architecture Documentation Review
+
+- [ ] **Frontend ADRs reviewed before implementation**
+  - Read `docs/ADR/FRONTEND/ADR-001-registry-based-architecture.md`
+  - Read `docs/ADR/FRONTEND/ADR-002-component-organization-principles.md`
+  - Read `docs/ADR/FRONTEND/ADR-003-context-state-management.md`
+  - Understand registry pattern, component organization, context usage
+
+- [ ] **Project README reviewed for context**
+  - Read `README.md` for architecture overview
+  - Understand backend/frontend contract (trace structure)
+  - Review data flow: API → TraceContext → NavigationContext → Components
+
+- [ ] **Document contradictions flagged**
+  - If ADR conflicts with this checklist → Flag to PM
+  - If ADR conflicts with README → Flag to PM
+  - If README appears outdated or incorrect → Flag to PM
+  - Escalate architectural conflicts before implementation
+
+### Narrative-Driven Visualization Design
+
+- [ ] **Backend narrative reviewed before component design**
+  - Read all generated narratives: `docs/narratives/{algorithm-name}/`
+  - Identify key data points mentioned in narrative
+  - Identify state transitions described in narrative
+  - Identify decision points requiring visual emphasis
+
+- [ ] **Visualization plan extracts narrative insights**
+  - List metrics to emphasize (from narrative "Frontend Visualization Hints")
+  - List transitions to animate (based on narrative step progression)
+  - List data relationships to show (pointers, ranges, comparisons)
+  - Map narrative sections to visual components
+
+- [ ] **Component design supports narrative flow**
+  - Visual states match narrative descriptions
+  - Transitions reflect narrative temporal coherence
+  - Data visibility matches narrative references
+  - No visual elements without narrative justification
+
+### Component Props Interface (ADR-003)
+
+- [ ] **State component receives standard props**
+  - `step` (object, required): Current step data from NavigationContext
+  - `trace` (object, optional): Full trace data from TraceContext
+  - Additional algorithm-specific props as needed
+  - PropTypes defined for all props
+
+- [ ] **Props accessed safely with fallbacks**
+  - Check `step?.data?.visualization` before access
+  - Check `trace?.metadata` before access
+  - Provide fallback UI if data missing
+  - No crashes on null/undefined data
+
+### Context Usage Patterns (ADR-003)
+
+- [ ] **Use contexts appropriately**
+  - `useTrace()` for raw trace data and metadata
+  - `useNavigation()` for current step and navigation controls
+  - `usePrediction()` for prediction mode state
+  - `useHighlight()` for cross-panel visual coordination
+  - `useKeyboard()` for keyboard shortcut registration
+
+- [ ] **Avoid prop drilling**
+  - Use context hooks instead of passing props through multiple layers
+  - Example: Get `currentStep` from `useNavigation()` directly in component
+  - Example: Get `trace.metadata` from `useTrace()` directly in component
+
+### Visualization Component Selection (ADR-001)
+
+- [ ] **Reuse existing visualization components when possible**
+  - Array algorithms → Use `ArrayView` (visualization_type: "array")
+  - Timeline algorithms → Use `TimelineView` (visualization_type: "timeline")
+  - Only create new visualization if existing don't fit
+
+- [ ] **Follow visualization component contract**
+  - `step` prop: Contains `data.visualization` with visualization-specific data
+  - `config` prop (optional): Contains `metadata.visualization_config`
+  - Render current state based on `step.data.visualization`
+  - Handle missing data gracefully
+
+### Data Access Patterns
+
+- [ ] **Access visualization data correctly**
+  - Array algorithms: `step.data.visualization.array` (array of element objects)
+  - Timeline algorithms: `step.data.visualization.all_intervals` (array of intervals)
+  - Pointers: `step.data.visualization.pointers` (object with pointer names/values)
+  - State: `step.data.visualization.{algorithm_specific_state}`
+
+- [ ] **Access metadata correctly**
+  - Algorithm name: `trace.metadata.algorithm`
+  - Display name: `trace.metadata.display_name`
+  - Visualization type: `trace.metadata.visualization_type`
+  - Custom config: `trace.metadata.visualization_config`
+
+### Component Structure Standards
+
+- [ ] **Component follows standard structure**
+  ```jsx
+  import React from 'react';
+  import PropTypes from 'prop-types';
+  import { useTrace, useNavigation } from '@/contexts';
+  
+  const AlgorithmState = ({ step, trace }) => {
+    // Early return for missing data
+    if (!step?.data?.visualization) {
+      return <div>No state data available</div>;
+    }
+    
+    // Extract data
+    const { key_data } = step.data.visualization;
+    
+    // Render UI
+    return (
+      <div className="space-y-4">
+        {/* Component content */}
+      </div>
+    );
+  };
+  
+  AlgorithmState.propTypes = {
+    step: PropTypes.shape({
+      data: PropTypes.shape({
+        visualization: PropTypes.object,
+      }),
+    }).isRequired,
+    trace: PropTypes.object,
+  };
+  
+  export default AlgorithmState;
+  ```
+
+- [ ] **PropTypes defined for all components**
+  - Document expected prop structure
+  - Mark required vs optional props
+  - Helps catch integration bugs early
+
+---
+
+## ANTI-PATTERNS (Never Do)
+
+### Registry Violations
+
+- [ ] ✅ **NOT skipping registry registration**
+  - Example ❌: Creating component but forgetting to register in `stateRegistry.js`
+  - Example ✅: Always register after creating component file
+  - Consequence: Component won't render, falls back to DefaultStateComponent
+
+- [ ] ✅ **NOT using wrong registry**
+  - Example ❌: Registering state component in `visualizationRegistry.js`
+  - Example ✅: State components → `stateRegistry.js`, Visualizations → `visualizationRegistry.js`
+  - Consequence: Component selection fails
+
+### Component Organization Violations (ADR-002)
+
+- [ ] ✅ **NOT placing components in wrong directory**
+  - Example ❌: Putting `BinarySearchState.jsx` in `visualizations/` directory
+  - Example ✅: Algorithm-specific → `algorithm-states/`, Reusable → `visualizations/`
+  - Consequence: Confuses purpose, breaks mental model
+
+- [ ] ✅ **NOT using wrong naming convention**
+  - Example ❌: Naming state component `BinarySearch.jsx` (missing "State" suffix)
+  - Example ✅: State components end with "State", visualizations end with "View"
+  - Consequence: Unclear which components are reusable
+
+### Static Mockup Violations
+
+- [ ] ✅ **NOT ignoring static mockup designs**
+  - Example ❌: Using different color scheme than mockup
+  - Example ✅: Referencing mockup HTML files before styling components
+  - Consequence: Inconsistent UI, design debt
+
+- [ ] ✅ **NOT creating custom themes without approval**
+  - Example ❌: Using blue theme when mockup shows slate
+  - Example ✅: Using exact Tailwind classes from mockup reference
+  - Consequence: Visual inconsistency across algorithms
+
+### LOCKED Element Violations
+
+- [ ] ✅ **NOT modifying modal keyboard shortcuts**
+  - Example ❌: Changing prediction modal to use `a`, `b`, `c` instead of `1`, `2`, `3`
+  - Example ❌: Using `s` key for "save" or "submit" (reserved for Skip in Prediction Modal)
+  - Example ✅: Using documented shortcuts without modification
+  - Consequence: Breaks muscle memory, requires full testing cycle
+
+- [ ] ✅ **NOT creating keyboard shortcut conflicts**
+  - Example ❌: Adding `s` shortcut to algorithm state component (conflicts with Skip)
+  - Example ❌: Using `1`, `2`, `3` for navigation (conflicts with Prediction choices)
+  - Example ❌: Using `r` for "refresh" (conflicts with Restart in Completion Modal)
+  - Example ✅: Check reserved shortcuts before implementing new keyboard features
+  - Consequence: Unpredictable behavior, modal shortcuts stop working
+
+- [ ] ✅ **NOT changing panel ratio**
+  - Example ❌: Making right panel 50% width "because it looks better"
+  - Example ✅: Preserving 60/40 ratio as documented
+  - Consequence: Requires full regression testing
+
+- [ ] ✅ **NOT breaking overflow pattern**
+  - Example ❌: Using `overflow-x-auto` or allowing horizontal scroll
+  - Example ✅: `overflow-y-auto` for vertical, `overflow-x-hidden` always
+  - Consequence: Horizontal scroll breaks layout on small screens
+
+### Context Usage Violations
+
+- [ ] ✅ **NOT prop drilling when context available**
+  - Example ❌: Passing `currentStep` through 3 component layers
+  - Example ✅: Using `useNavigation()` hook directly in component
+  - Consequence: Tight coupling, harder to refactor
+
+- [ ] ✅ **NOT accessing context outside provider**
+  - Example ❌: Using `useTrace()` in component not wrapped by `TraceProvider`
+  - Example ✅: Verify component is within provider hierarchy
+  - Consequence: Runtime error, undefined context
+
+### Data Access Violations
+
+- [ ] ✅ **NOT assuming data structure without checking**
+  - Example ❌: Accessing `step.data.visualization.array[0].value` without null checks
+  - Example ✅: Using optional chaining: `step?.data?.visualization?.array?.[0]?.value`
+  - Consequence: Crashes on missing data
+
+- [ ] ✅ **NOT hardcoding data paths**
+  - Example ❌: Assuming pointers always exist: `const left = step.data.visualization.pointers.left`
+  - Example ✅: Check existence: `const left = step.data.visualization.pointers?.left`
+  - Consequence: Breaks when algorithm doesn't use pointers
+
+### Narrative-Driven Design Violations
+
+- [ ] ✅ **NOT implementing visualization without reading narrative**
+  - Example ❌: Designing component based on code inspection alone
+  - Example ✅: Reading all narratives first, extracting visual requirements
+  - Consequence: Visualization doesn't match pedagogical intent
+
+- [ ] ✅ **NOT ignoring "Frontend Visualization Hints" section**
+  - Example ❌: Skipping backend's guidance on what to emphasize
+  - Example ✅: Using hints to prioritize visual elements
+  - Consequence: Misaligned emphasis, cognitive load mismatch
+
+---
+
+## FREE CHOICES (Developer Discretion)
+
+### Component Implementation Details
+
+- [ ] **Internal state management approach** (within ADR-003 guidelines)
+  - Use `useState` for local component state
+  - Use `useEffect` for side effects
+  - Use `useMemo`/`useCallback` for performance optimization
+  - Choice depends on component complexity
+
+- [ ] **Styling specifics** (within theme constraints)
+  - Tailwind utility class combinations
+  - Spacing and padding adjustments
+  - Border radius and shadow choices
+  - Must stay within mockup theme palette
+
+- [ ] **Animation and transition details**
+  - Transition timing functions
+  - Animation duration choices
+  - Easing curves
+  - Must support narrative flow, not distract
+
+### Data Presentation Choices
+
+- [ ] **Value formatting**
+  - Decimal places for floats
+  - Number formatting (commas, spaces)
+  - Date/time formatting
+  - Choose for readability
+
+- [ ] **Label text**
+  - Capitalization style
+  - Label brevity vs clarity
+  - Tooltip content
+  - Choose for user understanding
+
+### Component Structure Choices
+
+- [ ] **Sub-component extraction**
+  - When to extract helper components
+  - File organization within algorithm-states/
+  - Component composition patterns
+  - Balance reusability with simplicity
+
+- [ ] **Helper function organization**
+  - Inline vs separate utility file
+  - Pure functions vs component methods
+  - Naming conventions
+  - Choose for maintainability
+
+---
+
+## Testing Checklist
+
+### Component Testing
+
+- [ ] **Create testing plan for new algorithm**
+  - Document test scenarios (happy path, edge cases, error states)
+  - Identify critical user interactions to test
+  - List data variations to verify (empty, single element, large dataset)
+  - Plan for visual regression testing
+
+- [ ] **Implement tests according to plan**
+  - Test component renders without crashing
+  - Test with various step data shapes
+  - Test with missing/null data (graceful degradation)
+  - Test prop updates trigger re-renders correctly
+
+- [ ] **Test registry integration**
+  - Verify `getStateComponent('algorithm-name')` returns correct component
+  - Verify component renders when selected via algorithm switcher
+  - Test fallback to DefaultStateComponent for unregistered algorithms
+
+### Visual Testing
+
+- [ ] **Static mockup compliance verified**
+  - Side-by-side comparison with mockup HTML
+  - Color palette matches exactly
+  - Typography (font-family, sizes, weights) matches
+  - Spacing and layout proportions match
+
+- [ ] **Responsive behavior tested**
+  - Test at multiple screen widths (mobile, tablet, desktop)
+  - Verify panel ratio maintained
+  - Verify overflow scrolling works
+  - No horizontal scroll at any width
+
+### Integration Testing
+
+- [ ] **Algorithm switcher integration**
+  - Algorithm appears in dropdown
+  - Selecting algorithm loads correct state component
+  - Switching between algorithms doesn't crash
+  - State clears correctly on algorithm change
+
+- [ ] **Navigation integration**
+  - Step forward/backward updates component correctly
+  - Jump to step works
+  - First/last step buttons work
+  - Keyboard shortcuts (Arrow keys) work
+
+- [ ] **Prediction modal integration** (if algorithm has predictions)
+  - Modal opens at correct steps
+  - Choices render correctly (2-3 max)
+  - Selection and submission work
+  - Keyboard shortcuts (`1`, `2`, `3`, `Enter`) work
+
+### Narrative Alignment Testing
+
+- [ ] **Visual-narrative correspondence verified**
+  - Each narrative step has corresponding visual state
+  - Key data points from narrative are visible in UI
+  - Transitions match narrative flow
+  - No visual elements contradict narrative
+
+- [ ] **Pedagogical effectiveness validated**
+  - Can user follow algorithm logic from visualization alone?
+  - Are decision points visually clear?
+  - Does visual emphasis match narrative emphasis?
+  - Is cognitive load reasonable?
+
+---
+
+## Example: Component Implementation Pattern
 
 ```jsx
-<div id="app-root">
-  <div id="app-header">/* Controls */</div>  
-  <div className="flex gap-4">
-    <div id="panel-visualization" className="flex-[3]">/* Viz */</div>
-    <div id="panel-steps" className="w-96">
-      <div id="panel-steps-list" className="overflow-y-auto">
-        <div id="step-current">/* Active step - auto-scroll target */</div>
+import React from 'react';
+import PropTypes from 'prop-types';
+
+/**
+ * MergeSortState - Displays algorithm-specific state for Merge Sort
+ * 
+ * Shows:
+ * - Current recursion depth
+ * - Active subarray boundaries
+ * - Merge operation progress
+ * 
+ * Narrative-Driven Design:
+ * - Emphasizes divide-and-conquer phases (from narrative)
+ * - Highlights comparison operations (from narrative)
+ * - Shows merge progress visually (from narrative hints)
+ */
+const MergeSortState = ({ step, trace }) => {
+  // Early return for missing data (graceful degradation)
+  if (!step?.data?.visualization) {
+    return (
+      <div className="text-gray-400 text-sm">
+        No state data available for this step
       </div>
-      <div id="panel-step-description">/* Current action */</div>
+    );
+  }
+
+  // Extract visualization data (safe access with optional chaining)
+  const { recursion_depth, subarray_bounds, merge_progress } = 
+    step.data.visualization;
+
+  return (
+    <div className="space-y-4">
+      {/* Recursion Depth - From narrative: "Track depth for divide phase" */}
+      {recursion_depth !== undefined && (
+        <div className="bg-slate-700/50 rounded-lg p-4">
+          <h3 className="text-white font-semibold mb-2">Recursion Depth</h3>
+          <div className="text-sm">
+            <span className="text-gray-400">Current Level:</span>
+            <span className="text-white font-mono ml-2">{recursion_depth}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Subarray Bounds - From narrative: "Show divide boundaries" */}
+      {subarray_bounds && (
+        <div className="bg-slate-700/50 rounded-lg p-4">
+          <h3 className="text-white font-semibold mb-2">Active Subarray</h3>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-400">Left:</span>
+              <span className="text-white font-mono">{subarray_bounds.left}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Right:</span>
+              <span className="text-white font-mono">{subarray_bounds.right}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Merge Progress - From narrative hints: "Visualize merge comparisons" */}
+      {merge_progress && (
+        <div className="bg-slate-700/50 rounded-lg p-4">
+          <h3 className="text-white font-semibold mb-2">Merge Progress</h3>
+          <div className="w-full bg-slate-600 rounded-full h-2">
+            <div
+              className="bg-green-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${merge_progress.percentage}%` }}
+            />
+          </div>
+        </div>
+      )}
     </div>
-  </div>
-</div>
+  );
+};
 
-<!-- Modal IDs (when active) -->  
-<div id="prediction-modal">/* Prediction UI */</div>
-<div id="completion-modal">/* Completion UI */</div>
+// PropTypes for type checking and documentation
+MergeSortState.propTypes = {
+  step: PropTypes.shape({
+    data: PropTypes.shape({
+      visualization: PropTypes.shape({
+        recursion_depth: PropTypes.number,
+        subarray_bounds: PropTypes.shape({
+          left: PropTypes.number,
+          right: PropTypes.number,
+        }),
+        merge_progress: PropTypes.shape({
+          percentage: PropTypes.number,
+        }),
+      }),
+    }),
+  }).isRequired,
+  trace: PropTypes.shape({
+    metadata: PropTypes.shape({
+      algorithm: PropTypes.string,
+    }),
+  }),
+};
+
+export default MergeSortState;
 ```
 
 ---
 
-## State Registry Pattern
+## Workflow Integration
 
-```javascript
-// 1. Create: algorithm-states/MyAlgorithmState.jsx
-const MyAlgorithmState = ({ step }) => {
-  return <div>{/* Algorithm-specific state display */}</div>;
-};
+**Stage 3: Frontend Integration**
 
-// 2. Register: stateRegistry.js  
-const STATE_REGISTRY = {
-  "my-algorithm": MyAlgorithmState,
-};
+1. ✅ Review this compliance checklist completely
+2. ✅ Review Frontend ADRs (ADR-001, ADR-002, ADR-003)
+3. ✅ Review project README.md for architecture
+4. ✅ Review backend narratives for visualization insights
+5. ✅ Create visualization plan based on narrative hints
+6. ✅ Create state component in `algorithm-states/` directory
+7. ✅ Register component in `stateRegistry.js`
+8. ✅ Create/verify visualization component (reuse if possible)
+9. ✅ Register visualization in `visualizationRegistry.js` (if new)
+10. ✅ Create algorithm info markdown in `public/algorithm-info/`
+11. ✅ Verify static mockup compliance
+12. ✅ Create testing plan
+13. ✅ Implement tests
+14. ✅ Run all tests (unit + integration)
+15. ✅ Complete this checklist
+16. ✅ Submit PR with code + tests + checklist
 
-// 3. Usage: App.jsx (automatic)
-const StateComponent = getStateComponent(currentAlgorithm);
-return <StateComponent step={step} />;
-```
-
----
-
-## Approval Criteria
-
-✅ **PASS** - All LOCKED requirements met, visual comparison with mockups passes, state component registered  
-⚠️ **MINOR** - CONSTRAINED choices questionable but functional  
-❌ **FAIL** - LOCKED requirements violated, visual differences from mockups, missing registrations
+**Next Stage:** Integration Testing (Stage 4)
 
 ---
 
-**Implementation Guidelines:**
+## Time Estimates
 
-- **Check mockups first** - Before implementing any UI changes  
-- **Trust the JSON** - Backend has validated all data completeness
-- **Reference narratives** - For algorithm behavior understanding
-- **Follow registry pattern** - No hardcoded component routing
-- **Test with mockups** - Side-by-side visual verification required
+- **ADR and Narrative Review:** 15 minutes
+- **Visualization Planning:** 10 minutes
+- **Component Implementation:** 30-45 minutes
+- **Registry Registration:** 5 minutes
+- **Algorithm Info Markdown:** 10 minutes
+- **Testing Plan Creation:** 10 minutes
+- **Test Implementation:** 15-20 minutes
+- **Static Mockup Verification:** 10 minutes
 
-**For workflow details:** WORKFLOW.md v2.1  
-**For architecture decisions:** docs/ADR/ADR-001-registry-based-architecture.md
+**Total:** ~90-120 minutes for complete algorithm integration
+
+---
+
+## Key Reminders
+
+**Your Focus:**
+- ✅ Registry registration (state + visualization)
+- ✅ Component organization (correct directories, naming)
+- ✅ Static mockup compliance (theme, colors, typography)
+- ✅ Narrative-driven design (read narratives first!)
+- ✅ Testing (plan + implementation)
+
+**Architecture Compliance:**
+- ✅ Review ADRs before implementation
+- ✅ Use context hooks (avoid prop drilling)
+- ✅ Follow component structure patterns
+- ✅ Respect LOCKED elements (shortcuts, panel ratio, overflow)
+- ✅ Check keyboard shortcut conflicts (`s`, `1`, `2`, `3`, `r` reserved)
+
+**Quality Standards:**
+- ✅ Safe data access (optional chaining, null checks)
+- ✅ PropTypes for all components
+- ✅ Graceful degradation (handle missing data)
+- ✅ Visual-narrative alignment
+
+**Document Contradictions:**
+- 🚨 If ADR conflicts with this checklist → Flag to PM
+- 🚨 If ADR conflicts with README → Flag to PM
+- 🚨 If README appears outdated → Flag to PM
+- 🚨 Escalate before implementing conflicting requirements
+
+---
+
+**Remember:**
+- Read narratives BEFORE designing components (narrative-driven approach)
+- Register EVERY component you create (both registries)
+- Verify mockup compliance BEFORE submitting (side-by-side comparison)
+- Create tests BEFORE considering done (testing plan + implementation)
+- Flag architectural conflicts IMMEDIATELY (don't implement contradictions)

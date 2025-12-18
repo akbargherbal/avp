@@ -1,6 +1,6 @@
 # Backend Checklist: Algorithm Tracer Compliance v2.2
 
-**Authority:** WORKFLOW.md v2.3 - Backend Requirements  
+**Authority:** WORKFLOW.md v2.4 - Backend Requirements  
 **Purpose:** Verify new algorithm tracers comply with platform requirements
 
 ---
