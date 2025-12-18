@@ -6,9 +6,8 @@ Implements the "remove duplicates from a sorted array" pattern using
 slow and fast pointers. This demonstrates an in-place array modification
 technique.
 
-VERSION: 2.2 - QA Feedback Fix for Narrative Visualization
-- Addressed minor QA feedback to visualize the fast pointer after it
-  moves past the end of the array in the final narrative step.
+VERSION: 2.3 - Backend Checklist v2.2 Compliance
+- Added Frontend Visualization Hints section to narrative
 """
 
 from typing import Any, List, Dict
@@ -240,14 +239,14 @@ class TwoPointerTracer(AlgorithmTracer):
         s = f"{'Index:':<10}" + " ".join(f"{elem['index']:<{col_width}}" for elem in array) + "\n"
         s += f"{'Value:':<10}" + " ".join(f"{elem['value']:<{col_width}}" for elem in array) + "\n"
         s += f"{'State:':<10}" + " ".join(f"{state_map.get(elem['state'], elem['state']):<{col_width}}" for elem in array) + "\n"
-        
+
         pointer_line = " " * 10
         for i in range(len(array)):
             p_str = ""
             if pointers.get('slow') == i: p_str += "S"
             if pointers.get('fast') == i: p_str += "F"
             pointer_line += f"{p_str:<{col_width+1}}"
-        
+
         # QA FEEDBACK FIX: Show the fast pointer after it moves past the last element.
         # The trace step's visualization data for this state will have fast = len(array).
         if pointers.get('fast') == len(array):
@@ -260,6 +259,7 @@ class TwoPointerTracer(AlgorithmTracer):
         """
         Generate a human-readable narrative from the Two Pointer trace,
         consolidating logical steps for pedagogical clarity.
+        Updated to include Frontend Visualization Hints (Backend Checklist v2.2).
         """
         steps = trace_result['trace']['steps']
         result = trace_result['result']
@@ -286,10 +286,10 @@ class TwoPointerTracer(AlgorithmTracer):
             if step_type == "COMPARE":
                 compare_step = step
                 action_step = steps[i + 1]
-                
+
                 slow_val = compare_step['data']['slow_value']
                 fast_val = compare_step['data']['fast_value']
-                
+
                 narrative += f"## Step {step_counter}: Compare `arr[{compare_step['data']['fast_index']}]` and `arr[{compare_step['data']['slow_index']}]`\n\n"
                 narrative += "**State Before Comparison:**\n```\n" + self._render_array_state_narrative(compare_step['data']['visualization']) + "```\n"
                 narrative += f"**Decision:** Compare value at `fast` pointer (`{fast_val}`) with value at `slow` pointer (`{slow_val}`).\n"
@@ -298,7 +298,7 @@ class TwoPointerTracer(AlgorithmTracer):
                     narrative += f"**Result:** `{fast_val} == {slow_val}`. This is a **duplicate**.\n"
                     narrative += "**Action:** Increment the `fast` pointer to scan the next element.\n\n"
                     narrative += "**State After Action:**\n```\n" + self._render_array_state_narrative(action_step['data']['visualization']) + "```\n"
-                
+
                 elif action_step['type'] == "HANDLE_UNIQUE":
                     dest_index = action_step['data']['dest_index']
                     old_val_at_dest = compare_step['data']['visualization']['array'][dest_index]['value']
@@ -325,7 +325,39 @@ class TwoPointerTracer(AlgorithmTracer):
                 i += 1
                 step_counter += 1
                 continue
-            
+
             i += 1
+
+        # Add Frontend Visualization Hints section (Backend Checklist v2.2)
+        narrative += "\n---\n\n## 🎨 Frontend Visualization Hints\n\n"
+        
+        narrative += "### Primary Metrics to Emphasize\n\n"
+        narrative += "- **Unique Count** (`metrics.unique_count`) - Shows running count of unique elements found\n"
+        narrative += "- **Pointer Positions** (`pointers.slow`, `pointers.fast`) - Critical for understanding the algorithm's state\n"
+        narrative += "- **Element States** - Visual distinction between unique, duplicate, examining, pending, and stale states\n\n"
+        
+        narrative += "### Visualization Priorities\n\n"
+        narrative += "1. **Distinguish the two pointers clearly** - `slow` (write pointer) vs `fast` (read pointer) serve different roles\n"
+        narrative += "2. **Highlight the comparison moment** - Element at `fast` with state `examining` is the decision point\n"
+        narrative += "3. **Show in-place modification** - When unique element found, emphasize the copy operation from `fast` to `slow` position\n"
+        narrative += "4. **Visual separation of unique vs stale regions** - Final state should clearly show which elements matter\n\n"
+        
+        narrative += "### Key JSON Paths\n\n"
+        narrative += "```\n"
+        narrative += "step.data.visualization.pointers.slow\n"
+        narrative += "step.data.visualization.pointers.fast\n"
+        narrative += "step.data.visualization.metrics.unique_count\n"
+        narrative += "step.data.visualization.array[*].state  // 'unique' | 'duplicate' | 'examining' | 'pending' | 'stale'\n"
+        narrative += "step.data.visualization.array[*].value\n"
+        narrative += "step.data.visualization.array[*].index\n"
+        narrative += "```\n\n"
+        
+        narrative += "### Algorithm-Specific Guidance\n\n"
+        narrative += "The two-pointer technique's power comes from **in-place modification** - the array is modified as we scan it. "
+        narrative += "The `slow` pointer marks the \"write head\" (where next unique element goes), while `fast` is the \"read head\" (scanning for candidates). "
+        narrative += "Visually emphasizing this separation helps learners understand why we need two pointers instead of one. "
+        narrative += "The moment when a unique element is found and copied (overwriting a duplicate) is pedagogically significant - "
+        narrative += "consider animating this \"write\" operation to reinforce the in-place nature of the algorithm. "
+        narrative += "The final state visualization should clearly show the \"valid\" region (indices 0 to slow) vs the \"stale\" region (beyond slow).\n"
 
         return narrative

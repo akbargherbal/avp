@@ -4,6 +4,9 @@ Binary Search algorithm tracer for educational visualization.
 
 Implements iterative binary search on a sorted array with complete
 trace generation for step-by-step visualization and prediction mode.
+
+VERSION: 2.1 - Backend Checklist v2.2 Compliance
+- Added Frontend Visualization Hints section to narrative
 """
 
 from typing import Any, List, Dict
@@ -80,7 +83,7 @@ class BinarySearchTracer(AlgorithmTracer):
         Generate human-readable narrative from Binary Search trace.
 
         Shows complete execution flow with all decision data visible.
-        Follows BACKEND_CHECKLIST.md v2.0 requirements.
+        Updated to include Frontend Visualization Hints (Backend Checklist v2.2).
 
         Args:
             trace_result: Complete trace result from execute() method
@@ -268,6 +271,41 @@ class BinarySearchTracer(AlgorithmTracer):
         narrative += f"- Time Complexity: O(log n)\n"
         narrative += f"- Space Complexity: O(1) (iterative implementation)\n\n"
 
+        # Add Frontend Visualization Hints section (Backend Checklist v2.2)
+        narrative += "---\n\n## 🎨 Frontend Visualization Hints\n\n"
+        
+        narrative += "### Primary Metrics to Emphasize\n\n"
+        narrative += "- **Search Space Size** (`search_space_size`) - Shows how quickly the algorithm narrows down possibilities\n"
+        narrative += "- **Comparison Count** (`comparisons`) - Demonstrates O(log n) efficiency in real-time\n"
+        narrative += "- **Pointer Positions** (`pointers.left`, `pointers.mid`, `pointers.right`) - Visual representation of the divide-and-conquer strategy\n\n"
+        
+        narrative += "### Visualization Priorities\n\n"
+        narrative += "1. **Highlight the shrinking search space** - Use distinct colors for `active_range` vs `excluded` states\n"
+        narrative += "2. **Emphasize the mid-point comparison** - The `examining` state is the critical decision moment\n"
+        narrative += "3. **Animate pointer movements** - Show left/right pointer jumps to visualize elimination of half the array\n"
+        narrative += "4. **Celebrate the find moment** - When state becomes `found`, use visual feedback (e.g., pulse, color change)\n\n"
+        
+        narrative += "### Key JSON Paths\n\n"
+        narrative += "```\n"
+        narrative += "step.data.visualization.pointers.left\n"
+        narrative += "step.data.visualization.pointers.mid\n"
+        narrative += "step.data.visualization.pointers.right\n"
+        narrative += "step.data.visualization.pointers.target\n"
+        narrative += "step.data.visualization.search_space_size\n"
+        narrative += "step.data.visualization.array[*].state  // 'active_range' | 'examining' | 'excluded' | 'found'\n"
+        narrative += "step.data.visualization.array[*].value\n"
+        narrative += "step.data.visualization.array[*].index\n"
+        narrative += "```\n\n"
+        
+        narrative += "### Algorithm-Specific Guidance\n\n"
+        narrative += "Binary search's power comes from **eliminating half the search space with each comparison**. "
+        narrative += "The most pedagogically important visualization is showing this dramatic reduction - from N elements to N/2 to N/4 to N/8, etc. "
+        narrative += "Consider using a **shrinking visual container** or **fading out excluded elements** to emphasize this. "
+        narrative += "The mid-point calculation and comparison are the \"brain\" of the algorithm - highlight these moments. "
+        narrative += "When the target is found (or proven absent), the final state should clearly show the journey: "
+        narrative += "how many elements were examined vs. how many were eliminated without ever being touched. "
+        narrative += "This reinforces the O(log n) efficiency that makes binary search so powerful.\n"
+
         return narrative
 
     def execute(self, input_data: Any) -> dict:
@@ -390,10 +428,10 @@ class BinarySearchTracer(AlgorithmTracer):
                     old_left = self.left
                     new_left = self.mid + 1
                     eliminated = self.mid - self.left + 1
-                    
+
                     # FIX: Update pointer BEFORE adding step
                     self.left = new_left
-                    
+
                     self._add_step(
                         "SEARCH_RIGHT",
                         {
@@ -412,10 +450,10 @@ class BinarySearchTracer(AlgorithmTracer):
                     old_right = self.right
                     new_right = self.mid - 1
                     eliminated = self.right - self.mid + 1
-                    
+
                     # FIX: Update pointer BEFORE adding step
                     self.right = new_right
-                    
+
                     self._add_step(
                         "SEARCH_LEFT",
                         {

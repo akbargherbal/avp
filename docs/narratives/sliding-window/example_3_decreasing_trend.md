@@ -19,6 +19,7 @@ State: in_w in_w in_w in_w next unpr
 ```
 - **Current Sum:** 18
 - **Max Sum:** 18
+- **Best Window Position:** Index 0 (initial window)
 
 ---
 
@@ -43,6 +44,7 @@ State: unpr in_w in_w in_w in_w next
 ```
 - **Current Sum:** 14
 - **Max Sum:** 18
+- **Best Window Position:** Index 0
 
 ---
 
@@ -67,6 +69,7 @@ State: unpr unpr in_w in_w in_w in_w
 ```
 - **Current Sum:** 10
 - **Max Sum:** 18
+- **Best Window Position:** Index 0
 
 ---
 
@@ -81,3 +84,35 @@ State: unpr unpr in_w in_w in_w in_w
 ```
 **Final Max Sum:** `18`
 **Winning Subarray (found at index 0):** `[6, 5, 4, 3]`
+
+---
+
+## 🎨 Frontend Visualization Hints
+
+### Primary Metrics to Emphasize
+
+- **Current Sum** (`metrics.current_sum`) - Shows real-time window sum as it slides
+- **Max Sum** (`metrics.max_sum`) - Shows progress toward optimal solution
+- **Window Position** (`metrics.max_window_start`) - Tracks where the best window was found
+
+### Visualization Priorities
+
+1. **Highlight active window** - Elements with `state: 'in_window'` are the primary focus
+2. **Show sum transitions** - Emphasize when `max_sum` updates (celebratory moment)
+3. **Animate window movement** - Smooth slide from left to right, showing add/remove operations
+4. **Visual contrast for next element** - `state: 'next'` should be distinct but not distracting
+
+### Key JSON Paths
+
+```
+step.data.visualization.metrics.current_sum
+step.data.visualization.metrics.max_sum
+step.data.visualization.metrics.max_window_start
+step.data.visualization.array[*].state  // 'in_window' | 'next' | 'unprocessed'
+step.data.visualization.pointers.window_start
+step.data.visualization.pointers.window_end
+```
+
+### Algorithm-Specific Guidance
+
+This algorithm's efficiency comes from **reusing the previous sum** - we don't recalculate from scratch. Consider animating the "add new, remove old" operation to emphasize this optimization. The moment when `max_sum` updates is pedagogically significant - it's when the learner sees the algorithm "remember" a better solution. Visually celebrating these moments (e.g., with a brief highlight or animation) reinforces the pattern recognition that makes sliding window powerful.

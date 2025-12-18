@@ -112,7 +112,7 @@ class SlidingWindowTracer(AlgorithmTracer):
             # B. Perform the slide and update state
             self.current_sum = self.current_sum - outgoing_element['value'] + incoming_element['value']
             self.window_start += 1
-            
+
             max_sum_updated = False
             if self.current_sum > self.max_sum:
                 self.max_sum = self.current_sum
@@ -197,7 +197,9 @@ class SlidingWindowTracer(AlgorithmTracer):
     def generate_narrative(self, trace_result: dict) -> str:
         """
         Generate a human-readable narrative from the Sliding Window trace.
-        REFACTORED to implement the improved pedagogical format.
+        REFACTORED to implement the improved pedagogical format with:
+        - Result field traceability (position tracking context)
+        - Frontend visualization hints
         """
         steps = trace_result['trace']['steps']
         metadata = trace_result['metadata']
@@ -208,7 +210,7 @@ class SlidingWindowTracer(AlgorithmTracer):
         narrative += f"**Window Size (k):** `{metadata.get('input_data', {}).get('k')}`\n"
         narrative += f"**Goal:** Find the contiguous subarray of size {self.k} with the maximum sum.\n"
         narrative += f"**Result:** Found a maximum sum of **{result['max_sum']}** with the subarray `{result['window']}`.\n\n"
-        
+
         # Requirement 2: Define State Labels
         narrative += "**State Legend:** `in_w` = In Window, `next` = Next to Enter, `unpr` = Unprocessed\n\n---\n\n"
 
@@ -223,13 +225,14 @@ class SlidingWindowTracer(AlgorithmTracer):
                 narrative += "**Initial State:**\n"
                 narrative += self._render_array_state_narrative(viz)
                 narrative += f"- **Current Sum:** {metrics['current_sum']}\n"
-                narrative += f"- **Max Sum:** {metrics['max_sum']}\n\n---\n\n"
+                narrative += f"- **Max Sum:** {metrics['max_sum']}\n"
+                narrative += f"- **Best Window Position:** Index {metrics['max_window_start']} (initial window)\n\n---\n\n"
                 step_counter += 1
 
             # REFACTOR: Handle the new, consolidated 'SLIDE_WINDOW' step
             elif step_type == "SLIDE_WINDOW":
                 data = step['data']
-                
+
                 # Requirement 3: Remove Redundancy (No "State Before")
                 narrative += f"## Step {step_counter}: Slide Window Right\n\n"
 
@@ -240,9 +243,11 @@ class SlidingWindowTracer(AlgorithmTracer):
                 narrative += f"- Add new right element (`{data['incoming_element']['value']}` at index {data['incoming_element']['index']}): `{data['old_sum'] - data['outgoing_element']['value']} + {data['incoming_element']['value']} = {data['new_sum']}`\n"
                 narrative += f"- **New Sum:** `{data['new_sum']}`\n\n"
 
+                # FIX 1: Add position tracking context when max_sum updates
                 narrative += "**Max Sum Tracking:**\n"
                 if data['max_sum_updated']:
-                     narrative += f"- New sum (`{data['new_sum']}`) > Previous max sum (`{data['previous_max_sum']}`) → **Update Max Sum!** 🚀\n\n"
+                     narrative += f"- New sum (`{data['new_sum']}`) > Previous max sum (`{data['previous_max_sum']}`) → **Update Max Sum!** 🚀\n"
+                     narrative += f"- **Remember this position (index {data['window_indices'][0]})** - it achieves our best result so far.\n\n"
                 else:
                      narrative += f"- New sum (`{data['new_sum']}`) <= Previous max sum (`{data['previous_max_sum']}`) → Max sum remains unchanged.\n\n"
 
@@ -252,7 +257,8 @@ class SlidingWindowTracer(AlgorithmTracer):
                 narrative += "**Resulting State:**\n"
                 narrative += self._render_array_state_narrative(viz)
                 narrative += f"- **Current Sum:** {metrics['current_sum']}\n"
-                narrative += f"- **Max Sum:** {metrics['max_sum']}\n\n---\n\n"
+                narrative += f"- **Max Sum:** {metrics['max_sum']}\n"
+                narrative += f"- **Best Window Position:** Index {metrics['max_window_start']}\n\n---\n\n"
                 step_counter += 1
 
             elif step_type == "ALGORITHM_COMPLETE":
@@ -261,6 +267,37 @@ class SlidingWindowTracer(AlgorithmTracer):
                 narrative += "**Final State:**\n"
                 narrative += self._render_array_state_narrative(viz)
                 narrative += f"**Final Max Sum:** `{result['max_sum']}`\n"
-                narrative += f"**Winning Subarray (found at index {self.max_sum_start_index}):** `{result['window']}`\n"
+                narrative += f"**Winning Subarray (found at index {metrics['max_window_start']}):** `{result['window']}`\n"
+
+        # FIX 2: Add Frontend Visualization Hints section
+        narrative += "\n---\n\n## 🎨 Frontend Visualization Hints\n\n"
+        
+        narrative += "### Primary Metrics to Emphasize\n\n"
+        narrative += "- **Current Sum** (`metrics.current_sum`) - Shows real-time window sum as it slides\n"
+        narrative += "- **Max Sum** (`metrics.max_sum`) - Shows progress toward optimal solution\n"
+        narrative += "- **Window Position** (`metrics.max_window_start`) - Tracks where the best window was found\n\n"
+        
+        narrative += "### Visualization Priorities\n\n"
+        narrative += "1. **Highlight active window** - Elements with `state: 'in_window'` are the primary focus\n"
+        narrative += "2. **Show sum transitions** - Emphasize when `max_sum` updates (celebratory moment)\n"
+        narrative += "3. **Animate window movement** - Smooth slide from left to right, showing add/remove operations\n"
+        narrative += "4. **Visual contrast for next element** - `state: 'next'` should be distinct but not distracting\n\n"
+        
+        narrative += "### Key JSON Paths\n\n"
+        narrative += "```\n"
+        narrative += "step.data.visualization.metrics.current_sum\n"
+        narrative += "step.data.visualization.metrics.max_sum\n"
+        narrative += "step.data.visualization.metrics.max_window_start\n"
+        narrative += "step.data.visualization.array[*].state  // 'in_window' | 'next' | 'unprocessed'\n"
+        narrative += "step.data.visualization.pointers.window_start\n"
+        narrative += "step.data.visualization.pointers.window_end\n"
+        narrative += "```\n\n"
+        
+        narrative += "### Algorithm-Specific Guidance\n\n"
+        narrative += "This algorithm's efficiency comes from **reusing the previous sum** - we don't recalculate from scratch. "
+        narrative += "Consider animating the \"add new, remove old\" operation to emphasize this optimization. "
+        narrative += "The moment when `max_sum` updates is pedagogically significant - it's when the learner sees the algorithm "
+        narrative += "\"remember\" a better solution. Visually celebrating these moments (e.g., with a brief highlight or animation) "
+        narrative += "reinforces the pattern recognition that makes sliding window powerful.\n"
 
         return narrative

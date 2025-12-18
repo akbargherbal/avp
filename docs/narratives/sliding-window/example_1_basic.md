@@ -19,6 +19,7 @@ State: in_w in_w in_w next unpr unpr unpr unpr unpr unpr unpr
 ```
 - **Current Sum:** 7
 - **Max Sum:** 7
+- **Best Window Position:** Index 0 (initial window)
 
 ---
 
@@ -32,6 +33,7 @@ State: in_w in_w in_w next unpr unpr unpr unpr unpr unpr unpr
 
 **Max Sum Tracking:**
 - New sum (`9`) > Previous max sum (`7`) → **Update Max Sum!** 🚀
+- **Remember this position (index 1)** - it achieves our best result so far.
 
 **Window now at indices 1-3:** `[5, 1, 3]`
 
@@ -43,6 +45,7 @@ State: unpr in_w in_w in_w next unpr unpr unpr unpr unpr unpr
 ```
 - **Current Sum:** 9
 - **Max Sum:** 9
+- **Best Window Position:** Index 1
 
 ---
 
@@ -67,6 +70,7 @@ State: unpr unpr in_w in_w in_w next unpr unpr unpr unpr unpr
 ```
 - **Current Sum:** 6
 - **Max Sum:** 9
+- **Best Window Position:** Index 1
 
 ---
 
@@ -80,6 +84,7 @@ State: unpr unpr in_w in_w in_w next unpr unpr unpr unpr unpr
 
 **Max Sum Tracking:**
 - New sum (`10`) > Previous max sum (`9`) → **Update Max Sum!** 🚀
+- **Remember this position (index 3)** - it achieves our best result so far.
 
 **Window now at indices 3-5:** `[3, 2, 5]`
 
@@ -91,6 +96,7 @@ State: unpr unpr unpr in_w in_w in_w next unpr unpr unpr unpr
 ```
 - **Current Sum:** 10
 - **Max Sum:** 10
+- **Best Window Position:** Index 3
 
 ---
 
@@ -115,6 +121,7 @@ State: unpr unpr unpr unpr in_w in_w in_w next unpr unpr unpr
 ```
 - **Current Sum:** 8
 - **Max Sum:** 10
+- **Best Window Position:** Index 3
 
 ---
 
@@ -128,6 +135,7 @@ State: unpr unpr unpr unpr in_w in_w in_w next unpr unpr unpr
 
 **Max Sum Tracking:**
 - New sum (`12`) > Previous max sum (`10`) → **Update Max Sum!** 🚀
+- **Remember this position (index 5)** - it achieves our best result so far.
 
 **Window now at indices 5-7:** `[5, 1, 6]`
 
@@ -139,6 +147,7 @@ State: unpr unpr unpr unpr unpr in_w in_w in_w next unpr unpr
 ```
 - **Current Sum:** 12
 - **Max Sum:** 12
+- **Best Window Position:** Index 5
 
 ---
 
@@ -152,6 +161,7 @@ State: unpr unpr unpr unpr unpr in_w in_w in_w next unpr unpr
 
 **Max Sum Tracking:**
 - New sum (`14`) > Previous max sum (`12`) → **Update Max Sum!** 🚀
+- **Remember this position (index 6)** - it achieves our best result so far.
 
 **Window now at indices 6-8:** `[1, 6, 7]`
 
@@ -163,6 +173,7 @@ State: unpr unpr unpr unpr unpr unpr in_w in_w in_w next unpr
 ```
 - **Current Sum:** 14
 - **Max Sum:** 14
+- **Best Window Position:** Index 6
 
 ---
 
@@ -187,6 +198,7 @@ State: unpr unpr unpr unpr unpr unpr unpr in_w in_w in_w next
 ```
 - **Current Sum:** 13
 - **Max Sum:** 14
+- **Best Window Position:** Index 6
 
 ---
 
@@ -211,6 +223,7 @@ State: unpr unpr unpr unpr unpr unpr unpr unpr in_w in_w in_w
 ```
 - **Current Sum:** 12
 - **Max Sum:** 14
+- **Best Window Position:** Index 6
 
 ---
 
@@ -225,3 +238,35 @@ State: unpr unpr unpr unpr unpr unpr unpr unpr in_w in_w in_w
 ```
 **Final Max Sum:** `14`
 **Winning Subarray (found at index 6):** `[1, 6, 7]`
+
+---
+
+## 🎨 Frontend Visualization Hints
+
+### Primary Metrics to Emphasize
+
+- **Current Sum** (`metrics.current_sum`) - Shows real-time window sum as it slides
+- **Max Sum** (`metrics.max_sum`) - Shows progress toward optimal solution
+- **Window Position** (`metrics.max_window_start`) - Tracks where the best window was found
+
+### Visualization Priorities
+
+1. **Highlight active window** - Elements with `state: 'in_window'` are the primary focus
+2. **Show sum transitions** - Emphasize when `max_sum` updates (celebratory moment)
+3. **Animate window movement** - Smooth slide from left to right, showing add/remove operations
+4. **Visual contrast for next element** - `state: 'next'` should be distinct but not distracting
+
+### Key JSON Paths
+
+```
+step.data.visualization.metrics.current_sum
+step.data.visualization.metrics.max_sum
+step.data.visualization.metrics.max_window_start
+step.data.visualization.array[*].state  // 'in_window' | 'next' | 'unprocessed'
+step.data.visualization.pointers.window_start
+step.data.visualization.pointers.window_end
+```
+
+### Algorithm-Specific Guidance
+
+This algorithm's efficiency comes from **reusing the previous sum** - we don't recalculate from scratch. Consider animating the "add new, remove old" operation to emphasize this optimization. The moment when `max_sum` updates is pedagogically significant - it's when the learner sees the algorithm "remember" a better solution. Visually celebrating these moments (e.g., with a brief highlight or animation) reinforces the pattern recognition that makes sliding window powerful.
