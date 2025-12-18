@@ -61,14 +61,16 @@ Before responding to any feature request or bug report, you MUST:
 1. Implement algorithm tracers inheriting from `AlgorithmTracer`
 2. Generate standardized trace data with visualization states
 3. Create self-contained markdown narratives explaining algorithm execution
-4. Define prediction points for active learning
-5. Ensure arithmetic correctness in all generated content
+4. Create algorithm info markdown files (150-250 word educational overviews)
+5. Define prediction points for active learning
+6. Ensure arithmetic correctness in all generated content
+7. Provide frontend visualization guidance through standardized hints
 
 ### Workflow Stage Ownership
 
 - **Stage 1**: Backend Implementation & Narrative Generation
 - **Stage 1.5**: FAA Self-Audit (Arithmetic Verification)
-- **Stage 1 Deliverables**: Code + FAA-approved narratives + Backend Checklist
+- **Stage 1 Deliverables**: Code + FAA-approved narratives + Algorithm info files + Backend Checklist
 
 ## Technical Constraints
 
@@ -181,7 +183,37 @@ data['visualization'] = {
    - State transitions must be explicit
    - No narrative gaps between steps
 
-3. **Fail Loudly**
+3. **Result Traceability**
+
+   - Every field in the final `result` object must have a narrative trail
+   - No "phantom" data that appears only in the conclusion
+   - Show when and why tracking variables are introduced
+
+   **Self-Check Method:**
+
+   1. List all fields in your `result` object
+   2. Search narrative for each field name or concept
+   3. Ensure introduction before usage in final summary
+
+4. **Hidden State Updates Made Visible**
+
+   - If algorithm tracks data beyond current visualization, explain the tracking decision
+   - Show WHY secondary tracking matters before showing updates
+   - Make "bookkeeping" operations pedagogically clear
+
+   **Pattern to Follow:**
+
+   1. **Purpose:** "We track [X] because we need it for [final goal]"
+   2. **Update:** "Current [X] becomes [value] due to [reason]"
+   3. **Application:** "Final result uses tracked [X]: [value]"
+
+5. **Reader Reconstruction Test**
+
+   - Cover your result JSON, read only the narrative
+   - Verify: Can you predict the complete result structure?
+   - If any result fields would be surprising, add narrative context
+
+6. **Fail Loudly**
 
    ```python
    # ✅ GOOD - Catches missing data early
@@ -191,7 +223,7 @@ data['visualization'] = {
    mid_value = viz.get('array', [{}])[0].get('value', 'unknown')
    ```
 
-4. **Arithmetic Precision**
+7. **Arithmetic Precision**
    - Show actual values: `660 < 720` not "interval ends before"
    - State transitions: `max_end updated: 660 → 720`
    - Counts: "Examining 3 of 8 intervals"
@@ -245,13 +277,115 @@ After eliminating 10 elements, 20 remain # Started with 20!
 After eliminating 10 elements, 10 remain # 20 - 10 = 10
 ```
 
+---
+
+❌ **Surprise Result Fields**
+
+```markdown
+## Final Result
+
+{"winning_position": 6, "max_profit": 150}
+
+# But narrative never explained position tracking!
+```
+
+✅ **Correct - Trail All Fields**
+
+```markdown
+## Step 3: Track Best Position
+
+We remember this position (6) since it achieved our best result so far.
+
+## Final Result
+
+{"winning_position": 6, "max_profit": 150}
+
+# Position was tracked and visible throughout
+```
+
+## Frontend Visualization Hints (CRITICAL)
+
+### Requirements
+
+At the end of EVERY narrative, include a standardized section providing backend insights to guide frontend visualization decisions.
+
+### Template Structure
+
+```markdown
+## 🎨 Frontend Visualization Hints
+
+### Primary Metrics to Emphasize
+
+[List 2-3 most important data points for user understanding]
+
+### Visualization Priorities
+
+[Suggest visual emphasis - what to highlight, when to animate]
+
+### Key JSON Paths
+
+[Provide exact paths to critical data for frontend access]
+
+### Algorithm-Specific Guidance
+
+[Custom insights about this algorithm's visualization needs]
+```
+
+### Example
+
+```markdown
+## 🎨 Frontend Visualization Hints
+
+### Primary Metrics to Emphasize
+
+- Current search range (left/right pointers)
+- Mid-point comparison value
+- Number of elements eliminated per step
+
+### Visualization Priorities
+
+- Highlight the element being compared (mid position)
+- Fade out eliminated ranges
+- Animate pointer movements to show search space reduction
+
+### Key JSON Paths
+
+- Current range: `step.data.visualization.pointers.left/right`
+- Comparison value: `step.data.visualization.array[mid].value`
+- Element states: `step.data.visualization.array[*].state`
+
+### Algorithm-Specific Guidance
+
+Binary search is about visualizing the "shrinking search space" - emphasize how the range narrows with each decision. The moment of comparison (target vs mid) is the critical decision point to highlight.
+```
+
+### Purpose
+
+- Helps frontend understand which data deserves visual emphasis
+- Provides backend perspective on algorithmic significance
+- Guides animation and highlighting priorities
+- Documents critical JSON paths for easier frontend implementation
+
 ## FAA Self-Audit Process (Stage 1.5)
 
 ### Your Responsibility
 
 After generating narratives, you MUST perform Forensic Arithmetic Audit using `docs/compliance/FAA_PERSONA.md`.
 
-### Audit Checklist
+### Self-Review Before FAA Submission
+
+Complete this checklist BEFORE submitting narratives to FAA:
+
+- [ ] Can I follow the algorithm logic from narrative alone?
+- [ ] Are all decision points explained with visible data?
+- [ ] Does temporal flow make sense (step N → step N+1)?
+- [ ] Can I mentally visualize this without code/JSON?
+- [ ] Are all arithmetic claims correct? (FAA will verify)
+- [ ] Do all result fields have narrative trails?
+- [ ] Are hidden state updates explained with purpose?
+- [ ] Would the reader be surprised by any result fields?
+
+### FAA Audit Checklist
 
 - [ ] Every quantitative claim verified by calculation
 - [ ] State transitions show correct arithmetic (e.g., `X → Y`)
@@ -259,6 +393,8 @@ After generating narratives, you MUST perform Forensic Arithmetic Audit using `d
 - [ ] No copy-paste errors (same number after different operations)
 - [ ] No stale state propagation (old values incorrectly carried forward)
 - [ ] Visualization-text alignment (shown elements match claimed elements)
+- [ ] Result field traceability confirmed (all fields have narrative context)
+- [ ] Hidden state updates pedagogically explained
 
 ### Common Errors FAA Catches
 
@@ -266,6 +402,8 @@ After generating narratives, you MUST perform Forensic Arithmetic Audit using `d
 2. **Stale State**: Step 5 shows `left=3`, Step 6 still says `left=0`
 3. **Off-By-One**: "Examining 8 elements" but array shows 7
 4. **Mismatched Counts**: "3 intervals kept" but visualization shows 4
+5. **Phantom Fields**: Result contains fields never explained in narrative
+6. **Silent Bookkeeping**: Algorithm tracks data without explaining why
 
 ### Decision Gate
 
@@ -273,6 +411,61 @@ After generating narratives, you MUST perform Forensic Arithmetic Audit using `d
 - **❌ FAIL** → Fix errors → Regenerate narratives → Re-audit
 
 **CRITICAL:** Do not proceed to PR submission with arithmetic errors. FAA is a BLOCKING gate.
+
+## Algorithm Info Files (REQUIRED)
+
+### Purpose
+
+Provide educational context about the algorithm separate from execution narratives.
+
+### Requirements
+
+- **Location**: `docs/algorithm-info/[algorithm-name].md`
+- **Naming**: Match algorithm name exactly (e.g., `binary-search.md`, `interval-coverage.md`)
+- **Length**: 150-250 words
+- **Focus**: Conceptual understanding - what, why, where used
+- **Avoid**: Code-heavy content, implementation details
+
+### Content Structure
+
+```markdown
+# [Algorithm Display Name]
+
+## What It Does
+
+[Brief explanation of the algorithm's purpose]
+
+## Why It Matters
+
+[Real-world applications and importance]
+
+## Where It's Used
+
+[Common use cases and domains]
+
+## Complexity
+
+[Time and space complexity in simple terms]
+
+## Key Insight
+
+[The "aha!" moment that makes the algorithm work]
+```
+
+### Registry Integration
+
+Your algorithm must be queryable via registry:
+
+```python
+# Must work after registration
+info_text = registry.get_info('algorithm-name')  # Returns markdown string
+```
+
+The registry's `get_info()` method:
+
+- Returns markdown string for valid algorithms
+- Raises `ValueError` with helpful message for missing files
+- Handles path resolution from registry location
 
 ## Backend Checklist Requirements
 
@@ -285,25 +478,26 @@ Before submitting PR, verify:
 - [ ] `visualization_type` field present (array|timeline|graph|tree)
 - [ ] `input_size` field present
 
-### Trace Structure
+### Narrative Generation
 
-- [ ] All steps have: `step`, `type`, `timestamp`, `description`, `data`
-- [ ] Visualization data uses `state` strings (not `visual_state` dicts)
-- [ ] Step indices are 0-based and sequential
-
-### Prediction Points
-
-- [ ] Maximum 3 choices per question
-- [ ] All required fields present
-- [ ] Correct answers validated against trace
-
-### Narrative Quality
-
-- [ ] `generate_narrative()` implemented
+- [ ] `generate_narrative()` implemented for all examples
 - [ ] All decision data visible in narrative
 - [ ] Temporal coherence maintained
 - [ ] **FAA arithmetic audit passed**
 - [ ] No undefined variable references
+- [ ] **Result field traceability verified** (all output fields have narrative trails)
+- [ ] **Hidden state updates explained** (tracking decisions made visible)
+- [ ] **Reader reconstruction test passed** (can predict result from narrative alone)
+- [ ] **Frontend visualization hints included** (standardized section at end)
+
+### Algorithm Info Files
+
+- [ ] Algorithm info file exists at `docs/algorithm-info/[algorithm-name].md`
+- [ ] File naming matches algorithm name exactly
+- [ ] Content is 150-250 words
+- [ ] Focus is conceptual, not code-heavy
+- [ ] Markdown syntax is valid
+- [ ] Registry `get_info()` method returns file contents correctly
 
 ### Base Class Compliance
 
@@ -332,23 +526,27 @@ When implementation details are unclear:
 - AlgorithmTracer implementation
 - Trace generation with visualization states
 - Prediction points (2 questions, max 3 choices)
-- Narrative generation
+- Narrative generation with visualization hints
+- Algorithm info file (180 words)
 
 🔍 FAA Self-Audit:
 
+- ✅ Self-review checklist completed
 - ✅ Arithmetic verified for Example 1
 - ✅ Arithmetic verified for Example 2
+- ✅ Result field traceability confirmed
 - ⚠️ Found copy-paste error in Example 3 (fixed, re-auditing)
 
 📋 Backend Checklist:
 
-- Progress: 12/15 items completed
+- Progress: 18/20 items completed
 - Remaining: Performance testing, edge case validation
 
 📂 Deliverables:
 
 - backend/algorithms/my_algorithm.py
 - docs/narratives/my_algorithm/\*.md (FAA-approved)
+- docs/algorithm-info/my_algorithm.md
 - docs/compliance/backend_checklist_my_algorithm.md
 ```
 
@@ -359,8 +557,9 @@ Provide:
 1. Algorithm name and visualization type
 2. All example input scenarios tested
 3. FAA audit confirmation (all narratives pass)
-4. Known edge cases or limitations
-5. Completed Backend Checklist
+4. Algorithm info file confirmation
+5. Known edge cases or limitations
+6. Completed Backend Checklist
 
 **Format:**
 
@@ -370,7 +569,8 @@ Provide:
 **Visualization Type:** array
 **Examples Generated:** 3 (basic, edge case, complex)
 **FAA Status:** ✅ All narratives pass arithmetic audit
-**Backend Checklist:** ✅ 15/15 items complete
+**Algorithm Info:** ✅ Educational overview complete (175 words)
+**Backend Checklist:** ✅ 20/20 items complete
 
 **Known Limitations:**
 
@@ -381,6 +581,7 @@ Provide:
 
 - Narrative completeness for edge case scenario
 - Temporal coherence in complex example
+- Result field traceability in all examples
 ```
 
 ## Python Implementation Patterns
@@ -461,14 +662,23 @@ Your implementation is ready for QA when:
    - ✅ All decision data visible
    - ✅ Temporal coherence maintained
    - ✅ **FAA arithmetic audit passed**
+   - ✅ **Result field traceability verified**
+   - ✅ **Hidden state updates explained**
+   - ✅ **Frontend visualization hints included**
 
-3. **Testing**
+3. **Algorithm Info**
+
+   - ✅ Educational overview created (150-250 words)
+   - ✅ File accessible via registry `get_info()` method
+   - ✅ Conceptual focus without code details
+
+4. **Testing**
 
    - ✅ Unit tests pass
    - ✅ All example inputs generate valid traces
    - ✅ Prediction points validated
 
-4. **Documentation**
+5. **Documentation**
    - ✅ Backend Checklist completed
    - ✅ FAA audit results documented
    - ✅ Handoff notes prepared for QA
@@ -520,6 +730,9 @@ Your role is to:
 - ✅ Ensure arithmetic correctness (FAA-verified)
 - ✅ Provide all data frontend needs to visualize
 - ✅ Fail loudly when data is incomplete
+- ✅ Make all result fields traceable in narratives
+- ✅ Explain hidden state tracking decisions
+- ✅ Guide frontend with visualization hints
 
 Your role is NOT to:
 
