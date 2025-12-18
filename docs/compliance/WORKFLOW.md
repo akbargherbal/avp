@@ -1,6 +1,6 @@
 # Algorithm Visualization Platform - Workflow & Architecture Guide
 
-**Version:** 2.4  
+**Version:** 2.4.2  
 **Status:** ACTIVE - Single Source of Truth
 
 ---
@@ -158,7 +158,7 @@ Before submitting to FAA, verify your narratives:
 
 ## Stage 2: PE (Pedagogical Experience) Narrative Review
 
-### PE Engineer Role
+### PE Specialist Role
 
 **CRITICAL:** PE does NOT look at JSON, code, or frontend in this stage.
 
@@ -267,6 +267,7 @@ Frontend Developer integrates PE-approved algorithm into the visualization platf
 #### Required (Every Algorithm):
 
 1. **Algorithm-Specific State Component**
+
    - **File:** `frontend/src/components/algorithm-states/{AlgorithmName}State.jsx`
    - **Purpose:** Displays algorithm-specific state in RIGHT panel (e.g., pointers, call stack, search space)
    - **Interface:** Receives `{ step, trace }` props (NOT contexts)
@@ -280,6 +281,7 @@ Frontend Developer integrates PE-approved algorithm into the visualization platf
 #### Conditional (Only If Needed):
 
 3. **New Visualization Component** (if existing visualizations insufficient)
+
    - **File:** `frontend/src/components/visualizations/{ConceptName}View.jsx`
    - **Purpose:** Generic, reusable visualization for LEFT panel (e.g., `ArrayView`, `TimelineView`)
    - **When:** Only if algorithm requires visualization type not in `visualizationRegistry`
@@ -294,6 +296,7 @@ Frontend Developer integrates PE-approved algorithm into the visualization platf
 #### Component Structure Pattern
 
 **Algorithm State Components** (`algorithm-states/`):
+
 - Consume props: `{ step, trace }`
 - Extract data from `step.data.visualization`
 - Access metadata from `trace.metadata`
@@ -302,6 +305,7 @@ Frontend Developer integrates PE-approved algorithm into the visualization platf
 - Display algorithm-specific state (pointers, stacks, progress indicators)
 
 **Example Pattern:**
+
 ```javascript
 const AlgorithmNameState = ({ step, trace }) => {
   // Early return if no data
@@ -320,18 +324,19 @@ const AlgorithmNameState = ({ step, trace }) => {
 AlgorithmNameState.propTypes = {
   step: PropTypes.shape({
     data: PropTypes.shape({
-      visualization: PropTypes.object
-    })
+      visualization: PropTypes.object,
+    }),
   }).isRequired,
   trace: PropTypes.shape({
-    metadata: PropTypes.object
-  })
+    metadata: PropTypes.object,
+  }),
 };
 ```
 
 #### Naming Conventions
 
 - **Algorithm State Components:** `{AlgorithmName}State.jsx`
+
   - Examples: `BinarySearchState.jsx`, `MergeSortState.jsx`
   - One component per algorithm (1:1 mapping)
   - Suffix `State` indicates algorithm-specific
@@ -361,22 +366,24 @@ frontend/src/components/
 #### Registry Integration
 
 **State Registry** (`stateRegistry.js`):
+
 ```javascript
 import BinarySearchState from "../components/algorithm-states/BinarySearchState";
 
 const STATE_REGISTRY = {
-  "binary-search": BinarySearchState,  // Key must match backend metadata.algorithm
+  "binary-search": BinarySearchState, // Key must match backend metadata.algorithm
   // ...
 };
 ```
 
 **Visualization Registry** (`visualizationRegistry.js`):
+
 ```javascript
 import ArrayView from "../components/visualizations/ArrayView";
 
 const VISUALIZATION_REGISTRY = {
-  "array": ArrayView,     // Key must match backend metadata.visualization_type
-  "timeline": TimelineView,
+  array: ArrayView, // Key must match backend metadata.visualization_type
+  timeline: TimelineView,
   // ...
 };
 ```
@@ -384,23 +391,29 @@ const VISUALIZATION_REGISTRY = {
 #### Backend-Frontend Contract
 
 Backend provides in trace metadata:
+
 ```json
 {
   "metadata": {
-    "algorithm": "binary-search",           // → Selects state component
-    "visualization_type": "array",          // → Selects visualization component
-    "visualization_config": { /* ... */ }   // → Passed to visualization
+    "algorithm": "binary-search", // → Selects state component
+    "visualization_type": "array", // → Selects visualization component
+    "visualization_config": {
+      /* ... */
+    } // → Passed to visualization
   }
 }
 ```
 
 Frontend consumes via registries:
+
 ```javascript
 // Right Panel (State)
 const StateComponent = getStateComponent(trace.metadata.algorithm);
 
 // Left Panel (Visualization)
-const VisualizationComponent = getVisualizationComponent(trace.metadata.visualization_type);
+const VisualizationComponent = getVisualizationComponent(
+  trace.metadata.visualization_type
+);
 ```
 
 ### 3.3 Quality Gates
@@ -408,22 +421,26 @@ const VisualizationComponent = getVisualizationComponent(trace.metadata.visualiz
 Before handoff to Stage 4 (QA), verify:
 
 - [ ] **Component Functionality**
+
   - State component renders without errors
   - Component handles missing/malformed data gracefully
   - PropTypes defined and validated
 
 - [ ] **Registry Compliance**
+
   - State component registered in `stateRegistry.js` with correct algorithm ID
   - If new visualization: registered in `visualizationRegistry.js` with correct type
   - Registry keys match backend metadata exactly
 
 - [ ] **Architectural Compliance**
+
   - State component in `algorithm-states/` directory
   - Visualization component (if created) in `visualizations/` directory
   - Naming convention followed (`{Algorithm}State.jsx` vs `{Concept}View.jsx`)
   - Component is context-agnostic (uses props, not contexts)
 
 - [ ] **Visual Compliance**
+
   - UI follows static mockup specifications (`docs/static_mockup/*.html`)
   - No deviation from established visual patterns without justification
 
@@ -454,12 +471,14 @@ Before handoff to Stage 4 (QA), verify:
 ### 3.5 Handoff to Stage 4
 
 **QA Engineer receives:**
+
 - Working algorithm visualization
 - State component displaying algorithm-specific data
 - Registry entries for new algorithm
 - Completed Frontend Compliance Checklist
 
 **QA verifies:**
+
 - Full algorithm flow (trace execution)
 - UI interactions (step navigation, predictions)
 - Visual correctness (matches mockups)
@@ -522,21 +541,25 @@ Must follow established patterns and architectural decisions. Implementation det
 #### Trace Contract
 
 **Metadata Structure:**
+
 - Must include required fields: `algorithm`, `display_name`, `visualization_type`, `input_size`
 - `algorithm` ID must match frontend registry key format (lowercase, hyphen-separated)
 - `visualization_type` must be valid type in frontend registry (`array`, `timeline`, etc.)
 
 **Trace Steps Structure:**
+
 - Must include required fields: `step` (0-indexed), `type`, `description`, `data.visualization`
 - Step indices must be sequential with no gaps
 - Each step must contain visualization state sufficient for rendering
 
 **Prediction Points:**
+
 - Hard limit: 2-3 choices maximum per prediction point
 - Must include: `step_index`, `question`, `choices`, `correct_answer`, `explanation`
 - Prediction timing must align with meaningful decision points
 
 **Narrative Generation:**
+
 - Must implement `generate_narrative()` method
 - Must pass FAA arithmetic audit before proceeding
 - Narratives must be self-contained (no external references)
@@ -732,10 +755,20 @@ class MyAlgorithmTracer(AlgorithmTracer):
         - Pass FAA arithmetic audit
         - Fail loudly if data incomplete
         """
-        narrative = "# Algorithm Execution Narrative\n\n"
+        # Extract components from trace_result
+        metadata = trace_result['metadata']
+        steps = trace_result['trace']['steps']
+        result = trace_result['result']
 
-        for step in trace_result['trace']['steps']:
-            # Show step number
+        # Header with algorithm information
+        narrative = "# Algorithm Execution Narrative\n\n"
+        narrative += f"**Algorithm:** {metadata['display_name']}\n"
+        narrative += f"**Input Size:** {metadata['input_size']}\n\n"
+        narrative += "---\n\n"
+
+        # Step-by-step narrative
+        for step in steps:
+            # Show step number and description
             narrative += f"## Step {step['step']}: {step['description']}\n\n"
 
             # Show visualization state with ALL relevant data
@@ -751,6 +784,13 @@ class MyAlgorithmTracer(AlgorithmTracer):
                 narrative += f"with mid value ({viz['array'][viz['pointers']['mid']]['value']})\n"
                 narrative += f"**Result:** Target {'>' if ... else '<'} mid → Search {'right' if ... else 'left'}\n\n"
 
+            narrative += "---\n\n"
+
+        # Summary
+        narrative += "## Execution Summary\n\n"
+        narrative += f"**Final Result:** {result}\n"
+        narrative += f"**Performance Metrics:** [Include relevant metrics]\n"
+
         return narrative
 ```
 
@@ -761,47 +801,7 @@ class MyAlgorithmTracer(AlgorithmTracer):
 - All decision data must be visible in narrative
 - **All arithmetic must be correct (FAA will verify)**
 - Fails loudly on missing data (KeyError is good!)
-
-### Completion Modal
-
-**Algorithm-specific results:**
-
-```jsx
-// Binary Search
-<CompletionModal
-  title={found ? "Target Found!" : "Target Not Found"}
-  stats={{
-    comparisons: 5,
-    foundIndex: 3,
-    found: true
-  }}
-  borderColor={found ? "emerald" : "red"}
-/>
-
-// Interval Coverage
-<CompletionModal
-  title="Coverage Complete"
-  stats={{
-    intervalsKept: 3,
-    coverage: [0, 1000]
-  }}
-/>
-```
-
-**Prediction Accuracy (if predictions used):**
-
-```jsx
-{
-  predictionStats.total > 0 && (
-    <div>
-      <p>Accuracy: {accuracy}%</p>
-      <p>
-        Correct: {correct}/{total}
-      </p>
-    </div>
-  );
-}
-```
+- Extract `metadata`, `steps`, and `result` from `trace_result` first
 
 ---
 
@@ -850,9 +850,10 @@ Developer's choice - not constrained.
 3. Implement `generate_narrative()`
 4. Register in `registry.py`
 5. Generate narratives for all examples
-6. **Submit to FAA audit**
+6. **Submit narratives to FAA audit**
 7. **Fix arithmetic errors, regenerate until FAA passes**
-8. Complete Backend Checklist
+8. Complete Backend Checklist (include FAA-approved narratives)
+9. Submit PR with code, narratives, and completed checklist
 
 **FAA Audit (Stage 1.5)**
 
@@ -875,15 +876,26 @@ Developer's choice - not constrained.
 1. Receive FAA+PE approved narratives
 2. Create algorithm state component (`{Algorithm}State.jsx`)
 3. Register in `stateRegistry.js`
-4. Create visualization component if needed (reuse if possible)
-5. Register visualization in `visualizationRegistry.js` if new
-6. Complete Frontend Checklist
-7. **Trust arithmetic correctness**
+4. Create algorithm info markdown (`public/algorithm-info/{algorithm-name}.md`)
+5. Create visualization component if needed (reuse if possible)
+6. Register visualization in `visualizationRegistry.js` if new
+7. Complete Frontend Checklist
+8. **Trust arithmetic correctness**
+
+**QA Integration (Stage 4):**
+
+1. Test full algorithm flow end-to-end
+2. Verify narrative accuracy matches UI rendering
+3. Test prediction modal functionality
+4. Run regression tests on existing algorithms
+5. Complete QA Integration Checklist
+6. Document any integration issues for team
 
 ### Checklist Locations
 
 - Backend: `docs/compliance/BACKEND_CHECKLIST.md`
 - **FAA Audit:** `docs/compliance/FAA_PERSONA.md`
+- PE Review: `docs/compliance/PE_CHECKLIST.md`
 - Frontend: `docs/compliance/FRONTEND_CHECKLIST.md`
 
 ### Visual Reference
@@ -903,11 +915,8 @@ All UI decisions: `docs/static_mockup/*.html`
 
 **Frontend:**
 
-- ❌ Using `items-center` + `overflow-auto` (cuts off left edge)
-- ❌ Different modal widths
-- ❌ Multiple elements with `id="step-current"`
-- ❌ Ignoring keyboard shortcuts in input fields
-- ❌ Deviating from mockups without justification
+- ❌ Deviating from visual standards defined in static mockups (`docs/static_mockup/*.html`)
+- ❌ All updated or newly created components must conform to visual guidelines in mockups
 - ❌ State components using contexts directly (use props)
 - ❌ Algorithm-specific components in `visualizations/` directory
 
