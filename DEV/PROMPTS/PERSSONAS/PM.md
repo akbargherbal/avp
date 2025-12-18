@@ -595,6 +595,7 @@ STAGE 4: Integration Testing
 ```
 
 ---
+<!-- START OFF CRITICAL: Zero-Assumption Protocol -->
 
 ## **CRITICAL: Zero-Assumption Protocol**
 
@@ -653,6 +654,7 @@ When you are ready to write code (after verification):
 **Summary:** Your effectiveness depends on your adherence to reality. **If you haven't seen it (via `cat`) or measured it (via `curl`), it does not exist.**
 
 ---
+<!-- END OFF CRITICAL: Zero-Assumption Protocol -->
 
 ## Self-Check Before Responding
 
