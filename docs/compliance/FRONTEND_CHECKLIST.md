@@ -1,4 +1,4 @@
-# Frontend Developer Checklist: Algorithm Integration Compliance v1.0
+# Frontend Developer Checklist: Algorithm Integration Compliance
 
 **Authority:** Derived from project workflow documentation  
 **Purpose:** Verify new algorithm frontend components comply with platform architecture and design standards  
@@ -38,18 +38,57 @@
   - Examples: `ArrayView.jsx`, `TimelineView.jsx`, `GraphView.jsx`
   - Only create if no existing visualization fits your needs
 
-### Static Mockup Compliance
+### Static Mockup Compliance & Template Philosophy
 
-- [ ] **Visual design matches static mockups**
+#### Template Selection & Usage
+
+- [ ] **Correct template identified**
+
+  - Determine if algorithm is recursive or iterative
+  - Iterative algorithms → `iterative_metrics_algorithm_mockup.html` (loop-based, ≤6 numeric state variables)
+  - Recursive algorithms → `recursive_context_algorithm_mockup.html` (self-calling, call stack context)
+  - Template studied thoroughly before implementation
+
+- [ ] **Existing template dashboard reviewed thoroughly**
+
+  - ⚠️ **CRITICAL:** Review existing dashboard in template BEFORE designing alternatives
+  - Most algorithms fit existing dashboard structure (5-zone iterative or call stack recursive)
+  - Existing dashboard is often better than initial custom designs
+  - Only propose alternatives if existing dashboard genuinely doesn't fit
+  - Document why existing dashboard is insufficient (if creating custom)
+
+- [ ] **Template philosophy understood**
+
+  - Templates are foundation, not rigid constraint
+  - Templates provide architectural locking and design consistency
+  - Deviations allowed when pedagogical clarity requires it
+  - All deviations must be documented with reasoning
+
+- [ ] **Template adaptation documented** (if deviating from base)
+  - Why does this algorithm need deviation?
+  - What pedagogical goal does deviation serve?
+  - What template elements remain unchanged?
+  - What template elements modified and why?
+  - Deviation approved by team/PM before implementation
+
+#### Visual Design Compliance
+
+- [ ] **Visual design matches approved templates**
 
   - Reference: `docs/static_mockup/algorithm_page_mockup.html`
-  - Correct algorithm mockup template selected:
-    - Iterative → `iterative_metrics_algorithm_mockup.html` (loop-based, ≤6 numeric state variables)
-    - Recursive → `recursive_context_algorithm_mockup.html` (self-calling, call stack context)
-  - Verify theme consistency (slate-800 background, slate-700 panels)
-  - Verify color palette matches existing algorithms
-  - Verify font sizes and spacing match mockup
-  - Verify typography (font-mono for values, font-sans for labels)
+  - Theme consistency verified (slate-800 background, slate-700 panels)
+  - Color palette matches existing algorithms
+  - Font sizes and spacing match mockup
+  - Typography correct (font-mono for values, font-sans for labels)
+
+- [ ] **Algorithm-specific mockup created and approved**
+
+  - File location: `docs/static_mockup/{algorithm-name}-{template-type}.html`
+  - Mockup uses base template as starting point
+  - Mockup populated with real data from JSON payload
+  - Mockup demonstrates representative algorithm state
+  - Side-by-side comparison with base template performed
+  - Approval obtained before implementation
 
 - [ ] **Prediction modal matches mockup**
 
@@ -145,25 +184,169 @@
 
 ### Narrative-Driven Visualization Design
 
-- [ ] **Backend narrative reviewed before component design**
+#### Backend Narrative Review (Foundation)
 
-  - Read all generated narratives: `docs/narratives/{algorithm-name}/`
+- [ ] **Backend narrative reviewed thoroughly**
+  - File location: `docs/narratives/{algorithm-name}/`
+  - All example scenarios reviewed
+  - ⚠️ **IMPORTANT:** Take narrative seriously—backend engineer invested significant effort
+  - Narrative contains: self-checks, mathematical accuracy, pedagogical explanations
   - Identify key data points mentioned in narrative
   - Identify state transitions described in narrative
   - Identify decision points requiring visual emphasis
+  - Note: Narrative provides helpful context—JSON is definitive source of truth
 
-- [ ] **Visualization plan extracts narrative insights**
+#### JSON Payload Deep Analysis (CRITICAL)
 
-  - List metrics to emphasize (from narrative "Frontend Visualization Hints")
-  - List transitions to animate (based on narrative step progression)
+- [ ] **JSON payload analyzed as primary source**
+
+  - ⚠️ **WARNING:** JSON is the driving engine and source of truth
+  - ⚠️ **BALANCE:** Don't ignore narrative—use it to understand pedagogical intent
+  - Pull complete trace data for analysis
+  - Review `step.data.visualization` structure for ALL step types
+  - Review `step.data` fields beyond visualization
+  - Cross-reference JSON structure with narrative descriptions
+  - Document what's available vs. what narrative suggests
+  - Identify gaps between narrative and actual data
+
+- [ ] **Narrative-JSON synthesis completed**
+
+  - Use narrative to understand "why" (pedagogical goals)
+  - Use JSON to understand "what" (available data)
+  - Don't duplicate work—if narrative clearly explains something, use it
+  - Don't blindly trust narrative—always verify against JSON
+  - Leverage backend engineer's work (narratives are carefully crafted)
+
+- [ ] **Data-driven visualization plan created**
+  - List metrics emphasized (from JSON, validated by narrative)
+  - List transitions to communicate (based on JSON progression)
   - List data relationships to show (pointers, ranges, comparisons)
-  - Map narrative sections to visual components
+  - Map JSON fields to visual components
+  - Verify no algorithm logic reimplementation in frontend
+
+#### Component Design Validation
 
 - [ ] **Component design supports narrative flow**
   - Visual states match narrative descriptions
   - Transitions reflect narrative temporal coherence
   - Data visibility matches narrative references
   - No visual elements without narrative justification
+  - Pedagogical clarity prioritized over template compliance
+
+### Per-Algorithm Deep Dive Workflow (CRITICAL)
+
+**⚠️ MANDATORY PROCESS - Complete BEFORE touching any code**
+
+For each algorithm, follow this exact sequence:
+
+#### Step 1: Read Backend Narrative Thoroughly
+
+- [ ] **Narrative reviewed for pedagogical intent**
+  - File location: `docs/narratives/{algorithm-name}/`
+  - ⚠️ **IMPORTANT:** Backend engineer invested significant effort in narrative quality
+  - Review self-checks, mathematical accuracy, pedagogical explanations
+  - Identify algorithm's pedagogical goals (what should students learn?)
+  - Document key decision points (where does algorithm make choices?)
+  - Note state transitions (how does algorithm progress?)
+  - Extract learning moments (what's the "aha!" for students?)
+  - Use narrative to understand the "why" behind the algorithm
+
+#### Step 2: Analyze JSON Payload Deeply (MOST CRITICAL STEP)
+
+- [ ] **JSON structure analyzed completely**
+
+  - Pull live trace data: `curl -X POST http://localhost:5000/api/trace/unified -H "Content-Type: application/json" -d '{"algorithm": "{algorithm-name}", "input": {...}}' | jq '.' > /tmp/{algorithm-name}-trace.json`
+  - Review all available fields in `step.data.visualization`
+  - Review all available fields in `step.data` (beyond visualization)
+  - Document what data is available at each step type
+  - Identify edge cases (null values, initial state, completion state)
+
+- [ ] **Data availability mapped to visualization needs**
+
+  - List all metrics available in JSON payload
+  - Categorize metrics: essential vs. nice-to-have
+  - Identify which metrics serve pedagogical goals
+  - Document missing data (if any) and impact on visualization
+  - Verify backend contract matches narrative descriptions
+
+- [ ] **Critical pitfalls avoided**
+
+  - [ ] Not saying too little (underwhelming student with sparse visualization)
+  - [ ] Not saying too much (overwhelming student with excessive information)
+  - [ ] Not reimplementing algorithm logic in frontend (use JSON data, don't recalculate)
+  - [ ] Not ignoring spatial constraints (dashboard is ~384px × 400px)
+
+- [ ] **Strategic balance achieved**
+  - Visualization tells the algorithm's story (not just displays data)
+  - Information density appropriate for space constraints
+  - Pedagogical narrative clear from visual progression
+  - JSON payload utilized effectively (don't reinvent the wheel)
+
+#### Step 3: Review Existing Templates & Create Visualization Outline
+
+- [ ] **Existing template dashboard reviewed first**
+
+  - ⚠️ **MANDATORY:** Review existing dashboard in template BEFORE sketching anything new
+  - Open `iterative_metrics_algorithm_mockup.html` or `recursive_context_algorithm_mockup.html`
+  - Study the 5-zone dashboard (iterative) or call stack structure (recursive)
+  - Determine if existing dashboard meets your algorithm's needs
+  - Existing solutions are often superior to initial custom designs
+  - Only proceed with custom design if existing dashboard genuinely doesn't fit
+
+- [ ] **Written outline created (if using existing template)**
+
+  - What data will be displayed in each zone?
+  - How will algorithm-specific data map to the 5 zones (iterative)?
+  - What's the pedagogical narrative at each step type?
+  - Which metrics deserve visual emphasis?
+  - How will state transitions be communicated?
+
+- [ ] **Custom design justification documented (if deviating)**
+
+  - Why doesn't the existing dashboard fit?
+  - What specific pedagogical need requires custom design?
+  - What elements from existing template will be preserved?
+  - What new elements are being introduced and why?
+
+- [ ] **Outline answers key questions**
+  - Does this visualization teach the algorithm effectively?
+  - Is cognitive load reasonable for target audience?
+  - Are spatial constraints respected?
+  - Does every visual element serve a pedagogical purpose?
+
+#### Step 4: Create Static Mockup
+
+- [ ] **Standalone HTML mockup created**
+
+  - File location: `docs/static_mockup/{algorithm-name}-{template-type}.html`
+  - Use representative step from narrative (typically mid-algorithm)
+  - Populate with actual data from JSON payload (not placeholder data)
+  - Verify mockup renders correctly in browser
+  - Side-by-side comparison with base template
+
+- [ ] **Mockup quality standards met**
+  - All zones/sections populated with real data
+  - Typography hierarchy clear and readable
+  - Color semantics appropriate for algorithm
+  - No visual clutter or confusion
+  - Spatial constraints respected
+
+#### Step 5: Get Approval & Proceed
+
+- [ ] **Mockup approval obtained**
+
+  - Team/PM review scheduled
+  - Visualization outline reviewed
+  - Design decisions documented
+  - Approval documented (meeting notes, chat, etc.)
+
+- [ ] **Implementation gate passed**
+  - Static mockup approved
+  - All questions about JSON data resolved
+  - Clear understanding of what to show vs. omit
+  - Ready to write component code
+
+**⚠️ DO NOT PROCEED TO IMPLEMENTATION WITHOUT COMPLETING ALL STEPS ABOVE**
 
 ### Component Props Interface (ADR-003)
 
@@ -220,269 +403,167 @@
 
 - [ ] **Access metadata correctly**
   - Algorithm name: `trace.metadata.algorithm`
-  - Display name: `trace.metadata.display_name`
-  - Visualization type: `trace.metadata.visualization_type`
-  - Custom config: `trace.metadata.visualization_config`
+  - Input parameters: `trace.metadata.input`
+  - Visualization config: `trace.metadata.visualization_config`
+  - Prediction config: `trace.metadata.prediction_config`
 
-### Component Structure Standards
+### Error Handling and Edge Cases
 
-- [ ] **Component follows standard structure**
+- [ ] **Graceful degradation implemented**
 
-  ```jsx
-  import React from "react";
-  import PropTypes from "prop-types";
-  import { useTrace, useNavigation } from "@/contexts";
+  - Handle missing `step.data.visualization` gracefully
+  - Display fallback UI when data unavailable
+  - No crashes on null/undefined data
+  - User-friendly error messages (avoid technical jargon)
 
-  const AlgorithmState = ({ step, trace }) => {
-    // Early return for missing data
-    if (!step?.data?.visualization) {
-      return <div>No state data available</div>;
-    }
+- [ ] **Edge cases handled**
+  - Initial step (before algorithm starts)
+  - Final step (after algorithm completes)
+  - Empty input arrays
+  - Single-element arrays
+  - Null/undefined pointers
 
-    // Extract data
-    const { key_data } = step.data.visualization;
+### Performance Considerations
 
-    // Render UI
-    return <div className="space-y-4">{/* Component content */}</div>;
-  };
+- [ ] **Rendering performance optimized**
 
-  AlgorithmState.propTypes = {
-    step: PropTypes.shape({
-      data: PropTypes.shape({
-        visualization: PropTypes.object,
-      }),
-    }).isRequired,
-    trace: PropTypes.object,
-  };
+  - Use `React.memo()` for expensive components
+  - Avoid unnecessary re-renders (check dependencies in hooks)
+  - Use `useMemo()` for expensive calculations
+  - Use `useCallback()` for callback props
 
-  export default AlgorithmState;
-  ```
+- [ ] **Data transformation efficient**
+  - Transform data once, not on every render
+  - Cache derived values with `useMemo()`
+  - Avoid deep object copying in render
 
-- [ ] **PropTypes defined for all components**
-  - Document expected prop structure
-  - Mark required vs optional props
-  - Helps catch integration bugs early
+### Accessibility (a11y)
 
----
+- [ ] **Keyboard navigation supported**
 
-## ANTI-PATTERNS (Never Do)
+  - All interactive elements keyboard accessible
+  - Focus states visible
+  - Tab order logical
+  - Keyboard shortcuts documented
 
-### Registry Violations
+- [ ] **Screen reader support**
+  - Semantic HTML elements used
+  - ARIA labels provided where needed
+  - Important state changes announced
+  - Visual information has text alternatives
 
-- [ ] ✅ **NOT skipping registry registration**
+### Styling and Visual Consistency
 
-  - Example ❌: Creating component but forgetting to register in `stateRegistry.js`
-  - Example ✅: Always register after creating component file
-  - Consequence: Component won't render, falls back to DefaultStateComponent
+- [ ] **Tailwind CSS used consistently**
 
-- [ ] ✅ **NOT using wrong registry**
-  - Example ❌: Registering state component in `visualizationRegistry.js`
-  - Example ✅: State components → `stateRegistry.js`, Visualizations → `visualizationRegistry.js`
-  - Consequence: Component selection fails
+  - Use existing utility classes
+  - Follow project color palette (slate-700, slate-800)
+  - Use existing spacing scale (p-4, mb-2, etc.)
+  - Avoid inline styles unless necessary
 
-### Component Organization Violations (ADR-002)
+- [ ] **Typography hierarchy maintained**
 
-- [ ] ✅ **NOT placing components in wrong directory**
+  - Headers: `text-white font-semibold`
+  - Labels: `text-gray-400 text-sm`
+  - Values: `text-white font-mono`
+  - Descriptions: `text-gray-300 text-sm`
 
-  - Example ❌: Putting `BinarySearchState.jsx` in `visualizations/` directory
-  - Example ✅: Algorithm-specific → `algorithm-states/`, Reusable → `visualizations/`
-  - Consequence: Confuses purpose, breaks mental model
-
-- [ ] ✅ **NOT using wrong naming convention**
-  - Example ❌: Naming state component `BinarySearch.jsx` (missing "State" suffix)
-  - Example ✅: State components end with "State", visualizations end with "View"
-  - Consequence: Unclear which components are reusable
-
-### Static Mockup Violations
-
-- [ ] ✅ **NOT ignoring static mockup designs**
-
-  - Example ❌: Using different color scheme than mockup
-  - Example ✅: Referencing mockup HTML files before styling components
-  - Consequence: Inconsistent UI, design debt
-
-- [ ] ✅ **NOT creating custom themes without approval**
-  - Example ❌: Using blue theme when mockup shows slate
-  - Example ✅: Using exact Tailwind classes from mockup reference
-  - Consequence: Visual inconsistency across algorithms
-
-### LOCKED Element Violations
-
-- [ ] ✅ **NOT modifying modal keyboard shortcuts**
-
-  - Example ❌: Changing prediction modal to use `a`, `b`, `c` instead of `1`, `2`, `3`
-  - Example ❌: Using `s` key for "save" or "submit" (reserved for Skip in Prediction Modal)
-  - Example ✅: Using documented shortcuts without modification
-  - Consequence: Breaks muscle memory, requires full testing cycle
-
-- [ ] ✅ **NOT creating keyboard shortcut conflicts**
-
-  - Example ❌: Adding `s` shortcut to algorithm state component (conflicts with Skip)
-  - Example ❌: Using `1`, `2`, `3` for navigation (conflicts with Prediction choices)
-  - Example ❌: Using `r` for "refresh" (conflicts with Restart in Completion Modal)
-  - Example ✅: Check reserved shortcuts before implementing new keyboard features
-  - Consequence: Unpredictable behavior, modal shortcuts stop working
-
-- [ ] ✅ **NOT changing panel ratio**
-
-  - Example ❌: Making right panel 50% width "because it looks better"
-  - Example ✅: Preserving 60/40 ratio as documented
-  - Consequence: Requires full regression testing
-
-- [ ] ✅ **NOT breaking overflow pattern**
-  - Example ❌: Using `overflow-x-auto` or allowing horizontal scroll
-  - Example ✅: `overflow-y-auto` for vertical, `overflow-x-hidden` always
-  - Consequence: Horizontal scroll breaks layout on small screens
-
-### Context Usage Violations
-
-- [ ] ✅ **NOT prop drilling when context available**
-
-  - Example ❌: Passing `currentStep` through 3 component layers
-  - Example ✅: Using `useNavigation()` hook directly in component
-  - Consequence: Tight coupling, harder to refactor
-
-- [ ] ✅ **NOT accessing context outside provider**
-  - Example ❌: Using `useTrace()` in component not wrapped by `TraceProvider`
-  - Example ✅: Verify component is within provider hierarchy
-  - Consequence: Runtime error, undefined context
-
-### Data Access Violations
-
-- [ ] ✅ **NOT assuming data structure without checking**
-
-  - Example ❌: Accessing `step.data.visualization.array[0].value` without null checks
-  - Example ✅: Using optional chaining: `step?.data?.visualization?.array?.[0]?.value`
-  - Consequence: Crashes on missing data
-
-- [ ] ✅ **NOT hardcoding data paths**
-  - Example ❌: Assuming pointers always exist: `const left = step.data.visualization.pointers.left`
-  - Example ✅: Check existence: `const left = step.data.visualization.pointers?.left`
-  - Consequence: Breaks when algorithm doesn't use pointers
-
-### Narrative-Driven Design Violations
-
-- [ ] ✅ **NOT implementing visualization without reading narrative**
-
-  - Example ❌: Designing component based on code inspection alone
-  - Example ✅: Reading all narratives first, extracting visual requirements
-  - Consequence: Visualization doesn't match pedagogical intent
-
-- [ ] ✅ **NOT ignoring "Frontend Visualization Hints" section**
-  - Example ❌: Skipping backend's guidance on what to emphasize
-  - Example ✅: Using hints to prioritize visual elements
-  - Consequence: Misaligned emphasis, cognitive load mismatch
+- [ ] **Color semantics appropriate**
+  - Success/positive: green-500
+  - Error/negative: red-500
+  - Warning: yellow-500
+  - Info/neutral: blue-500
+  - Current/active: amber-400
 
 ---
 
-## FREE CHOICES (Developer Discretion)
+## TESTING REQUIREMENTS
 
-### Component Implementation Details
+### Unit Testing
 
-- [ ] **Internal state management approach** (within ADR-003 guidelines)
+- [ ] **Component unit tests created**
 
-  - Use `useState` for local component state
-  - Use `useEffect` for side effects
-  - Use `useMemo`/`useCallback` for performance optimization
-  - Choice depends on component complexity
-
-- [ ] **Styling specifics** (within theme constraints)
-
-  - Tailwind utility class combinations
-  - Spacing and padding adjustments
-  - Border radius and shadow choices
-  - Must stay within mockup theme palette
-
-- [ ] **Animation and transition details**
-  - Transition timing functions
-  - Animation duration choices
-  - Easing curves
-  - Must support narrative flow, not distract
-
-### Data Presentation Choices
-
-- [ ] **Value formatting**
-
-  - Decimal places for floats
-  - Number formatting (commas, spaces)
-  - Date/time formatting
-  - Choose for readability
-
-- [ ] **Label text**
-  - Capitalization style
-  - Label brevity vs clarity
-  - Tooltip content
-  - Choose for user understanding
-
-### Component Structure Choices
-
-- [ ] **Sub-component extraction**
-
-  - When to extract helper components
-  - File organization within algorithm-states/
-  - Component composition patterns
-  - Balance reusability with simplicity
-
-- [ ] **Helper function organization**
-  - Inline vs separate utility file
-  - Pure functions vs component methods
-  - Naming conventions
-  - Choose for maintainability
-
----
-
-## Testing Checklist
-
-### Component Testing
-
-- [ ] **Create testing plan for new algorithm**
-
-  - Document test scenarios (happy path, edge cases, error states)
-  - Identify critical user interactions to test
-  - List data variations to verify (empty, single element, large dataset)
-  - Plan for visual regression testing
-
-- [ ] **Implement tests according to plan**
-
+  - File location: `frontend/src/components/algorithm-states/__tests__/{AlgorithmName}State.test.jsx`
   - Test component renders without crashing
-  - Test with various step data shapes
-  - Test with missing/null data (graceful degradation)
-  - Test prop updates trigger re-renders correctly
+  - Test with valid step data
+  - Test with missing data (graceful degradation)
+  - Test edge cases (null pointers, empty arrays)
 
-- [ ] **Test registry integration**
-  - Verify `getStateComponent('algorithm-name')` returns correct component
-  - Verify component renders when selected via algorithm switcher
-  - Test fallback to DefaultStateComponent for unregistered algorithms
-
-### Visual Testing
-
-- [ ] **Static mockup compliance verified**
-
-  - Side-by-side comparison with mockup HTML
-  - Color palette matches exactly
-  - Typography (font-family, sizes, weights) matches
-  - Spacing and layout proportions match
-
-- [ ] **Responsive behavior tested**
-  - Test at multiple screen widths (mobile, tablet, desktop)
-  - Verify panel ratio maintained
-  - Verify overflow scrolling works
-  - No horizontal scroll at any width
+- [ ] **PropTypes validation tested**
+  - Test required props missing (should not crash)
+  - Test optional props missing (should use defaults)
+  - Test invalid prop types (should show console warning in dev)
 
 ### Integration Testing
 
-- [ ] **Algorithm switcher integration**
+- [ ] **Registry integration verified**
 
-  - Algorithm appears in dropdown
-  - Selecting algorithm loads correct state component
-  - Switching between algorithms doesn't crash
-  - State clears correctly on algorithm change
+  - Component accessible via `getStateComponent('algorithm-name')`
+  - No errors when component loaded dynamically
+  - Component receives correct props from StatePanel
 
-- [ ] **Navigation integration**
+- [ ] **Context integration verified**
 
-  - Step forward/backward updates component correctly
+  - Component receives data from TraceContext
+  - Component receives navigation state from NavigationContext
+  - Component responds to prediction mode changes (if applicable)
+
+- [ ] **Visualization integration verified**
+  - Visualization component renders correctly
+  - Data flows from state component to visualization
+  - Highlight coordination works (if applicable)
+
+### Manual Testing Checklist
+
+- [ ] **Visual regression testing**
+
+  - Compare side-by-side with static mockup
+  - Verify colors, spacing, typography match
+  - Test at different viewport sizes (1920x1080, 1366x768)
+  - No layout shifts or visual glitches
+
+- [ ] **Functional testing**
+
+  - Algorithm executes without errors
+  - Step navigation works (next/prev/first/last)
+  - Keyboard shortcuts work
+  - Prediction modal integration works (if applicable)
+  - Completion modal shows correctly
+
+- [ ] **Data accuracy testing**
+  - Visual state matches backend trace data
+  - Pointers update correctly
+  - Metrics display correct values
+  - State transitions match narrative
+
+### Cross-Browser Testing
+
+- [ ] **Browser compatibility verified**
+  - Chrome (latest)
+  - Firefox (latest)
+  - Safari (latest, if possible)
+  - Edge (latest, if possible)
+
+### Testing Matrix
+
+Test with multiple input scenarios:
+
+- [ ] **Typical case** (medium-sized input, target found/goal achieved)
+- [ ] **Edge case: Small input** (1-3 elements)
+- [ ] **Edge case: Large input** (20+ elements)
+- [ ] **Edge case: Empty input** (if applicable)
+- [ ] **Edge case: Target not found** (if applicable - search algorithms)
+- [ ] **Edge case: Already sorted** (if applicable - sorting algorithms)
+
+### Navigation Testing
+
+- [ ] **Step navigation verified**
+
+  - Next step button works
+  - Previous step button works
+  - First step button works
+  - Last step button works
   - Jump to step works
-  - First/last step buttons work
   - Keyboard shortcuts (Arrow keys) work
 
 - [ ] **Prediction modal integration** (if algorithm has predictions)
@@ -627,18 +708,21 @@ export default MergeSortState;
 2. ✅ Review Frontend ADRs (ADR-001, ADR-002, ADR-003)
 3. ✅ Review project README.md for architecture
 4. ✅ Review backend narratives for visualization insights
-5. ✅ Create visualization plan based on narrative hints
-6. ✅ Create state component in `algorithm-states/` directory
-7. ✅ Register component in `stateRegistry.js`
-8. ✅ Create/verify visualization component (reuse if possible)
-9. ✅ Register visualization in `visualizationRegistry.js` (if new)
-10. ✅ Create algorithm info markdown in `public/algorithm-info/`
-11. ✅ Verify static mockup compliance
-12. ✅ Create testing plan
-13. ✅ Implement tests
-14. ✅ Run all tests (unit + integration)
-15. ✅ Complete this checklist
-16. ✅ Submit PR with code + tests + checklist
+5. ✅ Analyze JSON payload deeply (pull trace data, document structure)
+6. ✅ Create visualization outline (what to show, how to map, what to omit)
+7. ✅ Create static mockup with real data
+8. ✅ Get mockup approval before coding
+9. ✅ Create state component in `algorithm-states/` directory
+10. ✅ Register component in `stateRegistry.js`
+11. ✅ Create/verify visualization component (reuse if possible)
+12. ✅ Register visualization in `visualizationRegistry.js` (if new)
+13. ✅ Create algorithm info markdown in `public/algorithm-info/`
+14. ✅ Verify static mockup compliance
+15. ✅ Create testing plan
+16. ✅ Implement tests
+17. ✅ Run all tests (unit + integration)
+18. ✅ Complete this checklist
+19. ✅ Submit PR with code + tests + checklist
 
 **Next Stage:** Integration Testing (Stage 4)
 
@@ -646,8 +730,12 @@ export default MergeSortState;
 
 ## Time Estimates
 
-- **ADR and Narrative Review:** 15 minutes
-- **Visualization Planning:** 10 minutes
+- **ADR and Architecture Review:** 15 minutes
+- **Narrative Review:** 10 minutes
+- **JSON Payload Deep Analysis:** 20-30 minutes
+- **Visualization Outline Creation:** 15 minutes
+- **Static Mockup Creation:** 30-45 minutes
+- **Mockup Approval Meeting:** 15-30 minutes
 - **Component Implementation:** 30-45 minutes
 - **Registry Registration:** 5 minutes
 - **Algorithm Info Markdown:** 10 minutes
@@ -655,7 +743,7 @@ export default MergeSortState;
 - **Test Implementation:** 15-20 minutes
 - **Static Mockup Verification:** 10 minutes
 
-**Total:** ~90-120 minutes for complete algorithm integration
+**Total:** ~3-4 hours for complete algorithm integration
 
 ---
 
@@ -666,6 +754,11 @@ export default MergeSortState;
 - ✅ Registry registration (state + visualization)
 - ✅ Component organization (correct directories, naming)
 - ✅ Static mockup compliance (theme, colors, typography)
+- ✅ Review existing templates first (often better than custom designs)
+- ✅ Respect narrative quality (backend engineer's pedagogical work)
+- ✅ JSON-driven design (analyze payload deeply, don't reimplement logic)
+- ✅ Mockup-first workflow (create and get approval before coding)
+- ✅ Template flexibility (deviate when pedagogical clarity requires it)
 - ✅ Narrative-driven design (read narratives first!)
 - ✅ Testing (plan + implementation)
 
@@ -683,6 +776,18 @@ export default MergeSortState;
 - ✅ PropTypes for all components
 - ✅ Graceful degradation (handle missing data)
 - ✅ Visual-narrative alignment
+- ✅ Balance information density (not too little, not too much)
+- ✅ Respect spatial constraints (~384px × 400px dashboard)
+
+**Critical Workflow Gates:**
+
+- 🚨 DO NOT CODE without JSON analysis
+- 🚨 DO NOT CODE without visualization outline
+- 🚨 DO NOT CODE without static mockup approval
+- 🚨 If ADR conflicts with this checklist → Flag to PM
+- 🚨 If ADR conflicts with README → Flag to PM
+- 🚨 If README appears outdated → Flag to PM
+- 🚨 Escalate before implementing conflicting requirements
 
 **Document Contradictions:**
 
@@ -695,6 +800,14 @@ export default MergeSortState;
 
 **Remember:**
 
+- JSON payload is the driving engine - narrative is helpful but JSON is definitive
+- Narrative contains valuable work - respect backend engineer's effort (self-checks, pedagogy, accuracy)
+- Use narrative for "why" (pedagogical intent) and JSON for "what" (actual data)
+- Review existing templates FIRST - they often meet your needs and are well-designed
+- Only create custom dashboards if existing templates genuinely don't fit
+- Create mockup before code - get approval on design before implementation
+- Balance is key - not too little (underwhelming), not too much (overwhelming)
+- Templates are guidelines - deviate when pedagogical clarity requires it
 - Read narratives BEFORE designing components (narrative-driven approach)
 - Register EVERY component you create (both registries)
 - Verify mockup compliance BEFORE submitting (side-by-side comparison)

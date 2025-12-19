@@ -6,7 +6,8 @@ An educational platform for visualizing algorithms with active learning features
 
 **Philosophy:** Backend does ALL the thinking, frontend does ALL the reacting.
 
-**Status:** ✅ Platform Architecture Complete - 2 Algorithms Live (Interval Coverage, Binary Search)
+**Status:** ✅ Platform Architecture Complete - 4 Algorithms Live  
+(Interval Coverage, Binary Search, Two Pointer, Sliding Window)
 
 ---
 
@@ -952,11 +953,16 @@ python app.py
 **Expected Output:**
 
 ```
+
 🚀 Algorithm Trace Backend Starting...
-🌐 Running on: http://localhost:5000
-📊 Registered Algorithms: 2
-   - interval-coverage: Interval Coverage
-   - binary-search: Binary Search
+🌐 Running on: [http://localhost:5000](http://localhost:5000)
+📊 Registered Algorithms: 4
+
+* interval-coverage: Interval Coverage
+* binary-search: Binary Search
+* two-pointer: Two Pointer
+* sliding-window: Sliding Window
+
 ```
 
 ### Frontend
@@ -1006,11 +1012,12 @@ curl -X POST http://localhost:5000/api/trace/unified \
 
 ## Current Algorithms
 
-| Algorithm             | Visualization | Status  | Prediction Points        |
-| --------------------- | ------------- | ------- | ------------------------ |
-| **Interval Coverage** | Timeline      | ✅ Live | Keep/Covered decisions   |
-| **Binary Search**     | Array         | ✅ Live | Search direction choices |
-
+| Algorithm             | Visualization | Status | Prediction Points                          |
+| --------------------- | ------------- | -------| ------------------------------------------ |
+| **Interval Coverage** | Timeline      | Live   | Keep / Covered decisions                   |
+| **Binary Search**     | Array         | Live   | Search direction choices                   |
+| **Two Pointer**       | Array         | Live   | Pointer movement decisions                 |
+| **Sliding Window**    | Array         | Live   | Expand / shrink window decisions           |
 ---
 
 ## Deployment
