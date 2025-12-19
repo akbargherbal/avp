@@ -1,0 +1,421 @@
+{
+  "metadata": {
+    "algorithm": "sliding-window",
+    "display_name": "Sliding Window Pattern",
+    "input_data": {
+      "array": [
+        2,
+        1,
+        5,
+        1,
+        3,
+        2
+      ],
+      "k": 3
+    },
+    "input_size": 6,
+    "prediction_points": [
+      {
+        "choices": [
+          {
+            "id": "increase",
+            "label": "Increase"
+          },
+          {
+            "id": "decrease",
+            "label": "Decrease"
+          },
+          {
+            "id": "stay_same",
+            "label": "Stay the Same"
+          }
+        ],
+        "correct_answer": "decrease",
+        "explanation": "Correct. Since the incoming element (1) is less than the outgoing element (2), the sum will decrease.",
+        "hint": "Compare the value of the element entering the window with the one leaving.",
+        "question": "The window will slide. The outgoing element is 2 and the incoming is 1. How will the sum change?",
+        "step_index": 1
+      },
+      {
+        "choices": [
+          {
+            "id": "increase",
+            "label": "Increase"
+          },
+          {
+            "id": "decrease",
+            "label": "Decrease"
+          },
+          {
+            "id": "stay_same",
+            "label": "Stay the Same"
+          }
+        ],
+        "correct_answer": "increase",
+        "explanation": "Correct. Since the incoming element (3) is greater than the outgoing element (1), the sum will increase.",
+        "hint": "Compare the value of the element entering the window with the one leaving.",
+        "question": "The window will slide. The outgoing element is 1 and the incoming is 3. How will the sum change?",
+        "step_index": 2
+      },
+      {
+        "choices": [
+          {
+            "id": "increase",
+            "label": "Increase"
+          },
+          {
+            "id": "decrease",
+            "label": "Decrease"
+          },
+          {
+            "id": "stay_same",
+            "label": "Stay the Same"
+          }
+        ],
+        "correct_answer": "decrease",
+        "explanation": "Correct. Since the incoming element (2) is less than the outgoing element (5), the sum will decrease.",
+        "hint": "Compare the value of the element entering the window with the one leaving.",
+        "question": "The window will slide. The outgoing element is 5 and the incoming is 2. How will the sum change?",
+        "step_index": 3
+      }
+    ],
+    "visualization_type": "array"
+  },
+  "result": {
+    "max_sum": 9,
+    "window": [
+      5,
+      1,
+      3
+    ]
+  },
+  "trace": {
+    "duration": 0.0002818107604980469,
+    "steps": [
+      {
+        "data": {
+          "visualization": {
+            "array": [
+              {
+                "index": 0,
+                "state": "in_window",
+                "value": 2
+              },
+              {
+                "index": 1,
+                "state": "in_window",
+                "value": 1
+              },
+              {
+                "index": 2,
+                "state": "in_window",
+                "value": 5
+              },
+              {
+                "index": 3,
+                "state": "next",
+                "value": 1
+              },
+              {
+                "index": 4,
+                "state": "unprocessed",
+                "value": 3
+              },
+              {
+                "index": 5,
+                "state": "unprocessed",
+                "value": 2
+              }
+            ],
+            "metrics": {
+              "current_sum": 8,
+              "k": 3,
+              "max_sum": 8,
+              "max_window_start": 0
+            },
+            "pointers": {
+              "window_end": 2,
+              "window_start": 0
+            }
+          }
+        },
+        "description": "🚀 Start: Initial window of size 3 has sum 8.",
+        "step": 0,
+        "timestamp": 1.7404556274414062e-05,
+        "type": "INITIAL_WINDOW"
+      },
+      {
+        "data": {
+          "incoming_element": {
+            "index": 3,
+            "value": 1
+          },
+          "max_sum_updated": false,
+          "new_sum": 7,
+          "old_sum": 8,
+          "outgoing_element": {
+            "index": 0,
+            "value": 2
+          },
+          "previous_max_sum": 8,
+          "visualization": {
+            "array": [
+              {
+                "index": 0,
+                "state": "unprocessed",
+                "value": 2
+              },
+              {
+                "index": 1,
+                "state": "in_window",
+                "value": 1
+              },
+              {
+                "index": 2,
+                "state": "in_window",
+                "value": 5
+              },
+              {
+                "index": 3,
+                "state": "in_window",
+                "value": 1
+              },
+              {
+                "index": 4,
+                "state": "next",
+                "value": 3
+              },
+              {
+                "index": 5,
+                "state": "unprocessed",
+                "value": 2
+              }
+            ],
+            "metrics": {
+              "current_sum": 7,
+              "k": 3,
+              "max_sum": 8,
+              "max_window_start": 0
+            },
+            "pointers": {
+              "window_end": 3,
+              "window_start": 1
+            }
+          },
+          "window_indices": [
+            1,
+            3
+          ],
+          "window_subarray": [
+            1,
+            5,
+            1
+          ]
+        },
+        "description": "Window slides right. Sum changes from 8 to 7.",
+        "step": 1,
+        "timestamp": 2.8371810913085938e-05,
+        "type": "SLIDE_WINDOW"
+      },
+      {
+        "data": {
+          "incoming_element": {
+            "index": 4,
+            "value": 3
+          },
+          "max_sum_updated": true,
+          "new_sum": 9,
+          "old_sum": 7,
+          "outgoing_element": {
+            "index": 1,
+            "value": 1
+          },
+          "previous_max_sum": 8,
+          "visualization": {
+            "array": [
+              {
+                "index": 0,
+                "state": "unprocessed",
+                "value": 2
+              },
+              {
+                "index": 1,
+                "state": "unprocessed",
+                "value": 1
+              },
+              {
+                "index": 2,
+                "state": "in_window",
+                "value": 5
+              },
+              {
+                "index": 3,
+                "state": "in_window",
+                "value": 1
+              },
+              {
+                "index": 4,
+                "state": "in_window",
+                "value": 3
+              },
+              {
+                "index": 5,
+                "state": "next",
+                "value": 2
+              }
+            ],
+            "metrics": {
+              "current_sum": 9,
+              "k": 3,
+              "max_sum": 9,
+              "max_window_start": 2
+            },
+            "pointers": {
+              "window_end": 4,
+              "window_start": 2
+            }
+          },
+          "window_indices": [
+            2,
+            4
+          ],
+          "window_subarray": [
+            5,
+            1,
+            3
+          ]
+        },
+        "description": "Window slides right. Sum changes from 7 to 9.",
+        "step": 2,
+        "timestamp": 3.361701965332031e-05,
+        "type": "SLIDE_WINDOW"
+      },
+      {
+        "data": {
+          "incoming_element": {
+            "index": 5,
+            "value": 2
+          },
+          "max_sum_updated": false,
+          "new_sum": 6,
+          "old_sum": 9,
+          "outgoing_element": {
+            "index": 2,
+            "value": 5
+          },
+          "previous_max_sum": 9,
+          "visualization": {
+            "array": [
+              {
+                "index": 0,
+                "state": "unprocessed",
+                "value": 2
+              },
+              {
+                "index": 1,
+                "state": "unprocessed",
+                "value": 1
+              },
+              {
+                "index": 2,
+                "state": "unprocessed",
+                "value": 5
+              },
+              {
+                "index": 3,
+                "state": "in_window",
+                "value": 1
+              },
+              {
+                "index": 4,
+                "state": "in_window",
+                "value": 3
+              },
+              {
+                "index": 5,
+                "state": "in_window",
+                "value": 2
+              }
+            ],
+            "metrics": {
+              "current_sum": 6,
+              "k": 3,
+              "max_sum": 9,
+              "max_window_start": 2
+            },
+            "pointers": {
+              "window_end": 5,
+              "window_start": 3
+            }
+          },
+          "window_indices": [
+            3,
+            5
+          ],
+          "window_subarray": [
+            1,
+            3,
+            2
+          ]
+        },
+        "description": "Window slides right. Sum changes from 9 to 6.",
+        "step": 3,
+        "timestamp": 3.7670135498046875e-05,
+        "type": "SLIDE_WINDOW"
+      },
+      {
+        "data": {
+          "visualization": {
+            "array": [
+              {
+                "index": 0,
+                "state": "unprocessed",
+                "value": 2
+              },
+              {
+                "index": 1,
+                "state": "unprocessed",
+                "value": 1
+              },
+              {
+                "index": 2,
+                "state": "unprocessed",
+                "value": 5
+              },
+              {
+                "index": 3,
+                "state": "in_window",
+                "value": 1
+              },
+              {
+                "index": 4,
+                "state": "in_window",
+                "value": 3
+              },
+              {
+                "index": 5,
+                "state": "in_window",
+                "value": 2
+              }
+            ],
+            "metrics": {
+              "current_sum": 6,
+              "k": 3,
+              "max_sum": 9,
+              "max_window_start": 2
+            },
+            "pointers": {
+              "window_end": 5,
+              "window_start": 3
+            }
+          }
+        },
+        "description": "✅ Complete! Maximum sum found is 9.",
+        "step": 4,
+        "timestamp": 4.124641418457031e-05,
+        "type": "ALGORITHM_COMPLETE"
+      }
+    ],
+    "total_steps": 5
+  }
+}
