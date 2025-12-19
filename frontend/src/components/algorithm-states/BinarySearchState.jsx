@@ -1,100 +1,113 @@
-// frontend/src/components/algorithm-states/BinarySearchState.jsx
-
 import React from "react";
 import PropTypes from "prop-types";
 
 /**
- * BinarySearchState - Pure Content Component (Phase 0 Refactored)
- *
- * CRITICAL CHANGES (Session 53):
- * - REMOVED internal 2:1 layout (header/footer)
- * - REMOVED flex-[2] and flex-[1] containers
- * - Component now renders ONLY the metrics dashboard
- * - StatePanel provides unified header and footer
- *
- * Template: iterative-metrics
- * - Dashboard fills available space edge-to-edge
- * - No internal padding (container queries handle scaling)
- * - Step description handled by StatePanel footer
+ * BinarySearchState - Iterative Dashboard Implementation
+ * 
+ * Uses the 5-zone dashboard layout defined in index.css (from iterative_metrics_algorithm_mockup.html).
+ * 
+ * Zones:
+ * 1. Primary: Mid Value (Hero)
+ * 2. Goal: Target Value
+ * 3. Logic: Comparison (Mid vs Target)
+ * 4. Action: Next Step Description
+ * 5. Overlay: Pointers (L, R) & Search Space
  */
-const BinarySearchState = ({ step, trace }) => {
-  // Early return for graceful degradation
+const BinarySearchState = ({ step }) => {
+  // Graceful degradation
   if (!step?.data?.visualization) {
-    return (
-      <div className="text-slate-400 text-sm p-4">No state data available</div>
-    );
+    return <div className="text-slate-400 p-4">No state data available</div>;
   }
 
-  const { pointers, array } = step.data.visualization;
-
+  const { pointers, array, search_space_size } = step.data.visualization;
+  
   // Safe data extraction
   const leftIdx = pointers?.left ?? "-";
   const rightIdx = pointers?.right ?? "-";
-  const midIdx = pointers?.mid ?? "-";
+  const midIdx = pointers?.mid; // Can be null/undefined initially
   const target = pointers?.target ?? "?";
-
-  // Resolve Mid Value from Array if mid index exists
+  
+  // Resolve Mid Value
   let midValue = "-";
-  if (midIdx !== "-" && Array.isArray(array)) {
-    const midElement = array.find((item) => item.index === midIdx);
+  if (midIdx !== null && midIdx !== undefined && Array.isArray(array)) {
+    const midElement = array.find(item => item.index === midIdx);
     if (midElement) midValue = midElement.value;
   }
 
-  return (
-    <div className="h-full flex flex-col bg-slate-800 p-4 gap-3">
-      {/* Primary Metrics Grid */}
-      <div className="grid grid-cols-2 gap-3 flex-1">
-        {/* Metric 1: Mid Value */}
-        <div className="bg-slate-700/30 border border-slate-600/50 rounded-lg p-2 flex flex-col items-center justify-center hover:bg-slate-700/50 transition-colors">
-          <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">
-            Mid Value
-          </span>
-          <span className="text-yellow-400 text-5xl font-mono font-bold tracking-tighter drop-shadow-lg">
-            {midValue}
-          </span>
-        </div>
+  // Logic & Action Derivation
+  let logicText = "INITIALIZE";
+  let logicSubtext = "Waiting to start";
+  let actionText = "PREPARE SEARCH";
 
-        {/* Metric 2: Target */}
-        <div className="bg-slate-700/30 border border-slate-600/50 rounded-lg p-2 flex flex-col items-center justify-center hover:bg-slate-700/50 transition-colors">
-          <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">
-            Target
-          </span>
-          <span className="text-emerald-400 text-5xl font-mono font-bold tracking-tighter drop-shadow-lg">
-            {target}
-          </span>
+  if (step.type === "CALCULATE_MID") {
+    logicText = "CALC MID";
+    logicSubtext = `(${leftIdx} + ${rightIdx}) / 2 = ${midIdx}`;
+    actionText = "COMPARE MID WITH TARGET";
+  } else if (midValue !== "-" && target !== "?") {
+    if (midValue < target) {
+      logicText = `${midValue} < ${target}`;
+      logicSubtext = "Mid is smaller";
+      actionText = "SEARCH RIGHT →";
+    } else if (midValue > target) {
+      logicText = `${midValue} > ${target}`;
+      logicSubtext = "Mid is larger";
+      actionText = "← SEARCH LEFT";
+    } else {
+      logicText = `${midValue} == ${target}`;
+      logicSubtext = "Match found!";
+      actionText = "RETURN INDEX";
+    }
+  }
+
+  // Override action text based on specific step types if needed
+  if (step.type === "SEARCH_RIGHT") actionText = "ELIMINATE LEFT HALF";
+  if (step.type === "SEARCH_LEFT") actionText = "ELIMINATE RIGHT HALF";
+  if (step.type === "FOUND") actionText = "TARGET FOUND";
+
+  return (
+    <div className="dashboard">
+      {/* ZONE 1: PRIMARY FOCUS (Mid Value) */}
+      <div className="zone zone-primary">
+        <div className="zone-label">Mid</div>
+        <div className="zone-meta">IDX {midIdx ?? "-"}</div>
+        <div className="primary-value">{midValue}</div>
+
+        {/* ZONE 5: OVERLAY (Boundaries) */}
+        <div className="zone-boundaries">
+          <div className="boundary-cell">
+            <div className="boundary-label">Left</div>
+            <div className="boundary-value">{leftIdx}</div>
+          </div>
+          <div className="boundary-cell">
+            <div className="boundary-label">Right</div>
+            <div className="boundary-value">{rightIdx}</div>
+          </div>
+          <div className="boundary-cell">
+            <div className="boundary-label">Space</div>
+            <div className="boundary-value">{search_space_size ?? "-"}</div>
+          </div>
         </div>
       </div>
 
-      {/* Secondary Metrics Strip */}
-      <div className="bg-slate-900/40 rounded-lg border border-slate-700/50 p-3 shrink-0">
-        <div className="grid grid-cols-3 divide-x divide-slate-700/50">
-          {/* Left Index */}
-          <div className="px-2 text-center">
-            <div className="text-xs text-slate-500 font-semibold uppercase mb-1">
-              Left Idx
-            </div>
-            <div className="text-blue-300 font-mono text-xl font-bold">
-              {leftIdx}
-            </div>
-          </div>
-          {/* Right Index */}
-          <div className="px-2 text-center">
-            <div className="text-xs text-slate-500 font-semibold uppercase mb-1">
-              Right Idx
-            </div>
-            <div className="text-red-300 font-mono text-xl font-bold">
-              {rightIdx}
-            </div>
-          </div>
-          {/* Mid Index */}
-          <div className="px-2 text-center">
-            <div className="text-xs text-slate-500 font-semibold uppercase mb-1">
-              Mid Idx
-            </div>
-            <div className="text-yellow-300 font-mono text-xl font-bold">
-              {midIdx}
-            </div>
-          </div>
+      {/* ZONE 2: GOAL (Target) */}
+      <div className="zone zone-goal">
+        <div className="zone-label">Target</div>
+        <div className="goal-value">{target}</div>
+      </div>
+
+      {/* ZONE 3: LOGIC (Comparison) */}
+      <div className="zone zone-logic">
+        <div className="zone-label">LOGIC</div>
+        <div className="logic-content">
+          <div>{logicText}</div>
+          <div className="text-[0.6em] opacity-70 font-normal mt-1">{logicSubtext}</div>
+        </div>
+      </div>
+
+      {/* ZONE 4: ACTION */}
+      <div className="zone zone-action">
+        <div className="action-text">
+          {actionText}
         </div>
       </div>
     </div>
@@ -104,15 +117,14 @@ const BinarySearchState = ({ step, trace }) => {
 BinarySearchState.propTypes = {
   step: PropTypes.shape({
     type: PropTypes.string,
-    description: PropTypes.string,
     data: PropTypes.shape({
       visualization: PropTypes.shape({
         pointers: PropTypes.object,
         array: PropTypes.arrayOf(PropTypes.object),
+        search_space_size: PropTypes.number,
       }),
     }),
   }).isRequired,
-  trace: PropTypes.object,
 };
 
 export default BinarySearchState;
