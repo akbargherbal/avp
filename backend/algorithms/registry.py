@@ -215,6 +215,7 @@ def register_algorithms():
     from .interval_coverage import IntervalCoverageTracer
     from .two_pointer import TwoPointerTracer
     from .sliding_window import SlidingWindowTracer
+    from .merge_sort import MergeSortTracer
 
     # -------------------------------------------------------------------------
     # Interval Coverage (PoC Algorithm - Now Refactored!)
@@ -343,7 +344,10 @@ def register_algorithms():
                         "target": 51,
                     },
                 },
-                {"name": "Single Element - Found", "input": {"array": [42], "target": 42}},
+                {
+                    "name": "Single Element - Found",
+                    "input": {"array": [42], "target": 42},
+                },
                 {
                     "name": "Target at Start",
                     "input": {"array": [10, 20, 30, 40, 50], "target": 10},
@@ -401,18 +405,27 @@ def register_algorithms():
         )
 
     # -------------------------------------------------------------------------
-    # Sliding Window Pattern (NEW)
+    # Sliding Window Pattern
     # -------------------------------------------------------------------------
     if not registry.is_registered("sliding-window"):
         registry.register(
-            name='sliding-window',
+            name="sliding-window",
             tracer_class=SlidingWindowTracer,
-            display_name='Sliding Window Pattern',
-            description='Find maximum sum subarray of a fixed size k',
+            display_name="Sliding Window Pattern",
+            description="Find maximum sum subarray of a fixed size k",
             example_inputs=[
-                {'name': 'Basic', 'input': {'array': [1, 5, 1, 3, 2,5,1,6,7,0,5], 'k': 3}},
-                {'name': 'Increasing Trend', 'input': {'array': [1, 2, 3, 4, 5, 6], 'k': 3}},
-                {'name': 'Decreasing Trend', 'input': {'array': [6, 5, 4, 3, 2, 1], 'k': 4}},
+                {
+                    "name": "Basic",
+                    "input": {"array": [1, 5, 1, 3, 2, 5, 1, 6, 7, 0, 5], "k": 3},
+                },
+                {
+                    "name": "Increasing Trend",
+                    "input": {"array": [1, 2, 3, 4, 5, 6], "k": 3},
+                },
+                {
+                    "name": "Decreasing Trend",
+                    "input": {"array": [6, 5, 4, 3, 2, 1], "k": 4},
+                },
             ],
             input_schema={
                 "type": "object",
@@ -423,7 +436,59 @@ def register_algorithms():
                         "items": {"type": "integer"},
                         "description": "Array of integers",
                     },
-                    "k": {"type": "integer", "description": "The size of the sliding window"},
+                    "k": {
+                        "type": "integer",
+                        "description": "The size of the sliding window",
+                    },
+                },
+            },
+        )
+
+    # -------------------------------------------------------------------------
+    # Merge Sort
+    # -------------------------------------------------------------------------
+    if not registry.is_registered("merge-sort"):
+        registry.register(
+            name="merge-sort",
+            tracer_class=MergeSortTracer,
+            display_name="Merge Sort",
+            description="Recursive divide-and-conquer sorting algorithm with O(n log n) guaranteed time complexity",
+            example_inputs=[
+                {
+                    "name": "Basic - 8 Elements",
+                    "input": {"array": [38, 27, 43, 3, 9, 82, 10, 5]},
+                },
+                {
+                    "name": "Already Sorted",
+                    "input": {"array": [1, 2, 3, 4, 5, 6, 7, 8]},
+                },
+                {
+                    "name": "Reverse Sorted",
+                    "input": {"array": [8, 7, 6, 5, 4, 3, 2, 1]},
+                },
+                {
+                    "name": "With Duplicates",
+                    "input": {"array": [5, 2, 8, 2, 9, 1, 5, 5]},
+                },
+                {"name": "Small Array", "input": {"array": [3, 1, 4, 1, 5]}},
+                {
+                    "name": "Larger Array - 12 Elements",
+                    "input": {
+                        "array": [64, 34, 25, 12, 22, 11, 90, 88, 45, 50, 33, 17]
+                    },
+                },
+            ],
+            input_schema={
+                "type": "object",
+                "required": ["array"],
+                "properties": {
+                    "array": {
+                        "type": "array",
+                        "items": {"type": "number"},
+                        "minItems": 1,
+                        "maxItems": 12,
+                        "description": "Array of numbers to sort (8-12 elements recommended)",
+                    }
                 },
             },
         )

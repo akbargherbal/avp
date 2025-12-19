@@ -71,3 +71,36 @@ Value:  42
 - Time Complexity: O(log n)
 - Space Complexity: O(1) (iterative implementation)
 
+---
+
+## 🎨 Frontend Visualization Hints
+
+### Primary Metrics to Emphasize
+
+- **Search Space Size** (`search_space_size`) - Shows how quickly the algorithm narrows down possibilities
+- **Comparison Count** (`comparisons`) - Demonstrates O(log n) efficiency in real-time
+- **Pointer Positions** (`pointers.left`, `pointers.mid`, `pointers.right`) - Visual representation of the divide-and-conquer strategy
+
+### Visualization Priorities
+
+1. **Highlight the shrinking search space** - Use distinct colors for `active_range` vs `excluded` states
+2. **Emphasize the mid-point comparison** - The `examining` state is the critical decision moment
+3. **Animate pointer movements** - Show left/right pointer jumps to visualize elimination of half the array
+4. **Celebrate the find moment** - When state becomes `found`, use visual feedback (e.g., pulse, color change)
+
+### Key JSON Paths
+
+```
+step.data.visualization.pointers.left
+step.data.visualization.pointers.mid
+step.data.visualization.pointers.right
+step.data.visualization.pointers.target
+step.data.visualization.search_space_size
+step.data.visualization.array[*].state  // 'active_range' | 'examining' | 'excluded' | 'found'
+step.data.visualization.array[*].value
+step.data.visualization.array[*].index
+```
+
+### Algorithm-Specific Guidance
+
+Binary search's power comes from **eliminating half the search space with each comparison**. The most pedagogically important visualization is showing this dramatic reduction - from N elements to N/2 to N/4 to N/8, etc. Consider using a **shrinking visual container** or **fading out excluded elements** to emphasize this. The mid-point calculation and comparison are the "brain" of the algorithm - highlight these moments. When the target is found (or proven absent), the final state should clearly show the journey: how many elements were examined vs. how many were eliminated without ever being touched. This reinforces the O(log n) efficiency that makes binary search so powerful.
