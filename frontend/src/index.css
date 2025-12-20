@@ -285,3 +285,8 @@ code {
   line-height: 1.1;
   color: #cbd5e1;
 }
+
+
+.primary-value.long-text {
+  font-size: clamp(40px, 25cqh, 70px);
+}
