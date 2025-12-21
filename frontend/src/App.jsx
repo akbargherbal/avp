@@ -12,18 +12,18 @@ import VisualizationPanel from "./components/panels/VisualizationPanel";
 import StatePanel from "./components/panels/StatePanel";
 import ErrorBoundary from "./components/ErrorBoundary";
 
-// Import hooks (now wrappers around context)
-import { useTraceLoader } from "./hooks/useTraceLoader";
-import { useTraceNavigation } from "./hooks/useTraceNavigation";
-import { usePredictionMode } from "./hooks/usePredictionMode";
+// Import contexts directly (no more deprecated wrapper hooks)
+import { useTrace } from "./contexts/TraceContext";
+import { useNavigation } from "./contexts/NavigationContext";
+import { usePrediction } from "./contexts/PredictionContext";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 
 const AlgorithmTracePlayer = () => {
-  // 1. Data Loading Hook (Context)
+  // 1. Data Loading (Direct Context)
   const { trace, loading, error, currentAlgorithm, switchAlgorithm } =
-    useTraceLoader();
+    useTrace();
 
-  // 2. Navigation Hook (Context)
+  // 2. Navigation (Direct Context)
   const {
     currentStep,
     currentStepData,
@@ -34,9 +34,9 @@ const AlgorithmTracePlayer = () => {
     jumpToEnd,
     showCompletionModal,
     closeCompletionModal,
-  } = useTraceNavigation();
+  } = useNavigation();
 
-  // 3. Prediction Hook (Context)
+  // 3. Prediction (Direct Context)
   const {
     predictionMode,
     showPrediction,
@@ -46,7 +46,7 @@ const AlgorithmTracePlayer = () => {
     handlePredictionSkip,
     resetPredictionStats,
     activatePredictionForStep,
-  } = usePredictionMode();
+  } = usePrediction();
 
   // --- HANDLERS ---
 
@@ -87,7 +87,7 @@ const AlgorithmTracePlayer = () => {
     handlePredictionSkip,
   ]);
 
-  // 5. Keyboard Shortcuts Hook
+  // 4. Keyboard Shortcuts Hook
   useKeyboardShortcuts({
     onNext: nextStep,
     onPrev: prevStep,
@@ -200,7 +200,7 @@ const AlgorithmTracePlayer = () => {
                     : "bg-slate-700 text-slate-300 hover:bg-slate-600"
                 }`}
               >
-                {predictionMode ?  "⏳ Predict" : "⚡ Watch"}
+                {predictionMode ? "⏳ Predict" : "⚡ Watch"}
               </button>
               <ControlBar
                 onPrev={prevStep}
