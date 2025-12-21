@@ -51,11 +51,12 @@ const StatePanel = () => {
   // 3. Template-specific content padding
   // iterative-metrics: NO padding (dashboard fills edge-to-edge, uses container queries)
   // recursive-context: px-6 py-4 (call stack needs breathing room + scrolling)
+  // RSP (StatePanel) always 1/3 of the parent - LSP takes the 2/3 remaining.
   const contentClasses = "flex-1 overflow-hidden";
   return (
     <div
       id="panel-steps"
-      className="flex w-96 select-none flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-800 shadow-2xl"
+      className="flex w-1/3 select-none flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-800 shadow-2xl"
     >
       {/* ================================================================
           UNIFIED HEADER (OUTSIDE #panel-steps-list)

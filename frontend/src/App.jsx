@@ -200,7 +200,7 @@ const AlgorithmTracePlayer = () => {
                     : "bg-slate-700 text-slate-300 hover:bg-slate-600"
                 }`}
               >
-                {predictionMode ? "⏳ Predict" : "⚡ Watch"}
+                {predictionMode ?  "⏳ Predict" : "⚡ Watch"}
               </button>
               <ControlBar
                 onPrev={prevStep}

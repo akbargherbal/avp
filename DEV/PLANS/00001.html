@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interval Coverage - Dashboard Mockup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+      [x-cloak] { display: none !important; }
+      body {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+
+      :root {
+        --color-hero: #a855f7;
+        --color-hero-dim: #7e22ce;
+        --color-goal: #34d399;
+        --color-goal-dim: #059669;
+        --color-logic: #ffffff;
+        --bg-grid: #475569;
+        --bg-primary: #1e293b;
+        --bg-secondary: #334155;
+        --bg-accent: #4f46e5;
+        --bg-overlay: rgba(15, 23, 42, 0.96);
+      }
+
+      /* Dashboard Grid */
+      .dashboard {
+        --h-strip: 40px;
+        --h-action: 28px;
+        width: 100%;
+        height: 100%;
+        background: var(--bg-grid);
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        grid-template-rows: 1fr var(--h-strip) var(--h-action);
+        gap: 1px;
+        container-type: size;
+      }
+
+      .zone { position: relative; display: flex; flex-direction: column; overflow: hidden; }
+      .zone-label {
+        position: absolute; top: 4px; left: 8px;
+        font-size: clamp(9px, 3cqh, 11px);
+        font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+        z-index: 20; color: rgba(255,255,255,0.4);
+      }
+
+      .zone-primary { grid-row: 1 / 3; grid-column: 1; background: var(--bg-primary); color: var(--color-hero); align-items: center; justify-content: center; padding-bottom: var(--h-strip); }
+      .primary-value { font-size: clamp(50px, 30cqh, 80px); font-weight: 900; line-height: 0.8; text-shadow: 0 0 20px rgba(168, 85, 247, 0.2); }
+      
+      .zone-goal { grid-row: 1; grid-column: 2; background: var(--bg-secondary); color: var(--color-goal); align-items: center; justify-content: center; }
+      .goal-value { font-size: clamp(32px, 20cqh, 48px); font-weight: 900; }
+
+      .zone-logic { grid-row: 2; grid-column: 2; background: var(--bg-accent); color: white; display: flex; flex-direction: row; }
+      .logic-label { writing-mode: vertical-rl; transform: rotate(180deg); background: rgba(0,0,0,0.2); padding: 4px; font-size: 10px; font-weight: 900; border-right: 1px solid rgba(255,255,255,0.1); }
+      .logic-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; }
+
+      .zone-action { grid-row: 3; grid-column: 1 / 3; background: #581c87; color: white; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+
+      .zone-boundaries { position: absolute; bottom: 0; left: 0; right: 0; height: var(--h-strip); background: var(--bg-overlay); display: flex; border-top: 1px solid rgba(255,255,255,0.1); }
+      .boundary-cell { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid rgba(255,255,255,0.05); }
+
+      /* LSP Interval Styles */
+      .interval-card {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(71, 85, 105, 0.5);
+        border-radius: 6px;
+        padding: 8px;
+        margin-bottom: 8px;
+        transition: all 0.2s;
+      }
+      .interval-card.active { border-color: #a855f7; background: rgba(168, 85, 247, 0.1); box-shadow: 0 0 15px rgba(168, 85, 247, 0.1); }
+      .interval-card.selected { border-color: #34d399; background: rgba(52, 211, 153, 0.05); }
+      .interval-card.candidate { border-color: #f59e0b; background: rgba(245, 158, 11, 0.05); }
+    </style>
+  </head>
+  <body>
+    <div id="app-root" class="w-full h-screen flex flex-col overflow-hidden text-slate-300">
+      
+      <!-- HEADER -->
+      <header class="bg-slate-800 border-b border-slate-700 px-4 py-2 flex items-center justify-between">
+        <div>
+          <h1 class="text-white font-bold">Interval Coverage</h1>
+          <p class="text-[10px] text-slate-400 uppercase tracking-widest">Greedy Strategy</p>
+        </div>
+        <div class="flex gap-2">
+          <button class="px-4 py-1.5 bg-purple-600 hover:bg-purple-500 rounded text-white text-sm font-bold transition-colors">Next Step</button>
+        </div>
+      </header>
+
+      <main class="flex-1 flex overflow-hidden">
+        <!-- LEFT SIDEBAR: Interval Ledger -->
+        <div class="w-80 bg-slate-800 border-r border-slate-700 flex flex-col">
+          <div class="p-3 border-b border-slate-700 flex justify-between items-center">
+            <span class="text-[10px] font-bold uppercase text-slate-500">Sorted Intervals</span>
+            <span class="text-[10px] font-mono text-slate-500">N=12</span>
+          </div>
+          <div class="flex-1 overflow-y-auto p-3 custom-scrollbar">
+            <!-- Selected -->
+            <div class="interval-card selected opacity-60">
+              <div class="flex justify-between items-start mb-1">
+                <span class="text-[10px] font-bold text-emerald-400">SELECTED</span>
+                <span class="text-[10px] font-mono">[0, 15]</span>
+              </div>
+              <div class="h-1.5 w-full bg-slate-700 rounded-full overflow-hidden">
+                <div class="h-full bg-emerald-500" style="width: 30%"></div>
+              </div>
+            </div>
+
+            <!-- Active Candidate -->
+            <div class="interval-card active">
+              <div class="flex justify-between items-start mb-1">
+                <span class="text-[10px] font-bold text-purple-400">COMPARING</span>
+                <span class="text-[10px] font-mono">[12, 45]</span>
+              </div>
+              <div class="h-1.5 w-full bg-slate-700 rounded-full overflow-hidden">
+                <div class="h-full bg-purple-500" style="margin-left: 24%; width: 66%"></div>
+              </div>
+              <div class="mt-2 text-[9px] text-slate-400 italic">Starts before current end (15)</div>
+            </div>
+
+            <!-- Future -->
+            <div class="interval-card opacity-40">
+              <div class="flex justify-between items-start mb-1">
+                <span class="text-[10px] font-bold text-slate-500">QUEUED</span>
+                <span class="text-[10px] font-mono">[40, 60]</span>
+              </div>
+              <div class="h-1.5 w-full bg-slate-700 rounded-full overflow-hidden">
+                <div class="h-full bg-slate-500" style="margin-left: 80%; width: 40%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CENTER: Visual Canvas -->
+        <div class="flex-1 bg-slate-900 relative flex flex-col items-center justify-center p-10">
+          <div class="absolute top-4 left-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Coverage Map</div>
+          
+          <!-- Target Range Track -->
+          <div class="w-full max-w-3xl">
+            <div class="flex justify-between text-[10px] font-mono text-slate-500 mb-2">
+              <span>START: 0</span>
+              <span>TARGET: 100</span>
+            </div>
+            <div class="relative h-12 bg-slate-800 rounded-lg border border-slate-700 overflow-hidden shadow-inner">
+              <!-- Covered Area -->
+              <div class="absolute inset-y-0 left-0 bg-emerald-500/20 border-r-2 border-emerald-500 w-[15%] flex items-center justify-center">
+                <span class="text-emerald-400 text-[9px] font-bold">COVERED</span>
+              </div>
+              <!-- Potential Reach -->
+              <div class="absolute inset-y-0 left-[15%] bg-purple-500/20 border-r-2 border-purple-500 border-dashed w-[30%] animate-pulse"></div>
+            </div>
+            
+            <!-- Hand-off Visualization -->
+            <div class="mt-12 flex flex-col items-center">
+              <div class="flex items-center gap-8">
+                <div class="text-center">
+                  <div class="text-[10px] text-slate-500 font-bold mb-2">CURRENT END</div>
+                  <div class="w-16 h-16 rounded-xl bg-slate-800 border-2 border-emerald-500 flex items-center justify-center text-xl font-black text-emerald-400">15</div>
+                </div>
+                <div class="text-3xl font-black text-slate-700">→</div>
+                <div class="text-center">
+                  <div class="text-[10px] text-slate-500 font-bold mb-2">NEW MAX REACH</div>
+                  <div class="w-16 h-16 rounded-xl bg-slate-800 border-2 border-purple-500 flex items-center justify-center text-xl font-black text-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.3)]">45</div>
+                </div>
+              </div>
+              <div class="mt-6 px-4 py-2 bg-amber-900/20 border border-amber-500/30 rounded text-amber-200 text-xs font-medium">
+                Interval <span class="font-mono">[12, 45]</span> is the best candidate found so far.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL: Algorithm State (RSP) -->
+        <div class="w-96 bg-slate-800 flex flex-col">
+          <div class="p-5 flex justify-between items-center">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Algorithm State</h2>
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
+          </div>
+
+          <div class="flex-[2] overflow-hidden">
+            <div class="dashboard">
+              <!-- Zone 1: Primary -->
+              <div class="zone zone-primary">
+                <div class="zone-label" style="color: var(--color-hero-dim)">Current Reach</div>
+                <div class="primary-value">45</div>
+                
+                <div class="zone-boundaries">
+                  <div class="boundary-cell">
+                    <div class="boundary-label text-[8px] uppercase text-slate-500">Index</div>
+                    <div class="boundary-value text-sm font-bold">4 / 12</div>
+                  </div>
+                  <div class="boundary-cell">
+                    <div class="boundary-label text-[8px] uppercase text-slate-500">Best End</div>
+                    <div class="boundary-value text-sm font-bold text-amber-400">45</div>
+                  </div>
+                  <div class="boundary-cell">
+                    <div class="boundary-label text-[8px] uppercase text-slate-500">Status</div>
+                    <div class="boundary-value text-[10px] font-bold text-blue-400">SCANNING</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Zone 2: Goal -->
+              <div class="zone zone-goal">
+                <div class="zone-label" style="color: var(--color-goal-dim)">Intervals</div>
+                <div class="goal-value">2</div>
+              </div>
+
+              <!-- Zone 3: Logic -->
+              <div class="zone zone-logic">
+                <div class="logic-label">LOGIC</div>
+                <div class="logic-content">
+                  <div class="text-sm">45 > 15</div>
+                  <div class="text-[9px] opacity-60 font-normal">New Max Found</div>
+                </div>
+              </div>
+
+              <!-- Zone 4: Action -->
+              <div class="zone zone-action">
+                Update maxReach to 45
+              </div>
+            </div>
+          </div>
+
+          <!-- Step Description -->
+          <div class="flex-1 border-t border-slate-700 p-4 bg-slate-900/50">
+            <p class="text-sm leading-relaxed">
+              <span class="inline-block px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/50 text-[10px] font-bold mr-2">GREEDY_CHOICE</span>
+              We are examining intervals that start before or at the current coverage end (<span class="text-emerald-400 font-bold">15</span>). 
+              The interval <span class="text-white font-mono">[12, 45]</span> extends our reach the furthest.
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

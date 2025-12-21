@@ -35,6 +35,9 @@ const MergeSortState = ({ step }) => {
   let logicSub = "Initializing...";
   let logicColor = "text-white"; // Default white
 
+
+  const Z3_LONG_TEXT = 5
+
   let actionText = "PREPARE SORT";
   let actionColor = "text-slate-300";
 
@@ -130,7 +133,7 @@ const MergeSortState = ({ step }) => {
 
     case "MERGE_REMAINDER":
       primaryLabel = "Remaining";
-      primaryValue = `${data.values?.length ?? 0} Items`;
+      primaryValue = `${data.values?.length ?? 0} Item`;
       primaryMeta = `From ${data.source}`;
       logicText = "FLUSH";
       logicSub = "One side empty";
@@ -212,9 +215,15 @@ const MergeSortState = ({ step }) => {
       <div className="zone zone-logic">
         <div className="zone-label">LOGIC</div>
         <div className="logic-content">
-          <div className={logicColor}>{logicText}</div>
+          <div className={`${logicColor} ${
+            // Reduce font size for long text
+            typeof logicText === "string" && logicText.length > Z3_LONG_TEXT
+              ? "zone3-long-text"
+              : ""
+            } 
+          `}>{logicText}</div>
           <div
-            className={`mt-1 text-[0.8em] font-normal opacity-70 ${logicColor}`}
+            className={`mt-1 text-[12px] font-normal ${logicColor}`}
           >
             {logicSub}
           </div>

@@ -16,7 +16,7 @@ export const PredictionProvider = ({ children }) => {
   const { trace } = useTrace();
   const { setCurrentStep } = useNavigation();
 
-  const [predictionMode, setPredictionMode] = useState(true);
+  const [predictionMode, setPredictionMode] = useState(false);
   const [showPrediction, setShowPrediction] = useState(false);
   const [activePrediction, setActivePrediction] = useState(null);
   const [predictionStats, setPredictionStats] = useState({

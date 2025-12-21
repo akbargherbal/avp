@@ -6,7 +6,7 @@
  * Allows algorithms to declare their visualization needs via metadata,
  * and the frontend dynamically selects the correct component.
  *
- * Updated (Dec 20, 2025): Added merge-sort visualization type for LSP tree + array comparison
+ * Updated (Dec 21, 2025): Added interval-coverage visualization type
  *
  * Usage:
  *   const Component = getVisualizationComponent(trace.metadata.visualization_type);
@@ -15,6 +15,7 @@
 import TimelineView from "../components/visualizations/TimelineView";
 import ArrayView from "../components/visualizations/ArrayView";
 import MergeSortVisualization from "../components/visualizations/MergeSortVisualization";
+import IntervalCoverageVisualization from "../components/visualizations/IntervalCoverageVisualization";
 
 /**
  * Registry mapping visualization types to components.
@@ -23,13 +24,19 @@ import MergeSortVisualization from "../components/visualizations/MergeSortVisual
  * Value = React component
  */
 const VISUALIZATION_REGISTRY = {
-  // Interval Coverage algorithm
+  // Interval Coverage algorithm - LSP tree + timeline composite
+  // Updated Dec 21, 2025: Changed from "timeline" to "interval-coverage"
+  // to use new composite visualization (RecursiveCallStackView + TimelineView)
+  "interval-coverage": IntervalCoverageVisualization,
+
+  // Legacy timeline view (kept for backward compatibility)
+  // Used by older interval coverage traces before migration
   timeline: TimelineView,
 
   // Binary Search and other array algorithms
   array: ArrayView,
 
-  // Merge Sort - LSP tree + array comparison (Added Dec 20, 2025)
+  // Merge Sort - LSP tree + array comparison
   // Note: Changed from "timeline" to "merge-sort" for clarity
   // Merge sort needs custom 2-column layout (LSP tree + main area)
   "merge-sort": MergeSortVisualization,

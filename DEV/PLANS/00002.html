@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interval Editor - UI Mockup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #0f172a; color: #94a3b8; font-family: 'Inter', sans-serif; }
+        
+        /* Timeline Track Styling */
+        .track {
+            height: 40px;
+            background: rgba(30, 41, 59, 0.5);
+            border-bottom: 1px solid #1e293b;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .track-label {
+            width: 80px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding-left: 12px;
+            color: #475569;
+            border-right: 1px solid #1e293b;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        /* The "Clips" (Intervals) */
+        .clip {
+            position: absolute;
+            height: 28px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .clip-selected { background: #10b981; color: #064e3b; border: 1px solid #34d399; }
+        .clip-audition { background: #8b5cf6; color: #ede9fe; border: 1px solid #a78bfa; box-shadow: 0 0 15px rgba(139, 92, 246, 0.3); }
+        .clip-ghost { background: rgba(71, 85, 105, 0.2); border: 1px dashed #475569; color: #64748b; }
+
+        /* Playhead */
+        .playhead {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #f43f5e;
+            z-index: 50;
+        }
+        .playhead::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 8px solid #f43f5e;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- TOP NAV -->
+    <nav class="h-12 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4">
+        <div class="flex items-center gap-4">
+            <div class="text-white font-black tracking-tighter text-xl italic">EDIT_MODE</div>
+            <div class="h-4 w-px bg-slate-700"></div>
+            <div class="text-[11px] font-mono">Project: <span class="text-slate-300">Interval_Coverage_v1</span></div>
+        </div>
+        <div class="flex gap-2">
+            <button class="bg-slate-800 hover:bg-slate-700 px-3 py-1 rounded text-xs font-bold transition-all">PREV</button>
+            <button class="bg-indigo-600 hover:bg-indigo-500 px-4 py-1 rounded text-xs font-bold text-white transition-all shadow-lg shadow-indigo-500/20">STEP FORWARD</button>
+        </div>
+    </nav>
+
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- LEFT: PROJECT BIN (Source Intervals) -->
+        <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col">
+            <div class="p-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 border-b border-slate-800">Project Bin</div>
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
+                <!-- List Item -->
+                <div class="p-2 bg-slate-800/40 rounded border border-slate-800 flex items-center justify-between group hover:border-slate-600 transition-colors">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-mono text-slate-300">[00, 15]</span>
+                        <span class="text-[9px] text-slate-500">Interval_01</span>
+                    </div>
+                    <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                </div>
+                <!-- Active Item -->
+                <div class="p-2 bg-indigo-500/10 rounded border border-indigo-500/50 flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-mono text-indigo-300">[12, 45]</span>
+                        <span class="text-[9px] text-indigo-400">Interval_02</span>
+                    </div>
+                    <div class="text-[9px] font-bold text-indigo-500">AUDITIONING</div>
+                </div>
+                <!-- Disabled Item -->
+                <div class="p-2 opacity-30 flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-mono">[40, 60]</span>
+                        <span class="text-[9px]">Interval_03</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER: THE TIMELINE -->
+        <main class="flex-1 bg-[#0b0f1a] flex flex-col">
+            <!-- Ruler -->
+            <div class="h-8 border-b border-slate-800 flex items-end pb-1 px-2 gap-20 text-[9px] font-mono text-slate-600">
+                <span>00:00</span><span>00:20</span><span>00:40</span><span>01:00</span><span>01:20</span><span>01:40</span>
+            </div>
+
+            <div class="flex-1 relative overflow-hidden">
+                <!-- Playhead (Current End) -->
+                <div class="playhead" style="left: 150px;"></div>
+
+                <!-- Track 1: Target -->
+                <div class="track">
+                    <div class="track-label">Target</div>
+                    <div class="absolute left-[80px] right-10 h-2 bg-slate-800 rounded-full">
+                        <div class="h-full bg-slate-700 w-full rounded-full opacity-30"></div>
+                    </div>
+                </div>
+
+                <!-- Track 2: Sequence (Selected) -->
+                <div class="track">
+                    <div class="track-label">Sequence</div>
+                    <div class="clip clip-selected" style="left: 80px; width: 70px;">[0, 15]</div>
+                </div>
+
+                <!-- Track 3: Audition (Candidates) -->
+                <div class="track">
+                    <div class="track-label">Audition</div>
+                    <div class="clip clip-audition" style="left: 135px; width: 150px;">[12, 45]</div>
+                    <div class="clip clip-ghost" style="left: 180px; width: 80px;">[20, 35]</div>
+                </div>
+            </div>
+
+            <!-- Bottom Status Bar -->
+            <div class="h-8 bg-slate-900 border-t border-slate-800 flex items-center px-4 justify-between text-[10px]">
+                <div class="flex gap-4">
+                    <span><span class="text-slate-500">SELECTED:</span> 1</span>
+                    <span><span class="text-slate-500">REACH:</span> 45.00</span>
+                </div>
+                <div class="text-indigo-400 font-bold animate-pulse">SCANNING FOR OPTIMAL EXTENSION...</div>
+            </div>
+        </main>
+
+        <!-- RIGHT: INSPECTOR (The Logic) -->
+        <aside class="w-72 bg-slate-900 border-l border-slate-800 flex flex-col">
+            <div class="p-4 border-b border-slate-800">
+                <div class="text-[10px] font-bold text-slate-500 uppercase mb-4">Clip Inspector</div>
+                
+                <!-- Comparison Card -->
+                <div class="bg-slate-950 rounded-lg p-4 border border-slate-800">
+                    <div class="text-[9px] font-bold text-indigo-400 mb-2 uppercase">Logic Check</div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-center">
+                            <div class="text-[8px] text-slate-500">START</div>
+                            <div class="text-lg font-black text-white">12</div>
+                        </div>
+                        <div class="text-slate-700 font-bold">≤</div>
+                        <div class="text-center">
+                            <div class="text-[8px] text-slate-500">CURR_END</div>
+                            <div class="text-lg font-black text-emerald-400">15</div>
+                        </div>
+                    </div>
+                    <div class="py-1 px-2 bg-emerald-500/10 border border-emerald-500/20 rounded text-[10px] text-emerald-400 text-center font-bold">
+                        VALID CANDIDATE
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 flex-1">
+                <div class="text-[10px] font-bold text-slate-500 uppercase mb-2">Algorithm Log</div>
+                <div class="text-[11px] leading-relaxed text-slate-400 space-y-2">
+                    <p><span class="text-indigo-400">●</span> Evaluating <span class="text-white">Interval_02</span>.</p>
+                    <p><span class="text-indigo-400">●</span> Start point (12) is within current coverage (15).</p>
+                    <p><span class="text-indigo-400">●</span> Potential reach (45) exceeds current best (15).</p>
+                    <p><span class="text-emerald-400">●</span> Updating <span class="font-mono text-white">max_reach</span> to 45.</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+</body>
+</html>

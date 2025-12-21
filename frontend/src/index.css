@@ -82,7 +82,7 @@ code {
 
   background: var(--bg-grid);
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 3fr 2fr;
   grid-template-rows: 1fr var(--h-strip) var(--h-action);
   gap: 1px;
   container-type: size;
@@ -130,6 +130,7 @@ code {
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
   padding-bottom: var(--h-strip);
 }
 .zone-primary .zone-label, .zone-primary .zone-meta { color: var(--color-hero-dim); }
@@ -141,6 +142,10 @@ code {
   letter-spacing: -0.03em;
   z-index: 5;
   text-shadow: 0 0 20px rgba(251, 191, 36, 0.15);
+  align-items: center;
+  justify-content: center;
+  font-family: Tahoma, Trebuchet MS, Helvetica , Verdana, Arial, sans-serif; 
+
 }
 
 /* --- ZONE 5: OVERLAY --- */
@@ -287,5 +292,15 @@ code {
 
 
 .primary-value.long-text {
-  font-size: clamp(40px, 25cqh, 70px);
+  font-size: clamp(40px, 22cqh, 50px);
+  letter-spacing: 2px;
+  line-height: 1.02;
+
 }
+
+.zone3-long-text {
+  font-size: 14px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
