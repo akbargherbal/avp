@@ -174,9 +174,7 @@ class TestTwoPointerNarrativeGeneration:
         narrative = tracer.generate_narrative(result)
 
         # Check for the first comparison: 1 vs 1
-        # FIX: Corrected assertion to match actual markdown output
-        assert "- **Result:** `1 == 1` → **Duplicate**" in narrative
+        assert "**Result:** `1 == 1`. This is a **duplicate**" in narrative
 
         # Check for the second comparison: 2 vs 1
-        # FIX: Corrected assertion to match actual markdown output
-        assert "- **Result:** `2 != 1` → **Unique**" in narrative
+        assert "**Result:** `2 != 1`. This is a **new unique element**" in narrative

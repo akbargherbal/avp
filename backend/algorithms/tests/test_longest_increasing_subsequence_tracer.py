@@ -185,7 +185,7 @@ class TestLISTraceStructure:
 
     def test_binary_search_steps(self):
         """BINARY_SEARCH steps should be present when searching."""
-        array = [5, 1, 2, 3, 4]  # 5 extends, then 1-4 require searches
+        array = [1, 5, 2]  # 1, 5 extend -> tails=[1,5]. 2 replaces 5 -> binary search runs
         tracer = LongestIncreasingSubsequenceTracer()
         result = tracer.execute({'array': array})
         
