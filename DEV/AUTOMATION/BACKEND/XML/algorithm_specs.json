@@ -1,0 +1,427 @@
+[
+  {
+    "id": "quick-sort",
+    "tier": 0,
+    "metadata": {
+      "display_name": "Quick Sort",
+      "description": "Divide and conquer algorithm using Lomuto partition scheme."
+    },
+    "contracts": {
+      "input": {
+        "schema": { "array": "List[int]" },
+        "constraints": { "min_size": 2, "max_size": 15, "value_range": [1, 99] }
+      },
+      "visualization": {
+        "type": "array",
+        "config": { "show_indices": true, "highlight_pivot": true }
+      }
+    },
+    "behavior": {
+      "step_types": ["SELECT_PIVOT", "COMPARE", "SWAP", "PARTITION_DONE", "RECURSE"],
+      "dashboard_metrics": {
+        "zone_1_primary": "Pivot Value",
+        "zone_2_goal": "Sorted Partition",
+        "zone_3_logic": "Comparison (Arr[i] < Pivot)"
+      },
+      "edge_cases": [
+        { "name": "Already Sorted", "input": { "array": [1, 2, 3, 4, 5] } },
+        { "name": "Reverse Sorted", "input": { "array": [5, 4, 3, 2, 1] } },
+        { "name": "Duplicates", "input": { "array": [3, 1, 3, 2, 3] } }
+      ]
+    }
+  },
+  {
+    "id": "kadanes-algorithm",
+    "tier": 0,
+    "metadata": {
+      "display_name": "Kadane's Algorithm",
+      "description": "Finds the contiguous subarray with the largest sum."
+    },
+    "contracts": {
+      "input": {
+        "schema": { "array": "List[int]" },
+        "constraints": { "min_size": 1, "max_size": 15, "value_range": [-20, 20] }
+      },
+      "visualization": {
+        "type": "array",
+        "config": { "show_indices": true, "highlight_subarray": true }
+      }
+    },
+    "behavior": {
+      "step_types": ["ITERATE", "ADD_TO_CURRENT", "RESET_CURRENT", "UPDATE_MAX"],
+      "dashboard_metrics": {
+        "zone_1_primary": "Current Sum",
+        "zone_2_goal": "Max Sum Found",
+        "zone_3_logic": "max(num, current + num)"
+      },
+      "edge_cases": [
+        { "name": "All Negative", "input": { "array": [-2, -5, -1, -8] } },
+        { "name": "Mixed Values", "input": { "array": [-2, 1, -3, 4, -1, 2, 1, -5, 4] } }
+      ]
+    }
+  },
+  {
+    "id": "insertion-sort",
+    "tier": 0,
+    "metadata": {
+      "display_name": "Insertion Sort",
+      "description": "Builds the sorted array one item at a time."
+    },
+    "contracts": {
+      "input": {
+        "schema": { "array": "List[int]" },
+        "constraints": { "min_size": 2, "max_size": 15 }
+      },
+      "visualization": {
+        "type": "array",
+        "config": { "show_indices": true }
+      }
+    },
+    "behavior": {
+      "step_types": ["SELECT_KEY", "COMPARE", "SHIFT", "INSERT"],
+      "dashboard_metrics": {
+        "zone_1_primary": "Key Value",
+        "zone_2_goal": "Sorted Subarray",
+        "zone_3_logic": "Key < Prev Value"
+      },
+      "edge_cases": [
+        { "name": "Reverse Sorted", "input": { "array": [5, 4, 3, 2, 1] } }
+      ]
+    }
+  },
+  {
+    "id": "merge-intervals",
+    "tier": 1,
+    "metadata": {
+      "display_name": "Merge Intervals",
+      "description": "Merges all overlapping intervals."
+    },
+    "contracts": {
+      "input": {
+        "schema": { "intervals": "List[List[int, int]]" },
+        "constraints": { "max_intervals": 10, "value_range": [0, 24] }
+      },
+      "visualization": {
+        "type": "timeline",
+        "config": { "show_merged": true }
+      }
+    },
+    "behavior": {
+      "step_types": ["SORT_INTERVALS", "COMPARE_OVERLAP", "MERGE", "ADD_NEW"],
+      "dashboard_metrics": {
+        "zone_1_primary": "Current Interval",
+        "zone_2_goal": "Merged List",
+        "zone_3_logic": "Start <= Last End"
+      },
+      "edge_cases": [
+        { "name": "No Overlap", "input": { "intervals": [[1,3], [5,7], [9,10]] } },
+        { "name": "Full Enclosure", "input": { "intervals": [[1,10], [2,5]] } }
+      ]
+    }
+  },
+  {
+    "id": "meeting-rooms",
+    "tier": 1,
+    "metadata": {
+      "display_name": "Meeting Rooms II",
+      "description": "Find minimum conference rooms required."
+    },
+    "contracts": {
+      "input": {
+        "schema": { "intervals": "List[List[int, int]]" },
+        "constraints": { "max_intervals": 10 }
+      },
+      "visualization": {
+        "type": "timeline",
+        "config": { "group_by_room": true }
+      }
+    },
+    "behavior": {
+      "step_types": ["SORT_START", "CHECK_AVAILABILITY", "ALLOCATE_ROOM", "NEW_ROOM"],
+      "dashboard_metrics": {
+        "zone_1_primary": "Current Meeting",
+        "zone_2_goal": "Rooms Used",
+        "zone_3_logic": "Start >= Earliest End"
+      },
+      "edge_cases": [
+        { "name": "Sequential Meetings", "input": { "intervals": [[0,5], [5,10], [10,15]] } }
+      ]
+    }
+  },
+  {
+    "id": "container-with-most-water",
+    "tier": 1,
+    "metadata": {
+      "display_name": "Container With Most Water",
+      "description": "Find two lines that together with the x-axis form a container."
+    },
+    "contracts": {
+      "input": {
+        "schema": { "heights": "List[int]" },
+        "constraints": { "min_size": 2, "max_size": 15 }
+      },
+      "visualization": {
+        "type": "array",
+        "config": { "show_indices": true, "highlight_area": true }
+      }
+    },
+    "behavior": {
+      "step_types": ["CALCULATE_AREA", "UPDATE_MAX", "MOVE_POINTER"],
+      "dashboard_metrics": {
+        "zone_1_primary": "Current Area",
+        "zone_2_goal": "Max Area",
+        "zone_3_logic": "min(H[L], H[R]) * (R-L)"
+      },
+      "edge_cases": [
+        { "name": "Equal Heights", "input": { "heights": [5, 5, 5, 5] } }
+      ]
+    }
+  },
+  {
+    "id": "dutch-national-flag",
+    "tier": 1,
+    "metadata": {
+      "display_name": "Sort Colors (DNF)",
+      "description": "Sort array of 0s, 1s, and 2s in one pass."
+    },
+    "contracts": {
+      "input": {
+        "schema": { "array": "List[int]" },
+        "constraints": { "allowed_values": [0, 1, 2] }
+      },
+      "visualization": {
+        "type": "array",
+        "config": { "color_map": { "0": "red", "1": "white", "2": "blue" } }
+      }
+    },
+    "behavior": {
+      "step_types": ["CHECK_VALUE", "SWAP_LOW", "SWAP_HIGH", "ADVANCE"],
+      "dashboard_metrics": {
+        "zone_1_primary": "Current Value",
+        "zone_2_goal": "Sorted Regions",
+        "zone_3_logic": "Case 0/1/2"
+      },
+      "edge_cases": [
+        { "name": "All Same Color", "input": { "array": [0, 0, 0] } }
+      ]
+    }
+  },
+  {
+    "id": "boyer-moore-voting",
+    "tier": 1,
+    "metadata": {
+      "display_name": "Boyer-Moore Voting",
+      "description": "Find majority element (> n/2) in linear time."
+    },
+    "contracts": {
+      "input": {
+        "schema": { "array": "List[int]" },
+        "constraints": { "min_size": 1 }
+      },
+      "visualization": {
+        "type": "array",
+        "config": { "show_indices": true }
+      }
+    },
+    "behavior": {
+      "step_types": ["CHECK_CANDIDATE", "UPDATE_COUNT", "CHANGE_CANDIDATE"],
+      "dashboard_metrics": {
+        "zone_1_primary": "Candidate",
+        "zone_2_goal": "Count",
+        "zone_3_logic": "Count == 0 ? New Candidate"
+      },
+      "edge_cases": [
+        { "name": "No Majority", "input": { "array": [1, 2, 3] } }
+      ]
+    }
+  },
+  {
+    "id": "bubble-sort",
+    "tier": 2,
+    "metadata": {
+      "display_name": "Bubble Sort",
+      "description": "Repeatedly steps through the list, compares adjacent elements and swaps them."
+    },
+    "contracts": {
+      "input": {
+        "schema": { "array": "List[int]" },
+        "constraints": { "max_size": 10 }
+      },
+      "visualization": {
+        "type": "array",
+        "config": { "show_indices": true }
+      }
+    },
+    "behavior": {
+      "step_types": ["COMPARE", "SWAP", "NO_SWAP", "PASS_COMPLETE"],
+      "dashboard_metrics": {
+        "zone_1_primary": "Current Pair",
+        "zone_2_goal": "Sorted Tail",
+        "zone_3_logic": "Left > Right"
+      },
+      "edge_cases": [
+        { "name": "Already Sorted", "input": { "array": [1, 2, 3] } }
+      ]
+    }
+  },
+  {
+    "id": "longest-increasing-subsequence",
+    "tier": 2,
+    "metadata": {
+      "display_name": "Longest Increasing Subsequence",
+      "description": "Find length of longest subsequence that is strictly increasing."
+    },
+    "contracts": {
+      "input": {
+        "schema": { "array": "List[int]" },
+        "constraints": { "max_size": 15 }
+      },
+      "visualization": {
+        "type": "array",
+        "config": { "show_indices": true, "show_dp_overlay": true }
+      }
+    },
+    "behavior": {
+      "step_types": ["CHECK_ELEMENT", "BINARY_SEARCH_REPLACE", "EXTEND_TAIL"],
+      "dashboard_metrics": {
+        "zone_1_primary": "Current Num",
+        "zone_2_goal": "Tails Array",
+        "zone_3_logic": "Num > Tail.Last"
+      },
+      "edge_cases": [
+        { "name": "Decreasing", "input": { "array": [5, 4, 3, 2, 1] } }
+      ]
+    }
+  },
+  {
+    "id": "depth-first-search",
+    "tier": 3,
+    "metadata": {
+      "display_name": "Depth-First Search",
+      "description": "Traverse graph by exploring as far as possible along each branch."
+    },
+    "contracts": {
+      "input": {
+        "schema": {
+          "nodes": "List[str]",
+          "edges": "List[Tuple[str, str]]",
+          "start_node": "str"
+        },
+        "constraints": { "max_nodes": 10 }
+      },
+      "visualization": {
+        "type": "graph",
+        "config": { "directed": false, "show_stack": true }
+      }
+    },
+    "behavior": {
+      "step_types": ["VISIT_NODE", "PUSH_STACK", "POP_STACK", "BACKTRACK"],
+      "dashboard_metrics": {
+        "zone_1_primary": "Current Node",
+        "zone_2_goal": "Visited Set",
+        "zone_3_logic": "Has Unvisited Neighbors?"
+      },
+      "edge_cases": [
+        { "name": "Disconnected", "input": { "nodes": ["A","B"], "edges": [], "start_node": "A" } }
+      ]
+    }
+  },
+  {
+    "id": "breadth-first-search",
+    "tier": 3,
+    "metadata": {
+      "display_name": "Breadth-First Search",
+      "description": "Traverse graph level by level."
+    },
+    "contracts": {
+      "input": {
+        "schema": {
+          "nodes": "List[str]",
+          "edges": "List[Tuple[str, str]]",
+          "start_node": "str"
+        },
+        "constraints": { "max_nodes": 10 }
+      },
+      "visualization": {
+        "type": "graph",
+        "config": { "directed": false, "show_queue": true }
+      }
+    },
+    "behavior": {
+      "step_types": ["VISIT_NODE", "ENQUEUE_NEIGHBORS", "DEQUEUE"],
+      "dashboard_metrics": {
+        "zone_1_primary": "Current Node",
+        "zone_2_goal": "Queue",
+        "zone_3_logic": "Level Traversal"
+      },
+      "edge_cases": [
+        { "name": "Single Node", "input": { "nodes": ["A"], "edges": [], "start_node": "A" } }
+      ]
+    }
+  },
+  {
+    "id": "topological-sort",
+    "tier": 3,
+    "metadata": {
+      "display_name": "Topological Sort (Kahn's)",
+      "description": "Linear ordering of vertices in a DAG."
+    },
+    "contracts": {
+      "input": {
+        "schema": {
+          "nodes": "List[str]",
+          "edges": "List[Tuple[str, str]]"
+        },
+        "constraints": { "must_be_dag": true }
+      },
+      "visualization": {
+        "type": "graph",
+        "config": { "directed": true, "show_indegrees": true }
+      }
+    },
+    "behavior": {
+      "step_types": ["CALC_INDEGREES", "ENQUEUE_ZERO_DEGREE", "PROCESS_NODE", "DECREMENT_NEIGHBORS"],
+      "dashboard_metrics": {
+        "zone_1_primary": "Processing Node",
+        "zone_2_goal": "Sorted List",
+        "zone_3_logic": "Indegree == 0"
+      },
+      "edge_cases": [
+        { "name": "Cycle Detected", "input": { "nodes": ["A","B"], "edges": [["A","B"], ["B","A"]] } }
+      ]
+    }
+  },
+  {
+    "id": "dijkstras-algorithm",
+    "tier": 3,
+    "metadata": {
+      "display_name": "Dijkstra's Algorithm",
+      "description": "Find shortest paths from source to all other nodes."
+    },
+    "contracts": {
+      "input": {
+        "schema": {
+          "nodes": "List[str]",
+          "edges": "List[Tuple[str, str, int]]",
+          "start_node": "str"
+        },
+        "constraints": { "non_negative_weights": true }
+      },
+      "visualization": {
+        "type": "graph",
+        "config": { "directed": false, "weighted": true, "show_priority_queue": true }
+      }
+    },
+    "behavior": {
+      "step_types": ["SELECT_MIN_DIST", "CHECK_NEIGHBOR", "RELAX_EDGE", "UPDATE_DIST"],
+      "dashboard_metrics": {
+        "zone_1_primary": "Current Node",
+        "zone_2_goal": "Distances Map",
+        "zone_3_logic": "Dist[U] + W < Dist[V]"
+      },
+      "edge_cases": [
+        { "name": "Unreachable Node", "input": { "nodes": ["A","B"], "edges": [], "start_node": "A" } }
+      ]
+    }
+  }
+]

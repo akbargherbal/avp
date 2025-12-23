@@ -1,44 +1,7 @@
-# Backend Checklist: Algorithm Tracer Compliance v2.3
+# Backend Checklist: Algorithm Tracer Compliance v2.2
 
 **Authority:** WORKFLOW.md v2.4 - Backend Requirements  
 **Purpose:** Verify new algorithm tracers comply with platform requirements
-
----
-
-## Changelog
-
-### v2.3 (December 23, 2025) - Graph Algorithm Support
-
-**Context:** Pre-Tier 3 Graph Algorithm Sprint Preparation
-
-**Critical Updates:**
-
-- **Graph Algorithms (CONSTRAINED):** Removed "Future" designation, added comprehensive graph visualization requirements
-
-  - Added weighted edge support (`edge.weight`)
-  - Added traversal structure fields (`stack`, `queue`, `priority_queue`)
-  - Added algorithm-specific state maps (`distance_map`, `previous_map`, `indegree_map`, `visited_set`)
-  - Added graph configuration metadata (`directed`, `weighted`)
-
-- **Narrative Generation:** Added "Graph Algorithm Narrative Requirements (Tier 3+)" subsection
-  - Graph structure representation patterns (markdown lists, not ASCII art)
-  - Multi-variable state table requirements
-  - Traversal structure visibility rules
-  - Multi-step result construction tracking
-  - Conditional logic decision tree format
-  - Edge operation calculation display
-  - Adjacency information overhead minimization
-
-**Supporting Updates:**
-
-- **Frontend Visualization Guidance:** Added graph-specific hint examples (DFS example)
-- **Narrative Anti-Patterns:** Added graph-specific anti-patterns subsection
-- **Testing Checklist:** Added graph algorithm narrative tests
-- **FREE CHOICES:** Added graph algorithm customization options
-
-**Impact:** Enables compliant implementation of DFS, BFS, Topological Sort, and Dijkstra's algorithm (Tier 3 roadmap)
-
-**Lines Added:** ~140 lines of guidance and requirements
 
 ---
 
@@ -116,72 +79,6 @@
   - [ ] Can I mentally visualize this without code/JSON?
   - [ ] Are all arithmetic claims correct? (FAA will verify)
 
-### Graph Algorithm Narrative Requirements (Tier 3+)
-
-For algorithms with `visualization_type: "graph"`:
-
-- [ ] **Graph structure representation follows approved pattern**
-
-  - Use markdown lists for adjacency (not ASCII art)
-  - Show topology at Step 0 in scannable format
-  - Reference topology implicitly in subsequent steps ("Node A's 2 neighbors")
-  - Example topology format:
-    ```markdown
-    **Graph Structure (Adjacency List):**
-
-    - A → [B, C]
-    - B → [D]
-    - C → [D, E]
-    ```
-
-- [ ] **Multi-variable state shown in tables**
-
-  - Node states, distances, previous pointers presented in markdown tables
-  - Tables updated incrementally (show "Before" and "After" when helpful)
-  - FAA can verify calculations row-by-row
-  - Example:
-    ```markdown
-    | Node | Distance | Previous | State    |
-    | ---- | -------- | -------- | -------- |
-    | A    | 0        | -        | visited  |
-    | B    | 5        | A        | visiting |
-    ```
-
-- [ ] **Traversal structures visible at each step**
-
-  - Stack/Queue/Priority Queue contents shown explicitly
-  - Format: `Stack: [A, B, C]` or `Queue: [(3, C), (5, B)]`
-  - Changes to these structures explained ("Push B → Stack becomes [A, B]")
-  - Never say "process next node" without showing what's being processed from where
-
-- [ ] **Multi-step result construction tracked**
-
-  - Path building shown incrementally (not just final reconstruction)
-  - Add "tracking annotations" when setting previous pointers
-  - Example: "We set previous[D]=C to reconstruct shortest path later"
-  - Final path reconstruction references earlier steps
-  - No "phantom paths" that appear only in results
-
-- [ ] **Conditional logic uses decision tree format**
-
-  - If/else branches shown explicitly
-  - Example: "IF indegree==0 THEN enqueue ELSE skip"
-  - Failure cases explained (cycle detection, unreachable nodes)
-  - Show what condition was evaluated and what outcome occurred
-
-- [ ] **Edge operations show complete calculation**
-
-  - For weighted graphs: `dist[A] + weight(A→B) = 0 + 5 = 5`
-  - For relaxation: Show old distance, new distance, comparison
-  - For edge selection: Explain why this edge was chosen
-  - Never say "update distance" without showing the arithmetic
-
-- [ ] **Adjacency information overhead minimized**
-  - Full adjacency list shown once at Step 0
-  - Subsequent steps reference specific neighbors only
-  - Example: "Node A has 3 neighbors: [B, C, D]" instead of re-listing entire graph
-  - Balance: Show enough context but avoid repetitive structure dumps
-
 ### Narrative Completeness - Result Traceability
 
 - [ ] **Every output field has narrative trail**
@@ -240,65 +137,6 @@ For algorithms with `visualization_type: "graph"`:
 [Custom insights about this algorithm's visualization needs]
 ```
 
-**Example - Array Algorithm (Binary Search):**
-
-```markdown
-## 🎨 Frontend Visualization Hints
-
-### Primary Metrics to Emphasize
-
-- Current search range (left/right pointers)
-- Mid-point comparison value
-- Number of elements eliminated per step
-
-### Visualization Priorities
-
-- Highlight the element being compared (mid position)
-- Fade out eliminated ranges
-- Animate pointer movements to show search space reduction
-
-### Key JSON Paths
-
-- Current range: `step.data.visualization.pointers.left/right`
-- Comparison value: `step.data.visualization.array[mid].value`
-- Element states: `step.data.visualization.array[*].state`
-
-### Algorithm-Specific Guidance
-
-Binary search is about visualizing the "shrinking search space" - emphasize how the range narrows with each decision. The moment of comparison (target vs mid) is the critical decision point to highlight.
-```
-
-**Example - Graph Algorithm (DFS):**
-
-```markdown
-## 🎨 Frontend Visualization Hints
-
-### Primary Metrics to Emphasize
-
-- Current node being visited
-- Stack contents (showing backtracking path)
-- Visited vs unvisited nodes count
-
-### Visualization Priorities
-
-1. **Topology context** - Use force-directed or hierarchical layout
-2. **Traversal order** - Number nodes as visited (1, 2, 3...)
-3. **Active structure** - Show stack as vertical sidebar with LIFO animations
-4. **State transitions** - Node color changes (unvisited→visiting→visited)
-5. **Backtracking visualization** - Highlight when popping from stack
-
-### Key JSON Paths
-
-- Node states: `step.data.visualization.graph.nodes[*].state`
-- Stack contents: `step.data.visualization.stack`
-- Current node: `step.data.current_node` or infer from stack top
-- Visited set: `step.data.visualization.visited_set`
-
-### Algorithm-Specific Guidance
-
-DFS is about exploring "as deep as possible" before backtracking. Emphasize the stack's role in remembering where to return. The moment of backtracking (stack pop with no unvisited neighbors) is crucial to highlight. Consider animating the "dive deep" vs "climb back up" phases distinctly.
-```
-
 ---
 
 ## CONSTRAINED REQUIREMENTS (Follow Contract)
@@ -326,9 +164,7 @@ DFS is about exploring "as deep as possible" before backtracking. Emphasize the 
 - [ ] Each frame has **`is_active`** (bool) - True for current call
 - [ ] Each frame has **`depth`** (int) - Recursion depth
 
-#### For Graph Algorithms (visualization_type: "graph")
-
-**Required Core Fields:**
+#### For Graph Algorithms (visualization_type: "graph") - Future
 
 - [ ] **`data.visualization.graph.nodes`** - Array of node objects
 - [ ] Each node has **`id`** (string) - Node identifier
@@ -337,32 +173,6 @@ DFS is about exploring "as deep as possible" before backtracking. Emphasize the 
 - [ ] **`data.visualization.graph.edges`** - Array of edge objects
 - [ ] Each edge has **`from`** (string) - Source node ID
 - [ ] Each edge has **`to`** (string) - Target node ID
-- [ ] Each edge has **`weight`** (int, optional) - Edge weight for weighted graphs
-
-**Traversal Structure Fields (Algorithm-Dependent):**
-
-- [ ] **`data.visualization.stack`** (optional) - Array for DFS stack state
-  - Example: `["A", "B", "C"]` showing nodes in LIFO order
-- [ ] **`data.visualization.queue`** (optional) - Array for BFS queue state
-  - Example: `["D", "E", "F"]` showing nodes in FIFO order
-- [ ] **`data.visualization.priority_queue`** (optional) - Array of tuples for Dijkstra
-  - Example: `[[3, "C"], [5, "B"], [8, "D"]]` showing (priority, node) pairs
-
-**Algorithm-Specific State Maps (Optional):**
-
-- [ ] **`data.visualization.distance_map`** - Dict for shortest path distances
-  - Example: `{"A": 0, "B": 5, "C": 3}` - distance from source to each node
-- [ ] **`data.visualization.previous_map`** - Dict for path reconstruction
-  - Example: `{"B": "A", "C": "A", "D": "C"}` - previous node in shortest path
-- [ ] **`data.visualization.indegree_map`** - Dict for topological sort
-  - Example: `{"A": 0, "B": 2, "C": 1}` - number of incoming edges per node
-- [ ] **`data.visualization.visited_set`** - List of visited node IDs
-  - Example: `["A", "B", "C"]` - nodes visited so far
-
-**Metadata Configuration:**
-
-- [ ] **`metadata.visualization_config.directed`** (bool) - Whether graph is directed
-- [ ] **`metadata.visualization_config.weighted`** (bool) - Whether edges have weights
 
 ### Prediction Points (Optional)
 
@@ -444,43 +254,6 @@ If implementing prediction mode:
   - Example ❌: Narrative ends without helping frontend understand data priorities
   - Example ✅: Include standardized visualization hints section with backend insights
 
-### Graph Algorithm Narrative Anti-Patterns (Tier 3+)
-
-- [ ] ✅ **NOT using ASCII art for graph topology**
-
-  - Example ❌: Drawing complex node-edge diagrams in fixed-width text
-  - Example ✅: Using markdown lists/tables for adjacency
-  - Rationale: ASCII art breaks on different screen sizes, hard to parse, fails accessibility
-
-- [ ] ✅ **NOT hiding traversal structure state**
-
-  - Example ❌: "Process next node from queue" (but queue contents not shown)
-  - Example ✅: "Dequeue B from [B, C, D] → Queue becomes [C, D]"
-  - Rationale: Stack/queue mechanics are pedagogically critical for graph algorithms
-
-- [ ] ✅ **NOT omitting path construction steps**
-
-  - Example ❌: Final result shows path [A, C, D] but never explained how it was built
-  - Example ✅: Step 7: "Set previous[D]=C (for path reconstruction)"
-  - Rationale: Path reconstruction is often hidden "bookkeeping" that must be made visible
-
-- [ ] ✅ **NOT showing incomplete distance/state maps**
-
-  - Example ❌: "Update distance to B" (but distance map not shown)
-  - Example ✅: Show full table with B's row highlighted as updated
-  - Rationale: FAA cannot verify arithmetic without seeing all tracked values
-
-- [ ] ✅ **NOT explaining conditional branches inadequately**
-
-  - Example ❌: "Cycle detected" (but no explanation of how/why)
-  - Example ✅: "IF visited[B]==True THEN cycle exists ELSE continue"
-  - Rationale: Graph algorithms have complex failure modes that need explicit explanation
-
-- [ ] ✅ **NOT repeating full graph structure every step**
-  - Example ❌: Re-listing all edges at every step
-  - Example ✅: Show adjacency once at Step 0, then reference specific neighbors
-  - Rationale: Reduces narrative bloat while maintaining context
-
 ---
 
 ## FREE CHOICES (Your Decision)
@@ -494,16 +267,6 @@ If implementing prediction mode:
 - [ ] **Execution stats** - Add to `metadata.execution_stats`
 - [ ] **Narrative formatting** - Markdown style choices (headers, emphasis, lists)
 - [ ] **Visualization hint depth** - Provide detailed or minimal frontend guidance
-
-### Graph Algorithm Customizations (Tier 3+)
-
-- [ ] **Graph layout hints** - Suggest node positioning for frontend (optional)
-  - Example: `metadata.visualization_config.layout_hint = "hierarchical"`
-- [ ] **Edge styling** - Custom edge colors/thickness for algorithm semantics
-  - Example: Mark "tree edges" vs "back edges" in DFS
-- [ ] **Cycle highlighting** - Mark detected cycles in topological sort
-- [ ] **Path emphasis** - Highlight current best path in shortest path algorithms
-- [ ] **Node numbering** - Add visit order numbers (1, 2, 3...) for traversal visualization
 
 ---
 
@@ -525,18 +288,6 @@ If implementing prediction mode:
 - [ ] **Narratives demonstrate temporal coherence** - Step flow makes sense
 - [ ] **Result field traceability verified** - All output fields have narrative trail
 - [ ] **Visualization hints included** - Frontend guidance section present
-
-### Graph Algorithm Narrative Tests (Tier 3+)
-
-For algorithms with `visualization_type: "graph"`:
-
-- [ ] **Graph topology shown in Step 0** - Adjacency list/structure present and scannable
-- [ ] **Traversal structures tracked** - Stack/queue/priority queue visible at each step
-- [ ] **Multi-variable state tables present** - Distance maps, indegree maps, previous maps shown
-- [ ] **Path construction traceable** - Can follow how final paths were built incrementally
-- [ ] **Conditional branches explained** - Cycle detection, unreachable nodes, relaxation decisions covered
-- [ ] **Edge weight calculations shown** - For weighted graphs, arithmetic is explicit
-- [ ] **No repeated structure dumps** - Full adjacency shown once, then referenced implicitly
 
 ### FAA Audit
 

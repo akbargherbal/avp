@@ -1,0 +1,132 @@
+[
+  {
+    "tier": 0,
+    "tier_label": "Full Consensus, Lowest Risk (Implement First)",
+    "tier_description": "Algorithms both documents clearly agree on, with minimal infrastructure cost and strong pedagogical value.",
+    "algorithms": [
+      {
+        "id": 1,
+        "name": "Quick Sort",
+        "notes": [
+          "Strong visual fit (ArrayView)",
+          "High pedagogical and industry relevance",
+          "Excellent prediction points"
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Kadane’s Algorithm (Maximum Subarray)",
+        "notes": [
+          "Minimal infra",
+          "Opens Dynamic Programming category",
+          "Strong learner decision points"
+        ]
+      },
+      {
+        "id": 3,
+        "name": "Insertion Sort",
+        "notes": [
+          "Trivial to implement",
+          "Beginner‑friendly",
+          "Clear visual pattern"
+        ]
+      }
+    ]
+  },
+  {
+    "tier": 1,
+    "tier_label": "Low Risk, Visual‑First Bias (Fast Wins)",
+    "tier_description": "Algorithms strongly favored by the visual‑reuse strategy and acceptable (or neutral) from a curriculum perspective.",
+    "algorithms": [
+      {
+        "id": 4,
+        "name": "Merge Intervals",
+        "notes": ["Reuses TimelineView", "Simple binary decisions"]
+      },
+      {
+        "id": 5,
+        "name": "Meeting Rooms (I / II)",
+        "notes": ["Interval stacking logic", "High interview relevance"]
+      },
+      {
+        "id": 6,
+        "name": "Container With Most Water",
+        "notes": [
+          "Classic two‑pointer pattern",
+          "Clean binary pointer decisions"
+        ]
+      },
+      {
+        "id": 7,
+        "name": "Dutch National Flag (Sort Colors)",
+        "notes": ["Distinct three‑pointer state", "Strong visual clarity"]
+      },
+      {
+        "id": 8,
+        "name": "Boyer–Moore Voting Algorithm",
+        "notes": [
+          "Counter‑intuitive logic benefits from visualization",
+          "Low implementation cost"
+        ]
+      }
+    ]
+  },
+  {
+    "tier": 2,
+    "tier_label": "Pedagogically Strong, Strategic Trade‑offs",
+    "tier_description": "Algorithms valued for curriculum depth but with either limited visual ROI or higher conceptual complexity.",
+    "algorithms": [
+      {
+        "id": 9,
+        "name": "Bubble Sort",
+        "notes": [
+          "Extremely easy to visualize",
+          "Pedagogically weaker (low conceptual ceiling)",
+          "Optional / beginner‑only use"
+        ]
+      },
+      {
+        "id": 10,
+        "name": "Longest Increasing Subsequence (LIS)",
+        "notes": [
+          "Reinforces DP patterns",
+          "Moderate complexity",
+          "Acceptable with existing ArrayView + DP overlay"
+        ]
+      }
+    ]
+  },
+  {
+    "tier": 3,
+    "tier_label": "Infrastructure‑Dependent (Deferred Until Enabled)",
+    "tier_description": "Algorithms whose value is acknowledged by both documents, but blocked primarily by missing or costly visualization infrastructure.",
+    "algorithms": [
+      {
+        "id": 11,
+        "name": "Depth‑First Search (DFS)",
+        "notes": [
+          "High curriculum impact",
+          "Requires GraphView + stack visualization"
+        ]
+      },
+      {
+        "id": 12,
+        "name": "Breadth‑First Search (BFS)",
+        "notes": ["Complements DFS", "Requires queue visualization"]
+      },
+      {
+        "id": 13,
+        "name": "Topological Sort (Kahn’s Algorithm)",
+        "notes": ["DAG‑specific", "Depends on graph + in‑degree overlays"]
+      },
+      {
+        "id": 14,
+        "name": "Dijkstra’s Shortest Path",
+        "notes": [
+          "Requires priority queue visualization",
+          "Higher state complexity"
+        ]
+      }
+    ]
+  }
+]

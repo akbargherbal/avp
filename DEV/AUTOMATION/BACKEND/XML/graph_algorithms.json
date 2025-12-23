@@ -1,0 +1,111 @@
+{
+  "graph_algorithms": [
+    {
+      "category": "Fundamental Traversal",
+      "algorithms": [
+        {
+          "name": "Breadth-First Search (BFS)",
+          "applications": [
+            "Finding shortest path in unweighted graphs",
+            "Peer-to-peer networks",
+            "Social networking 'friend recommendations' (degrees of separation)"
+          ]
+        },
+        {
+          "name": "Depth-First Search (DFS)",
+          "applications": [
+            "Solving puzzles and mazes",
+            "Cycle detection in directed and undirected graphs",
+            "Checking connectivity in a graph"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Shortest Path",
+      "algorithms": [
+        {
+          "name": "Dijkstra's Algorithm",
+          "applications": [
+            "GPS and Google Maps routing",
+            "Network routing protocols (OSPF)",
+            "IP routing"
+          ]
+        },
+        {
+          "name": "Bellman-Ford Algorithm",
+          "applications": [
+            "Distance-vector routing protocols (RIP)",
+            "Detecting negative weight cycles in financial arbitrage"
+          ]
+        },
+        {
+          "name": "Floyd-Warshall Algorithm",
+          "applications": [
+            "Finding shortest paths between all pairs of vertices",
+            "Transitive closure of a relation"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Minimum Spanning Tree (MST)",
+      "algorithms": [
+        {
+          "name": "Prim's & Kruskal's Algorithms",
+          "applications": [
+            "Network design (telecommunications, electrical grids, water pipes)",
+            "Approximation algorithms for the Traveling Salesperson Problem",
+            "Cluster analysis"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Directed Acyclic Graph (DAG) Tools",
+      "algorithms": [
+        {
+          "name": "Topological Sort",
+          "applications": [
+            "Instruction scheduling in compilers",
+            "Determining build order in package managers (e.g., npm, pip)",
+            "Task scheduling and dependency resolution"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Connectivity and Flow",
+      "algorithms": [
+        {
+          "name": "Tarjan’s / Kosaraju’s Algorithms",
+          "applications": [
+            "Finding strongly connected components (SCCs)",
+            "Analyzing social network structures and web connectivity"
+          ]
+        },
+        {
+          "name": "Ford-Fulkerson / Edmonds-Karp",
+          "applications": [
+            "Maximizing flow through transport networks",
+            "Bipartite matching in job assignments",
+            "Data center traffic management"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Heuristic Search",
+      "algorithms": [
+        {
+          "name": "A* Search",
+          "applications": [
+            "Pathfinding in video games",
+            "Robotics and autonomous vehicle navigation",
+            "Artificial Intelligence state-space searches"
+          ]
+        }
+      ]
+    }
+  ]
+}
